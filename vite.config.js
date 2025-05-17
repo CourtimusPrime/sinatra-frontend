@@ -7,14 +7,13 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     outDir: 'dist',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      input: 'index.html',
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
       },
     },
-    chunkSizeWarningLimit: 1000,
   },
 });
