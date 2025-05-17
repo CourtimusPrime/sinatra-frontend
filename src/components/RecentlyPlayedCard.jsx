@@ -1,7 +1,7 @@
 // src/components/RecentlyPlayedCard.jsx
 import { RefreshCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "framer-motion/dom";
 
 function cleanTrackName(name) {
   return name

@@ -1,6 +1,6 @@
 // src/components/settings/ThemePickerModal.jsx
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion/dom";
 import { useTheme } from "../../context/ThemeContext";
 import { backgrounds, fonts, textColors } from "../../themes/customizations";
 

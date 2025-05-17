@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import EditFeaturedModal from "./EditFeatured";
 import ThemePickerModal from "./ThemePickerModal";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion/dom";
 import { useTheme } from "../../context/ThemeContext";
 
 function SettingsModal({
