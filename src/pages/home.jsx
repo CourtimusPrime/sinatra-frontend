@@ -81,7 +81,7 @@ function Home() {
   useEffect(() => {
     const fetchMap = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "https://sinatra.up.railway.app"}/genre-map`);
+        const res = await apiGet("/genre-map");
         const json = await res.json();
         const normalized = Object.fromEntries(
           Object.entries(json).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])

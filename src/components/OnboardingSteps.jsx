@@ -1,6 +1,8 @@
 // src/components/OnboardingSteps.jsx
 import React from "react";
 import { useState, useEffect } from "react";
+import { apiGet, apiPost } from "../utils/api";
+
 
 function OnboardingSteps({ user_id }) {
   const [step, setStep] = useState(0);
@@ -13,20 +15,24 @@ function OnboardingSteps({ user_id }) {
   const [uploadedPic, setUploadedPic] = useState(null);
 
   useEffect(() => {
-    fetch(`/me?user_id=${user_id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setUser(data);
-        setName(data.display_name);
-        setProfilePic(data.profile_picture);
-      });
+    if (!user_id) return;
 
-    fetch(`/playlists?user_id=${user_id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const valid = data.items.filter((p) => p.tracks >= 5);
+    const loadUserAndPlaylists = async () => {
+      try {
+        const userData = await apiGet(`/me?user_id=${user_id}`);
+        setUser(userData);
+        setName(userData.display_name);
+        setProfilePic(userData.profile_picture);
+
+        const playlistData = await apiGet(`/playlists?user_id=${user_id}`);
+        const valid = playlistData.items.filter((p) => p.tracks >= 5);
         setPlaylists(valid);
-      });
+      } catch (err) {
+        console.error("Onboarding fetch failed:", err);
+      }
+    };
+
+    loadUserAndPlaylists();
   }, [user_id]);
 
   const handleNext = async () => {
