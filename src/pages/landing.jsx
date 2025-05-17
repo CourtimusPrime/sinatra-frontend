@@ -17,7 +17,9 @@ function Landing() {
   }, [user_id]);
 
   const handleLogin = () => {
-    window.location.href = import.meta.env.VITE_API_BASE_URL + "/login";
+    const target = import.meta.env.VITE_API_BASE_URL + "/login";
+    console.log("🔁 Redirecting to:", target);
+    window.location.href = target;
   };
 
   return (
