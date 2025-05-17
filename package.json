@@ -6,7 +6,7 @@
   "scripts": {
     "vite": "vite",
     "dev": "concurrently \"vite\" \"cd .. && uvicorn backend.main:app --reload\"",
-    "build": "vite build",
+    "build": "ls -la && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -33,7 +33,7 @@
     "jsdom": "^26.1.0",
     "postcss": "^8.x",
     "tailwindcss": "^3.x",
-    "vite": "^6.3.5",
+    "vite": "^5.2.10",
     "vitest": "^3.1.3"
   }
 }
