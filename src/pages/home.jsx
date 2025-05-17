@@ -255,13 +255,7 @@ function Home() {
 
         <div className="flex flex-col gap-3">
           {playlists.map((playlist, idx) => (
-            <motion.div
-              key={idx}
-              variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
-              transition={{ duration: 0.3 }}
-            >
-              <PlaylistCard playlist={playlist} />
-            </motion.div>
+            <PlaylistCard key={playlist.id || idx} playlist={playlist} index={idx} />
           ))}
         </div>
       </motion.div>
