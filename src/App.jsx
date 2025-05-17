@@ -10,6 +10,7 @@ const Onboard = lazy(() => import("./pages/onboard.jsx"));
 const Playlists = lazy(() => import("./pages/playlists.jsx"));
 const Landing = lazy(() => import("./pages/landing.jsx"));
 const PublicView = lazy(() => import("./pages/public.jsx"));
+const Callback = lazy(() => import("./pages/Callback.jsx"));
 
 function App() {
   const { background, font, textColor } = useTheme();
