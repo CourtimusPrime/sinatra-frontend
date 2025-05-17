@@ -7,7 +7,7 @@ import "../styles/loader.css";
 import SettingsModal from "../components/settings/SettingsModal";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import AllPlaylistsModal from "../components/AllPlaylistsModal";
-import { motion } from "framer-motion";
+import { motion } from "@motionone/react";
 import MusicTaste from "../components/ui/MusicTaste";
 import TopSubGenre from "../components/ui/TopSubGenre";
 import { apiGet, apiDelete } from "../utils/api";

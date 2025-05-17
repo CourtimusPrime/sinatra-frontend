@@ -1,6 +1,6 @@
 // src/components/ui/GenreBarList.jsx
 import React from "react";
-import { motion } from "framer-motion";
+import { motion } from "@motionone/react";
 import { getMetaGenreColor } from "../../utils/metaGenres";
 
 const containerVariants = {
