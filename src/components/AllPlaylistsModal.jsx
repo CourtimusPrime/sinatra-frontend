@@ -1,6 +1,6 @@
 // src/components/AllPlaylistsModal.jsx
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion/dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 function AllPlaylistsModal({ isOpen, onClose, playlists }) {
   return (

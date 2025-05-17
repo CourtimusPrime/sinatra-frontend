@@ -1,6 +1,6 @@
 // src/components/PlaylistCard.jsx
 import React from "react";
-import { motion } from "framer-motion/dom";
+import { motion } from "framer-motion";
 
 function PlaylistCard({ playlist }) {
   return (

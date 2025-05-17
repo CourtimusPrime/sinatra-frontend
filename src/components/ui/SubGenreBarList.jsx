@@ -1,6 +1,6 @@
 // src/components/ui/SubGenreBarList.jsx
 import React from "react";
-import { motion } from "framer-motion/dom";
+import { motion } from "framer-motion";
 
 const containerVariants = {
   hidden: {},
