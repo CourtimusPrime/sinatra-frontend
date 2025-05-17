@@ -33,7 +33,7 @@
     "jsdom": "^26.1.0",
     "postcss": "^8.x",
     "tailwindcss": "^3.x",
-    "vite": "^5.2.10",
+    "vite": "^4.5.0",
     "vitest": "^3.1.3"
   }
 }
