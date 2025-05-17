@@ -23,7 +23,7 @@ function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+    <div className="min-h-screen flex items-center justify-center bg-white text-black">
       <div className="max-w-md w-full mx-auto p-6 text-center">
         <h1 className="text-3xl mb-1">Welcome to</h1>
         <h1 className="text-6xl font-duckie mb-6 bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-gradient">
