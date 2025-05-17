@@ -38,6 +38,7 @@ function App() {
             <Route path="/user/:user_id" element={<PublicView />} />
             <Route path="/onboard" element={<Onboard />} />
             <Route path="/playlists" element={<Playlists />} />
+            <Route path="/callback" element={<Callback />} />
           </Routes>
         </ErrorBoundary>
       </Suspense>
