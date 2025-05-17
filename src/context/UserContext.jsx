@@ -1,10 +1,10 @@
 // src/context/UserContext.jsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, _setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [user_id, setUserId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -18,9 +18,17 @@ export function UserProvider({ children }) {
     return fromStorage;
   });
 
+  // 👇 Make sure updates to user are merged
+  const setUser = (updates) => {
+    _setUser((prev) => ({
+      ...prev,
+      ...updates,
+    }));
+  };
+
   useEffect(() => {
     if (!user_id) {
-      setLoading(false); // ✅ Don't leave loading hanging
+      setLoading(false);
       return;
     }
 
@@ -30,14 +38,12 @@ export function UserProvider({ children }) {
         if (data) {
           setUser({
             ...data,
-            user_id: data.user_id,
-            genreAnalysis: data.genre_analysis || null,
           });
         }
         setLoading(false);
       })
       .catch(() => {
-        setUser(null);
+        setUser({});
         setLoading(false);
       });
   }, [user_id]);
@@ -51,6 +57,4 @@ export function UserProvider({ children }) {
   );
 }
 
-export function useUser() {
-  return useContext(UserContext);
-}
+export const useUser = () => useContext(UserContext);

@@ -1,14 +1,10 @@
 // src/components/settings/SettingsModal.jsx
 import React, { useState, useEffect } from "react";
 import EditFeaturedModal from "./EditFeatured";
-import ThemePickerModal from "./ThemePickerModal";
 import { motion } from "@motionone/react";
-import { useTheme } from "../../context/ThemeContext";
 
 function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave }) {
   const [isEditOpen, setEditOpen] = useState(false);
-  const [isThemeOpen, setThemeOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
 
   const [visible, setVisible] = useState(isOpen);
 
@@ -45,20 +41,6 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
               </button>
 
               <button
-                onClick={toggleTheme}
-                className="w-full px-4 py-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-700 rounded text-left"
-              >
-                {theme === "dark" ? "🌞 Light Mode" : "🌙 Dark Mode"}
-              </button>
-
-              <button
-                onClick={() => setThemeOpen(true)}
-                className="w-full px-4 py-2 bg-pink-100 hover:bg-pink-200 dark:bg-pink-900 dark:hover:bg-pink-700 rounded text-left"
-              >
-                🎨 Pick Theme
-              </button>
-
-              <button
                 onClick={onLogout}
                 className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left"
               >
@@ -78,10 +60,6 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
               >
                 Back
               </button>
-
-              <p className="text-sm text-gray-500 dark:text-gray-300 mt-4 text-center">
-                Current theme: <span className="font-semibold">{theme}</span>
-              </p>
             </div>
           </motion.div>
         </div>
@@ -93,11 +71,6 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
         onClose={() => setEditOpen(false)}
         user_id={user_id}
         onSave={onSave}
-      />
-
-      <ThemePickerModal
-        isOpen={isThemeOpen}
-        onClose={() => setThemeOpen(false)}
       />
     </>
   );

@@ -1,7 +1,6 @@
 // src/App.jsx
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import { useTheme } from "./context/ThemeContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { fetchMetaGenres } from "./utils/metaGenres";
 
@@ -13,8 +12,6 @@ const PublicView = lazy(() => import("./pages/public.jsx"));
 const Callback = lazy(() => import("./pages/Callback.jsx"));
 
 function App() {
-  const { background, font, textColor } = useTheme();
-
   const [bgStyle, setBgStyle] = useState("");
   const [fontStyle, setFontStyle] = useState("");
   const [textColorClass, setTextColorClass] = useState("");
@@ -22,12 +19,6 @@ function App() {
   useEffect(() => {
     fetchMetaGenres(); // preload shared schema once
   }, []);
-
-  useEffect(() => {
-    setBgStyle(background || "bg-white");
-    setFontStyle(font || "font-sans");
-    setTextColorClass(textColor || "text-gray-900");
-  }, [background, font, textColor]);
 
   return (
     <div className={`min-h-screen ${bgStyle} ${fontStyle} ${textColorClass}`}>

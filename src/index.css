@@ -27,46 +27,7 @@
   --font: system-ui;
 }
 
-html.light {
-  --bg: #ffffff;
-  --text: #000000;
-  --font: system-ui;
-}
-
-html.dark {
-  --bg: #000000;
-  --text: #ffffff;
-  --font: "Duckie-regular", system-ui;
-}
-
-html.neon {
-  --bg: linear-gradient(to right, #ff00cc, #3333ff);
-  --text: #fffaf0;
-  --font: 'Orbitron', sans-serif;
-}
-
-html.vaporwave {
-  --bg: linear-gradient(to right, #fbc2eb, #a6c1ee);
-  --text: #3a3a3a;
-  --font: 'Comic Sans MS', cursive;
-}
-
-html.solarized {
-  --bg: #fdf6e3;
-  --text: #073642;
-  --font: 'Georgia', serif;
-}
-
-html.mono {
-  --bg: #2e2e2e;
-  --text: #e5e5e5;
-  --font: monospace;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
   transition: background 0.4s ease, color 0.4s ease;
 }
 

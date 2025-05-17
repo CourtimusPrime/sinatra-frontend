@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "@motionone/react";
 
-function PlaylistCard({ playlist }) {
+function PlaylistCard({ playlist, index = 0 }) {
   return (
     <motion.a
       href={playlist.external_url}
@@ -11,7 +11,7 @@ function PlaylistCard({ playlist }) {
       className="flex items-center gap-4 cursor-pointer transition-transform hover:scale-[1.02] hover:bg-gray-100 p-2 rounded-md"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
     >
       <img
         src={playlist.image}

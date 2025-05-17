@@ -3,20 +3,6 @@ import React from "react";
 import { motion } from "@motionone/react";
 import { getMetaGenreColor } from "../../utils/metaGenres";
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const barVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
-};
-
 function GenreBarList({ data }) {
   if (!Array.isArray(data) || data.length === 0) {
     return <div className="text-sm text-gray-400">No genre data available.</div>;
@@ -28,13 +14,8 @@ function GenreBarList({ data }) {
   }, 0) || 1;
 
   return (
-    <motion.div
-      className="space-y-3"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      {data.map(({ name, value }) => {
+    <div className="space-y-3">
+      {data.map(({ name, value }, index) => {
         if (typeof value !== "number" || !isFinite(value)) return null;
 
         const rawPercent = (value / total) * 100;
@@ -42,7 +23,12 @@ function GenreBarList({ data }) {
         const barWidth = `${rawPercent}%`;
 
         return (
-          <motion.div key={name} variants={barVariants}>
+          <motion.div
+            key={name}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.08 }}
+          >
             <div className="flex justify-between text-sm font-medium mb-1">
               <span>{name}</span>
               <span className="text-gray-500">{displayPercent}%</span>
@@ -59,7 +45,7 @@ function GenreBarList({ data }) {
           </motion.div>
         );
       })}
-    </motion.div>
+    </div>
   );
 }
 

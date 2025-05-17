@@ -14,6 +14,7 @@ import { apiGet, apiDelete } from "../utils/api";
 
 function Home() {
   const [genresData, setGenresData] = useState(null);
+  const [genreMap, setGenreMap] = useState({});
   const [isAllModalOpen, setAllModalOpen] = useState(false);
   const [allPlaylists, setAllPlaylists] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -42,12 +43,11 @@ function Home() {
     try {
       const json = await apiGet(`/dashboard?user_id=${user_id}`);
 
-      setUser((prev) => ({
-        ...prev,
+      setUser({
         display_name: json.user.display_name,
         profile_picture: json.user.profile_picture,
         genreAnalysis: json.user.genre_analysis,
-      }));
+      });
 
       const sortedFeatured = json.playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
       const sortedAll = json.playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
@@ -79,14 +79,30 @@ function Home() {
   }, [user_id]);
 
   useEffect(() => {
-    if (!user_id) return;
+    const fetchMap = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "https://sinatra.up.railway.app"}/genre-map`);
+        const json = await res.json();
+        const normalized = Object.fromEntries(
+          Object.entries(json).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
+        );
+        setGenreMap(normalized);
+      } catch (err) {
+        console.error("Failed to fetch genre map:", err);
+      }
+    };
+
+    fetchMap();
+  }, []);
+
+  useEffect(() => {
+    if (!user_id || genresData) return;
 
     const controller = new AbortController();
-    let didCancel = false;
 
     async function fetchGenresIfNeeded() {
       if (user?.genreAnalysis) {
-        console.log("✅ setGenresData from user", user?.genreAnalysis);
+        console.log("✅ setGenresData from user", user.genreAnalysis);
         setGenresData(user.genreAnalysis);
       } else {
         try {
@@ -102,10 +118,8 @@ function Home() {
 
     fetchGenresIfNeeded();
 
-    return () => {
-      controller.abort();
-    };
-  }, [user_id, user]);
+    return () => controller.abort();
+  }, [user_id, user, genresData]);
 
   async function loadNowPlaying() {
     setIsRefreshing(true);
@@ -157,7 +171,7 @@ function Home() {
   if (loading) {
     return (
       <div className="loader-container">
-        <div className="loader"></div>
+        <div className="loader" />
       </div>
     );
   }
@@ -172,29 +186,36 @@ function Home() {
       </button>
 
       <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
         className="flex flex-col items-center my-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
       >
         <motion.img
           src={user?.profile_picture || ""}
           alt="Profile"
           className="w-24 h-24 object-cover rounded-full mb-2"
-          variants={{ hidden: { opacity: 0, scale: 0.9 }, visible: { opacity: 1, scale: 1 } }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         />
+
         <motion.h1
           className="text-2xl font-bold text-center"
-          variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
           {user?.display_name || "Sgt. Pepper"}
         </motion.h1>
+
         <motion.a
           href={`https://open.spotify.com/user/${user?.user_id || ""}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-lg text-gray-500 font-bold text-center block"
-          variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
           {"@" + user?.user_id || ""}
         </motion.a>
@@ -215,7 +236,7 @@ function Home() {
       )}
       
       {console.log("✅ MusicTaste genresData:", genresData)}
-      <MusicTaste genresData={genresData} />
+      <MusicTaste genresData={genresData} genreMap={genreMap} />
 
       <motion.div
         initial="hidden"
