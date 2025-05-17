@@ -1,4 +1,5 @@
-module.exports = {
+// tailwind.config.js
+export default {
   darkMode: 'class',
   content: [
     './index.html',
