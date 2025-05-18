@@ -1,55 +1,45 @@
 // src/pages/home.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
 import PlaylistCard from "../components/PlaylistCard";
 import { useNavigate } from "react-router-dom";
 import "../styles/loader.css";
-import SettingsModal from "../components/settings/SettingsModal";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
-import AllPlaylistsModal from "../components/AllPlaylistsModal";
 import { motion } from "@motionone/react";
-import MusicTaste from "../components/ui/MusicTaste";
-import TopSubGenre from "../components/ui/TopSubGenre";
 import { apiGet, apiDelete } from "../utils/api";
+
+// Lazy-loaded components
+const MusicTaste = lazy(() => import("../components/ui/MusicTaste"));
+const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
+const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
+const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 function Home() {
   const loadStart = useRef(performance.now());
   const didInit = useRef(false);
 
-  const [userCached] = useState(() => {
-    const cached = localStorage.getItem("user");
-    return cached ? JSON.parse(cached) : null;
-  });
-  const [userState, setUserState] = useState(userCached);
+  const getCached = (key, fallback) => {
+    try {
+      const cached = localStorage.getItem(key);
+      return cached ? JSON.parse(cached) : fallback;
+    } catch {
+      return fallback;
+    }
+  };
 
-  const [genresData, setGenresData] = useState(() => {
-    const cached = localStorage.getItem("genres_data");
-    return cached ? JSON.parse(cached) : null;
-  });
-
-  const [track, setTrack] = useState(() => {
-    const cached = localStorage.getItem("last_played_track");
-    return cached ? JSON.parse(cached) : null;
-  });
-
+  const [userState, setUserState] = useState(() => getCached("user", null));
+  const [genresData, setGenresData] = useState(() => getCached("genres_data", null));
+  const [track, setTrack] = useState(() => getCached("last_played_track", null));
   const [lastUpdated, setLastUpdated] = useState(() => {
     const cached = localStorage.getItem("last_played_updated_at");
     return cached ? new Date(cached) : null;
   });
-
-  const [playlists, setPlaylists] = useState(() => {
-    const cached = localStorage.getItem("featured_playlists");
-    return cached ? JSON.parse(cached) : [];
-  });
-
-  const [allPlaylists, setAllPlaylists] = useState(() => {
-    const cached = localStorage.getItem("all_playlists");
-    return cached ? JSON.parse(cached) : [];
-  });
-
-  const [genreMap, setGenreMap] = useState(() => {
-    const cached = localStorage.getItem("genre_map");
-    return cached ? JSON.parse(cached) : {};
+  const [playlists, setPlaylists] = useState(() => getCached("featured_playlists", []));
+  const [allPlaylists, setAllPlaylists] = useState(() => getCached("all_playlists", []));
+  const [genreMap, setGenreMap] = useState(() => getCached("genre_map", {}));
+  const [lastInit, setLastInit] = useState(() => {
+    const cached = localStorage.getItem("last_init_home");
+    return cached ? new Date(cached) : null;
   });
 
   const [loadTime, setLoadTime] = useState(null);
@@ -57,10 +47,6 @@ function Home() {
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
   const [isAllModalOpen, setAllModalOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
-  const [lastInit, setLastInit] = useState(() => {
-    const cached = localStorage.getItem("last_init_home");
-    return cached ? new Date(cached) : null;
-  });
 
   const { user, user_id, loading, setUser } = useUser();
   const navigate = useNavigate();
@@ -69,9 +55,11 @@ function Home() {
     if (!user_id || didInit.current) return;
     didInit.current = true;
 
-    const now = new Date();
-    const shouldUpdate = !lastInit || (now - new Date(lastInit)) > 60 * 60 * 1000; // 1 hour
-    if (shouldUpdate) loadDashboard();
+    requestIdleCallback(() => {
+      const now = new Date();
+      const shouldUpdate = !lastInit || (now - new Date(lastInit)) > 60 * 60 * 1000;
+      if (shouldUpdate) loadDashboard();
+    });
   }, [user_id]);
 
   async function loadDashboard() {
@@ -86,23 +74,20 @@ function Home() {
         genre_analysis: json.user.genre_analysis,
         user_id: json.user.user_id,
       };
-      setUser({
-        ...userData
-      });
+      setUser(userData);
       setUserState(userData);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      if (JSON.stringify(genresData) !== JSON.stringify(json.user.genre_analysis)) {
-        setGenresData(json.user.genre_analysis);
-        localStorage.setItem("genres_data", JSON.stringify(json.user.genre_analysis));
-      }
+      setGenresData(json.user.genre_analysis);
+      localStorage.setItem("genres_data", JSON.stringify(json.user.genre_analysis));
 
       const sortedFeatured = json.playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
       const sortedAll = json.playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
       setPlaylists(sortedFeatured.slice(0, 3));
-      setAllPlaylists(sortedAll);
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-      localStorage.setItem("all_playlists", JSON.stringify(sortedAll));
+
+      setAllPlaylists([]);
+      localStorage.removeItem("all_playlists"); // defer loading full list
 
       const normalized = Object.fromEntries(
         Object.entries(json.genre_map).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
@@ -118,8 +103,9 @@ function Home() {
         localStorage.setItem("last_played_updated_at", new Date().toISOString());
       }
 
-      localStorage.setItem("last_init_home", new Date().toISOString());
-      setLastInit(new Date());
+      const now = new Date();
+      localStorage.setItem("last_init_home", now.toISOString());
+      setLastInit(now);
     } catch (err) {
       console.error("Failed to load dashboard:", err);
     }
@@ -186,6 +172,14 @@ function Home() {
     }
   }
 
+  useEffect(() => {
+    if (!isAllModalOpen || allPlaylists.length > 0) return;
+    apiGet(`/user-playlists?user_id=${user_id}`).then((res) => {
+      setAllPlaylists(res.all);
+      localStorage.setItem("all_playlists", JSON.stringify(res.all));
+    });
+  }, [isAllModalOpen]);
+
   if (loading) {
     return (
       <div className="loader-container">
@@ -212,6 +206,7 @@ function Home() {
           src={userState?.profile_picture || ""}
           alt="Profile"
           className="w-24 h-24 object-cover rounded-full mb-2"
+          loading="lazy"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
@@ -239,7 +234,9 @@ function Home() {
         </motion.a>
       </motion.div>
 
-      <TopSubGenre genresData={genresData} />
+      <Suspense fallback={null}>
+        <TopSubGenre genresData={genresData} />
+      </Suspense>
 
       {track && (
         <div className={`transition-transform duration-300 scale-100 ${animateTrackChange ? "animate-scalein" : ""}`}>
@@ -253,7 +250,9 @@ function Home() {
         </div>
       )}
 
-      <MusicTaste genresData={genresData} genreMap={genreMap} />
+      <Suspense fallback={null}>
+        <MusicTaste genresData={genresData} genreMap={genreMap} />
+      </Suspense>
 
       <motion.div
         initial="hidden"
@@ -277,20 +276,25 @@ function Home() {
         </div>
       </motion.div>
 
-      <AllPlaylistsModal
-        isOpen={isAllModalOpen}
-        onClose={() => setAllModalOpen(false)}
-        playlists={allPlaylists}
-      />
-
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        onLogout={logout}
-        onDelete={deleteAccount}
-        user_id={user_id}
-        onSave={loadDashboard}
-      />
+      <Suspense fallback={null}>
+        {isAllModalOpen && (
+          <AllPlaylistsModal
+            isOpen={isAllModalOpen}
+            onClose={() => setAllModalOpen(false)}
+            playlists={allPlaylists}
+          />
+        )}
+        {isSettingsOpen && (
+          <SettingsModal
+            isOpen={isSettingsOpen}
+            onClose={() => setSettingsOpen(false)}
+            onLogout={logout}
+            onDelete={deleteAccount}
+            user_id={user_id}
+            onSave={loadDashboard}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
