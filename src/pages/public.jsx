@@ -71,7 +71,9 @@ export default function PublicProfile() {
       </div>
       <a
         href="/"
-        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-black text-white font-semibold px-6 py-3 rounded-full shadow-md hover:bg-gray-800 transition duration-300"
+        className={`fixed bottom-0 left-0 w-full text-center text-sm font-medium text-white bg-black transition-opacity duration-500 ${
+          showCTA ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
       >
         Create your own music profile with Sinatra
       </a>
