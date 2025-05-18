@@ -14,7 +14,7 @@ export default function PublicProfile() {
   useEffect(() => {
     apiGet(`/public-profile/${user_id}`).then(setProfile).catch(console.error);
   }, [user_id]);
-
+  console.log("👀 profile data", profile);
   if (!profile) return <div>Loading...</div>;
 
   return (
