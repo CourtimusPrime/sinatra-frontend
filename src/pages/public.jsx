@@ -28,7 +28,7 @@ export default function PublicProfile() {
       </div>
 
       {profile.last_played_track && (
-        <RecentlyPlayedCard track={profile.last_played_track} />
+        <RecentlyPlayedCard track={profile.last_played_track?.track || profile.last_played_track} />
       )}
 
       <div className="my-6">
