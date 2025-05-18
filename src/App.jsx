@@ -9,6 +9,7 @@ const Playlists = lazy(() => import("./pages/playlists.jsx"));
 const Landing = lazy(() => import("./pages/landing.jsx"));
 const PublicView = lazy(() => import("./pages/public.jsx"));
 const Callback = lazy(() => import("./pages/Callback.jsx"));
+const NotFound = lazy(() => import("./pages/404.jsx"));
 
 function App() {
   const [bgStyle, setBgStyle] = useState("");
@@ -20,15 +21,15 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <ErrorBoundary>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/user/:user_id" element={<PublicView />} />
-            <Route path="/onboard" element={<Onboard />} />
-            <Route path="/playlists" element={<Playlists />} />
-            <Route path="/callback" element={<Callback />} />
-            <Route path="/public" elements={<Public />} />
-            <Route path="/@:user_id" element={<PublicProfile />} />
-          </Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/user/:user_id" element={<PublicView />} />
+          <Route path="/onboard" element={<Onboard />} />
+          <Route path="/playlists" element={<Playlists />} />
+          <Route path="/callback" element={<Callback />} />
+          <Route path="/@:user_id" element={<PublicView />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         </ErrorBoundary>
       </Suspense>
     </div>
