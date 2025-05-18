@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/@:user_id", "destination": "/" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }

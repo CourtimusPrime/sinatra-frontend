@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -7,7 +7,7 @@ const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
 const Playlists = lazy(() => import("./pages/playlists.jsx"));
 const Landing = lazy(() => import("./pages/landing.jsx"));
-const PublicView = lazy(() => import("./pages/public.jsx"));
+const PublicProfile = lazy(() => import("./pages/public.jsx"));
 const Callback = lazy(() => import("./pages/Callback.jsx"));
 const NotFound = lazy(() => import("./pages/404.jsx"));
 
@@ -21,15 +21,15 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <ErrorBoundary>
           <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/user/:user_id" element={<PublicView />} />
-          <Route path="/onboard" element={<Onboard />} />
-          <Route path="/playlists" element={<Playlists />} />
-          <Route path="/callback" element={<Callback />} />
-          <Route path="/@:user_id" element={<PublicView />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/onboard" element={<Onboard />} />
+            <Route path="/playlists" element={<Playlists />} />
+            <Route path="/callback" element={<Callback />} />
+            <Route path="/user/:user_id" element={<PublicProfile />} />
+            <Route path="/@:user_id" element={<PublicProfile />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </ErrorBoundary>
       </Suspense>
     </div>
