@@ -70,13 +70,13 @@ export default function PublicProfile() {
         </div>
       </div>
       <a
-        href="/"
-        className={`fixed bottom-0 left-0 w-full text-center text-sm font-medium text-white bg-black transition-opacity duration-500 ${
-          showCTA ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        Create your own music profile with Sinatra
-      </a>
+      href="/"
+      className={`fixed bottom-0 left-0 w-full text-center text-sm font-medium text-white bg-black transition-opacity duration-500 ${
+        showCTA ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+    >
+      Create your own music profile with Sinatra
+    </a>
     </div>
   );
 }

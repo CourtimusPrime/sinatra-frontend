@@ -104,9 +104,10 @@ function OnboardingSteps({ user_id }) {
       {step === 0 && (
         <div className="flex flex-col min-h-screen">
           <h2 className="text-xl font-bold mb-1">
-            {user?.display_name ? `Welcome, ${user.display_name}!` : "Welcome!"}
+            {user?.display_name ? `Hi, ${user.display_name}!` : "Hi!"}
           </h2>
-          <p className="mb-4">Pick at least 3 playlists to get started.</p>
+          <p className="mb-4">Pick at least three of your playlists to import from Spotify.</p>
+          <p>Don't worry, you can add/remove more later.</p>
 
           {/* Search + Sort */}
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -117,7 +118,7 @@ function OnboardingSteps({ user_id }) {
               onChange={(e) =>
                 setPlaylists((prev) =>
                   [...prev]
-                    .sort((a, b) => a.name.localeCompare(b.name)) // reset sort
+                    .sort((a, b) => a.name.localeCompare(b.name))
                     .filter((p) =>
                       p.name
                         .toLowerCase()

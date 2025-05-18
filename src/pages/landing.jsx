@@ -29,7 +29,7 @@ function Landing() {
           Sinatra
         </h1>
         <p className="mb-6 text-lg">
-          A link-in-bio profile for your music taste.
+          A public profile to share your taste in music.
         </p>
         <button
           onClick={handleLogin}
