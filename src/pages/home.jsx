@@ -217,7 +217,7 @@ function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {"@" + user?.user_id || ""}
+          {user?.user_id ? "@" + user.user_id : ""}
         </motion.a>
       </motion.div>
 
