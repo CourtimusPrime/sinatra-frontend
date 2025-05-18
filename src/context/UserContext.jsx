@@ -6,6 +6,10 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   const [user, _setUser] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const pathname = window.location.pathname;
+  const isPublicProfile = pathname.startsWith("/@");
+
   const [user_id, setUserId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = params.get("user_id");
@@ -26,7 +30,6 @@ export function UserProvider({ children }) {
   };
 
   useEffect(() => {
-    const isPublicProfile = window.location.pathname.startsWith("/@");
     if (!user_id || isPublicProfile) {
       setLoading(false);
       return;
