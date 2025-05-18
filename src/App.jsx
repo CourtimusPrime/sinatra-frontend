@@ -26,8 +26,7 @@ function App() {
             <Route path="/onboard" element={<Onboard />} />
             <Route path="/playlists" element={<Playlists />} />
             <Route path="/callback" element={<Callback />} />
-            <Route path="/user/:user_id" element={<PublicProfile />} />
-            <Route path="/@:user_id" element={<PublicProfile />} />
+            <Route path="/u/:user_id" element={<PublicProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ErrorBoundary>

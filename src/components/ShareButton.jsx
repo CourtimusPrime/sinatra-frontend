@@ -4,7 +4,7 @@ import { ClipboardCopy } from "lucide-react";
 
 export default function ShareButton({ userId }) {
   const [copied, setCopied] = useState(false);
-  const profileUrl = `https://sinatra.live/@${userId}`;
+  const profileUrl = `https://sinatra.live/u/${userId}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);

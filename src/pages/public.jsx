@@ -22,7 +22,7 @@ export default function PublicProfile() {
       <div className="flex items-center gap-4">
         <img src={profile.profile_picture} className="w-20 h-20 rounded-full" />
         <div>
-          <h1 className="text-2xl font-bold">{profile.display_name || `@${profile.user_id}`}</h1>
+          <h1 className="text-2xl font-bold">{profile.display_name || `/u/${profile.user_id}`}</h1>
           <p className="text-gray-500">Current taste: {profile.genres_data?.top_genre}</p>
         </div>
       </div>
