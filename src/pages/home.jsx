@@ -9,6 +9,7 @@ import { motion } from "@motionone/react";
 import { apiGet, apiDelete } from "../utils/api";
 import ShareButton from "../components/ShareButton";
 
+
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/ui/MusicTaste"));
 const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
@@ -56,7 +57,9 @@ function Home() {
     if (!user_id || didInit.current) return;
     didInit.current = true;
 
-    requestIdleCallback(() => {
+    const runIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+
+    runIdle(() => {
       const now = new Date();
       const shouldUpdate = !lastInit || (now - new Date(lastInit)) > 60 * 60 * 1000;
       if (shouldUpdate) loadDashboard();
