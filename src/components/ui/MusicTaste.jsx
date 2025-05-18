@@ -13,7 +13,9 @@ function MusicTaste({ genresData, genreMap }) {
   const [subGenres, setSubGenres] = useState([]);
 
   useEffect(() => {
-    if (!genresData?.highest) return;
+    if (!genresData?.highest || !genreMap || Object.keys(genreMap).length === 0) {
+      return <div className="text-sm text-gray-400">Loading genre data...</div>;
+    }
 
     // 👇 Normalize in case it's already an array
     const highestEntries = Array.isArray(genresData.highest)
