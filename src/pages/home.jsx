@@ -7,6 +7,7 @@ import "../styles/loader.css";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import { motion } from "@motionone/react";
 import { apiGet, apiDelete } from "../utils/api";
+import ShareButton from "../components/ShareButton";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/ui/MusicTaste"));
@@ -211,6 +212,8 @@ function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         />
+
+        {userState?.user_id && <ShareButton userId={userState.user_id} />}
 
         <motion.h1
           className="text-2xl font-bold text-center"
