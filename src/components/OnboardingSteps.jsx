@@ -2,6 +2,34 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { apiGet, apiPost } from "../utils/api";
+import ProfileImageEditor from "./ui/ProfileImageEditor";
+
+function convertToWebP(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      img.src = reader.result;
+    };
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob((blob) => {
+        const webpURL = URL.createObjectURL(blob);
+        resolve(webpURL);
+      }, "image/webp", 0.8); // quality between 0 and 1
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 
 
 function OnboardingSteps({ user_id }) {
@@ -46,15 +74,8 @@ function OnboardingSteps({ user_id }) {
       return;
     }
 
-    if (step === 2 && uploadedPic) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePic(reader.result);
-        submitOnboarding(reader.result);
-      };
-      reader.readAsDataURL(uploadedPic);
-    } else if (step === 2) {
-      submitOnboarding(profilePic);
+    if (step === 2) {
+      submitOnboarding(uploadedPic || profilePic);
     }
 
     setStep(step + 1);
@@ -215,12 +236,23 @@ function OnboardingSteps({ user_id }) {
 
       {step === 2 && (
         <div>
-          <h2>Your profile picture</h2>
-          <img src={profilePic} width="100" alt="Profile" />
-          <p className="mt-2">Change it?</p>
-          <input
-            type="file"
-            onChange={(e) => setUploadedPic(e.target.files[0])}
+          <h2 className="text-lg font-bold mb-2">Your Profile Picture</h2>
+          <ProfileImageEditor
+            initialImage={profilePic}
+            onSave={(url) => {
+              setUploadedPic(url);
+              setProfilePic(url);
+            }}
+            onCancel={() => {
+              setUploadedPic(null);
+              setProfilePic(user?.profile_picture || "");
+            }}
+            presetAvatars={[
+              "/avatars/1.webp",
+              "/avatars/2.webp",
+              "/avatars/3.webp",
+              "/avatars/4.webp"
+            ]}
           />
         </div>
       )}

@@ -190,7 +190,7 @@ function Home() {
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      <button
+      <button aria-label="Open settings"
         onClick={() => setSettingsOpen(true)}
         className="text-sm underline text-right block ml-auto"
       >
@@ -264,7 +264,7 @@ function Home() {
           <div className="font-semibold text-lg flex items-center gap-1">
             <span>🌟</span> Featured Playlists
           </div>
-          <button onClick={() => setAllModalOpen(true)} className="mt-4 underline">
+          <button aria-label="Open all user's playlists" onClick={() => setAllModalOpen(true)} className="mt-4 underline">
             See All →
           </button>
         </div>

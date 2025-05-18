@@ -1,8 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import compression from 'vite-plugin-compression';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    compression({
+      algorithm: 'brotliCompress', // or 'gzip'
+      ext: '.br',
+      deleteOriginFile: false
+    })
+  ],
   publicDir: 'public',
   base: '/',
   server: {
@@ -29,7 +38,9 @@ export default defineConfig({
       input: 'index.html',
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
+          react: ['react', 'react-dom', 'react-router-dom'],
+          d3: ['d3'],
+          lucide: ['lucide-react'],
         },
       },
     },

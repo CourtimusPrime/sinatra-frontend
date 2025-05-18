@@ -93,7 +93,7 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
         </div>
 
         <div className="p-4 border-t flex justify-end space-x-2">
-          <button onClick={onClose} className="text-sm underline">
+          <button aria-label="Close modal" onClick={onClose} className="text-sm underline">
             Cancel
           </button>
           <button

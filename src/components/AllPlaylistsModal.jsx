@@ -48,7 +48,7 @@ function AllPlaylistsModal({ isOpen, onClose, playlists }) {
             </a>
           ))}
         </div>
-        <button onClick={onClose} className="mt-4 text-sm underline">
+        <button aria-label="Close modal" onClick={onClose} className="mt-4 text-sm underline">
           Close
         </button>
       </motion.div>
