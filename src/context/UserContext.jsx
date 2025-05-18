@@ -18,7 +18,6 @@ export function UserProvider({ children }) {
     return fromStorage;
   });
 
-  // 👇 Make sure updates to user are merged
   const setUser = (updates) => {
     _setUser((prev) => ({
       ...prev,
@@ -27,7 +26,8 @@ export function UserProvider({ children }) {
   };
 
   useEffect(() => {
-    if (!user_id) {
+    const isPublicProfile = window.location.pathname.startsWith("/@");
+    if (!user_id || isPublicProfile) {
       setLoading(false);
       return;
     }
@@ -36,9 +36,7 @@ export function UserProvider({ children }) {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data) {
-          setUser({
-            ...data,
-          });
+          setUser({ ...data });
         }
         setLoading(false);
       })
