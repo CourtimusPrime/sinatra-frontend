@@ -1,5 +1,5 @@
 // src/pages/home.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
 import PlaylistCard from "../components/PlaylistCard";
 import { useNavigate } from "react-router-dom";
@@ -14,13 +14,13 @@ import { apiGet, apiDelete } from "../utils/api";
 
 function Home() {
   const [genresData, setGenresData] = useState(null);
+  const didInit = useRef(false);
   const [genreMap, setGenreMap] = useState({});
   const [isAllModalOpen, setAllModalOpen] = useState(false);
   const [allPlaylists, setAllPlaylists] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
   const { user, user_id, loading, setUser } = useUser();
-  const [hasAnimatedInitialLoad, setHasAnimatedInitialLoad] = useState(false);
   const [track, setTrack] = useState(() => {
     const cached = localStorage.getItem("last_played_track");
     return cached ? JSON.parse(cached) : null;
@@ -34,26 +34,43 @@ function Home() {
   });
 
   useEffect(() => {
-    if (!user_id) return;
+    if (!user_id || didInit.current) return;
+    didInit.current = true;
     loadDashboard();
   }, [user_id]);
 
   async function loadDashboard() {
     if (!user_id) return;
-    try {
-      const json = await apiGet(`/dashboard?user_id=${user_id}`);
 
+    try {
+      const json = await apiGet(`/init-home?user_id=${user_id}`);
+
+      // Set user
       setUser({
         display_name: json.user.display_name,
         profile_picture: json.user.profile_picture,
         genreAnalysis: json.user.genre_analysis,
       });
 
+      // Set genres
+      if (JSON.stringify(genresData) !== JSON.stringify(json.user.genre_analysis)) {
+        setGenresData(json.user.genre_analysis);
+      }
+
+      // Set playlists
       const sortedFeatured = json.playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
       const sortedAll = json.playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
       setPlaylists(sortedFeatured.slice(0, 3));
       setAllPlaylists(sortedAll);
 
+      // Set genre map
+      const normalized = Object.fromEntries(
+        Object.entries(json.genre_map).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
+      );
+      setGenreMap(normalized);
+      localStorage.setItem("genre_map", JSON.stringify(normalized));
+
+      // Set last played track
       const latestTrack = json.last_played_track?.track;
       if (latestTrack) {
         setTrack(latestTrack);
@@ -77,54 +94,6 @@ function Home() {
       clearInterval(refreshSessionInterval);
     };
   }, [user_id]);
-
-  useEffect(() => {
-    const cached = localStorage.getItem("genre_map");
-    if (cached) {
-      setGenreMap(JSON.parse(cached));
-    }
-
-    const fetchMap = async () => {
-      try {
-        const json = await apiGet("/genre-map");
-        const normalized = Object.fromEntries(
-          Object.entries(json).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
-        );
-        setGenreMap(normalized);
-        localStorage.setItem("genre_map", JSON.stringify(normalized));
-      } catch (err) {
-        console.error("Failed to fetch genre map:", err);
-      }
-    };
-
-    fetchMap();
-  }, []);
-
-  useEffect(() => {
-    if (!user_id || genresData) return;
-
-    const controller = new AbortController();
-
-    async function fetchGenresIfNeeded() {
-      if (user?.genreAnalysis) {
-        console.log("✅ setGenresData from user", user.genreAnalysis);
-        setGenresData(user.genreAnalysis);
-      } else {
-        try {
-          const data = await apiGet(`/genres?user_id=${user_id}`);
-          console.log("✅ setGenresData from fetch", data);
-          setGenresData(data);
-        } catch (err) {
-          if (controller.signal.aborted) return;
-          console.error("Failed to fetch /genres:", err);
-        }
-      }
-    }
-
-    fetchGenresIfNeeded();
-
-    return () => controller.abort();
-  }, [user_id, user, genresData]);
 
   async function loadNowPlaying() {
     setIsRefreshing(true);
