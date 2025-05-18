@@ -15,7 +15,11 @@ function MusicTaste({ genresData, genreMap }) {
   useEffect(() => {
     if (!genresData?.highest) return;
 
-    const highestEntries = Object.entries(genresData.highest);
+    // 👇 Normalize in case it's already an array
+    const highestEntries = Array.isArray(genresData.highest)
+      ? genresData.highest
+      : Object.entries(genresData.highest);
+
     console.log("💽 genresData.highest", highestEntries);
 
     const topMeta = highestEntries
