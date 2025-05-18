@@ -1,8 +1,4 @@
 /* fonts */
-@import url('https://fonts.googleapis.com/css2?family=Damion&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Yellowtail&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-
 @font-face {
   font-family: "Duckie-regular";
   src: url("https://db.onlinewebfonts.com/t/2952c30a5d1d09ac2e1cb5bea2f9b2a4.eot");
@@ -79,7 +75,7 @@ body {
 
   .animate-gradient {
     background-size: 200% 200%;
-    animation: gradientShift 3s ease infinite;
+    animation: gradientShift 15s linear infinite;
   }
 }
 

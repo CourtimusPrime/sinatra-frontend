@@ -21,6 +21,7 @@ export default defineConfig({
       '/refresh-session': 'http://localhost:8000',
       '/public-playlist': 'http://localhost:8000',
       '/playlist-info': 'http://localhost:8000',
+      '/meta-genre-schema': 'http://localhost:8000',
     },
   },
   build: {
