@@ -1,23 +1,24 @@
 // src/pages/Callback.jsx
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 function Callback() {
-  const navigate = useNavigate();
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
     if (code) {
-      // Send to backend: /callback?code=...
+      // Forward code to backend for token exchange and redirect
       window.location.href = `${import.meta.env.VITE_API_BASE_URL}/callback?code=${code}`;
-    } else {
-      navigate("/");
     }
   }, []);
 
-  return <p className="text-center mt-10">Logging in...</p>;
+  return (
+    <div className="text-center mt-10 text-sm text-gray-600">
+      Logging in via Spotify...
+      <br />
+      If you're not redirected, <a href="/" className="underline text-blue-600">click here</a>.
+    </div>
+  );
 }
 
 export default Callback;
