@@ -13,6 +13,8 @@ import TopSubGenre from "../components/ui/TopSubGenre";
 import { apiGet, apiDelete } from "../utils/api";
 
 function Home() {
+  const [loadTime, setLoadTime] = useState(null);
+  const loadStart = useRef(performance.now());
   const [genresData, setGenresData] = useState(null);
   const didInit = useRef(false);
   const [genreMap, setGenreMap] = useState({});
@@ -81,6 +83,7 @@ function Home() {
     } catch (err) {
       console.error("Failed to load dashboard:", err);
     }
+    setLoadTime(Math.round(performance.now() - loadStart.current));
   }
 
   useEffect(() => {
@@ -153,12 +156,11 @@ function Home() {
   return (
     <div className="max-w-md w-full mx-auto p-4">
       <button
-        onClick={() => setSettingsOpen(true)}
-        className="text-sm underline text-right block ml-auto"
-      >
-        ⚙️ Settings
-      </button>
-
+          onClick={() => setSettingsOpen(true)}
+          className="text-sm underline text-right block ml-auto"
+        >
+          ⚙️ Settings
+        </button>
       <motion.div
         className="flex flex-col items-center my-4"
         initial={{ opacity: 0 }}
