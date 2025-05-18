@@ -112,7 +112,7 @@ function OnboardingSteps({ user_id }) {
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <input
               type="text"
-              placeholder="Search playlists..."
+              placeholder="Search..."
               className="w-full sm:w-1/2 border p-2 rounded"
               onChange={(e) =>
                 setPlaylists((prev) =>

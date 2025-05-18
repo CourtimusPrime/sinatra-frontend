@@ -4,6 +4,7 @@ import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
 import { getMetaGenreColor, isMetaGenre } from "../../constants/metaGenres";
+import Loader from "../Loader"
 
 const BASE_API = import.meta.env.VITE_API_BASE_URL || "https://sinatra.up.railway.app";
 
@@ -77,15 +78,15 @@ function MusicTaste({ genresData, genreMap }) {
       <h2 className="text-lg font-semibold mb-2">
         {step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres"}
       </h2>
+
       {!currentData.length ? (
-        <div className="text-sm text-gray-400">Loading genre data...</div>
+        <Loader />
       ) : step === 0 ? (
         <GenreBarList data={metaGenres} />
       ) : (
         <SubGenreBarList data={subGenres} getColorForGenre={getColorForGenre} />
       )}
 
-      {/* ✅ Clickable + animated dots */}
       <div className="flex justify-center gap-2 mt-4">
         {[0, 1].map((i) => (
           <button

@@ -6,6 +6,7 @@ import PlaylistCard from "../components/PlaylistCard";
 import MusicTaste from "../components/ui/MusicTaste";
 import TopSubGenre from "../components/ui/TopSubGenre";
 import { apiGet } from "../utils/api";
+import Loader from "../components/Loader";
 
 export default function PublicProfile() {
   const { user_id } = useParams();
@@ -34,7 +35,7 @@ export default function PublicProfile() {
 
   console.log("👀 profile data", profile);
 
-  if (!profile) return <div>Loading...</div>;
+  if (!profile) return <Loader />;
 
   return (
     <div className="p-4 max-w-3xl mx-auto">

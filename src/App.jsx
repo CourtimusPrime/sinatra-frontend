@@ -2,6 +2,7 @@
 import React, { lazy, Suspense, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
+import Loader from "./components/Loader";
 
 const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
@@ -18,7 +19,7 @@ function App() {
 
   return (
     <div className={`min-h-screen ${bgStyle} ${fontStyle} ${textColorClass}`}>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loader />}>
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Landing />} />

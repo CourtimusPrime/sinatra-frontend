@@ -2,6 +2,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import OnboardingSteps from "../components/OnboardingSteps";
+import Loader from "../components/Loader";
 
 function Onboard() {
   const [user_id, setUserId] = useState(null);
@@ -15,7 +16,7 @@ function Onboard() {
   return (
     <div className="max-w-md w-full mx-auto p-4">
       <div className="max-w-md w-full mx-auto p-4">
-        {user_id ? <OnboardingSteps user_id={user_id} /> : <p>Loading...</p>}
+        {user_id ? <OnboardingSteps user_id={user_id} /> : <Loader />}
       </div>
     </div>
   );
