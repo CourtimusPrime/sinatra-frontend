@@ -27,7 +27,7 @@ export default function PublicProfile() {
           )
         );
       } catch (err) {
-        console.error("❌ Failed to load public profile or genre map:", err);
+        console.error("❌ Oop, something fucked up on our end:", err);
       }
     }
     load();
@@ -39,6 +39,7 @@ export default function PublicProfile() {
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
+      {/* 1. Profile */}
       <div className="flex items-center gap-4">
         <img src={profile.profile_picture} className="w-20 h-20 rounded-full" />
         <div>
@@ -49,24 +50,29 @@ export default function PublicProfile() {
         </div>
       </div>
 
+      {/* 2. Top SubGenre */}
+      <TopSubGenre genresData={profile.genres_data} />
+
+      {/* 3. Recently Played */}
       {profile.last_played_track && (
         <RecentlyPlayedCard
           track={profile.last_played_track?.track || profile.last_played_track}
         />
       )}
 
+      {/* 4. Music Taste */}
+      <div className="mt-8">
+        <MusicTaste genresData={profile.genres_data} genreMap={genreMap} />
+      </div>
+
+      {/* 5. Featured Playlists */}
       <div className="my-6">
-        <h2 className="text-xl font-semibold mb-2">Featured Playlists</h2>
+        <h2 className="text-xl font-semibold mb-2">🌟 Featured Playlists</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {profile.featured_playlists.map((playlist, idx) => (
             <PlaylistCard key={idx} playlist={playlist} />
           ))}
         </div>
-      </div>
-
-      <div className="mt-8">
-        <MusicTaste genresData={profile.genres_data} genreMap={genreMap} />
-        <TopSubGenre genresData={profile.genres_data} />
       </div>
     </div>
   );
