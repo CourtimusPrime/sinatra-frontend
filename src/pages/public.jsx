@@ -38,7 +38,7 @@ export default function PublicProfile() {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       {/* 1. Profile */}
-      <div className="flex items-center gap-4">
+      <div className="max-w-md w-full mx-auto p-4">
         <img src={profile.profile_picture} className="w-20 h-20 rounded-full" />
         <div>
           <h1 className="text-2xl font-bold">
