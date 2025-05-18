@@ -79,14 +79,19 @@ function Home() {
   }, [user_id]);
 
   useEffect(() => {
+    const cached = localStorage.getItem("genre_map");
+    if (cached) {
+      setGenreMap(JSON.parse(cached));
+    }
+
     const fetchMap = async () => {
       try {
-        const res = await apiGet("/genre-map");
-        const json = await res.json();
+        const json = await apiGet("/genre-map");
         const normalized = Object.fromEntries(
           Object.entries(json).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
         );
         setGenreMap(normalized);
+        localStorage.setItem("genre_map", JSON.stringify(normalized));
       } catch (err) {
         console.error("Failed to fetch genre map:", err);
       }

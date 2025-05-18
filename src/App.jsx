@@ -2,7 +2,6 @@
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { fetchMetaGenres } from "./utils/metaGenres";
 
 const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
@@ -15,10 +14,6 @@ function App() {
   const [bgStyle, setBgStyle] = useState("");
   const [fontStyle, setFontStyle] = useState("");
   const [textColorClass, setTextColorClass] = useState("");
-
-  useEffect(() => {
-    fetchMetaGenres(); // preload shared schema once
-  }, []);
 
   return (
     <div className={`min-h-screen ${bgStyle} ${fontStyle} ${textColorClass}`}>

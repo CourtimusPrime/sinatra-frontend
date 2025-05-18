@@ -1,7 +1,7 @@
 // src/components/ui/GenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
-import { getMetaGenreColor } from "../../utils/metaGenres";
+import { getMetaGenreColor } from "../../constants/metaGenres";
 
 function GenreBarList({ data }) {
   if (!Array.isArray(data) || data.length === 0) {

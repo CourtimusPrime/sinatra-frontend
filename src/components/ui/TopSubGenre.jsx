@@ -1,6 +1,6 @@
 // src/components/ui/TopSubGenre.jsx
 import React, { useEffect, useState } from "react";
-import { isMetaGenre, fetchMetaGenres } from "../../utils/metaGenres";
+import { isMetaGenre } from "../../constants/metaGenres";
 
 
 function TopSubGenre({ genresData }) {
@@ -17,8 +17,6 @@ function TopSubGenre({ genresData }) {
     if (allSubGenres.length > 0) {
       setTopSub(allSubGenres[0][0]);
     }
-
-    fetchMetaGenres();
   }, [genresData]);
 
   if (!topSub) return null;

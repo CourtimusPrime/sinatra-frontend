@@ -3,12 +3,12 @@ import React, { useEffect, useState, useMemo } from "react";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
-import { getMetaGenreColor, isMetaGenre } from "../../utils/metaGenres";
+import { getMetaGenreColor, isMetaGenre } from "../../constants/metaGenres";
 
 function MusicTaste({ genresData, genreMap }) {
   const [metaGenres, setMetaGenres] = useState([]);
   const [subGenres, setSubGenres] = useState([]);
-  const [step, setStep] = useState(0); // 👈 Needed for switching views
+  const [step, setStep] = useState(0);
 
   // ✅ Swipe gesture handlers
   const swipeHandlers = useSwipeable({
