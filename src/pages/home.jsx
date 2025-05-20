@@ -28,7 +28,6 @@ function Home() {
       return fallback;
     }
   };
-
   const [userState, setUserState] = useState(() => getCached("user", null));
   const [genresData, setGenresData] = useState(() => getCached("genres_data", null));
   const [track, setTrack] = useState(() => getCached("last_played_track", null));
@@ -67,39 +66,52 @@ function Home() {
   }, [user_id]);
 
   async function loadDashboard() {
+    console.log("🚀 loadDashboard triggered!");
     if (!user_id) return;
 
     try {
-      const json = await apiGet(`/init-home?user_id=${user_id}`);
+      const json = await apiGet(`/dashboard?user_id=${user_id}`);
+      const { user, playlists, played_track, genre_map } = json;
+      console.log("🎹 Recived genre_map keys:", Object.keys(genre_map || {}));
 
       const userData = {
-        display_name: json.user.display_name,
-        profile_picture: json.user.profile_picture,
-        genre_analysis: json.user.genre_analysis,
-        user_id: json.user.user_id,
+        display_name: user.display_name,
+        profile_picture: user.profile_picture,
+        genre_analysis: user.genre_analysis,
+        user_id: user.user_id,
       };
+
+      console.log("✅ DASHBOARD genre_analysis:", user.genre_analysis);
+
       setUser(userData);
       setUserState(userData);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      setGenresData(json.user.genre_analysis);
-      localStorage.setItem("genres_data", JSON.stringify(json.user.genre_analysis));
+      if (user.genre_analysis) {
+        setGenresData(user.genre_analysis);
+        localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
+      }
 
-      const sortedFeatured = json.playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
-      const sortedAll = json.playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
+      const sortedFeatured = playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
+      const sortedAll = playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
+
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
 
       setAllPlaylists([]);
-      localStorage.removeItem("all_playlists"); // defer loading full list
+      localStorage.removeItem("all_playlists");
+      console.log("Raw genre_map from response:", genre_map);
 
       const normalized = Object.fromEntries(
-        Object.entries(json.genre_map).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
+        Object.entries(genre_map || {}).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
       );
+      console.log("Normalized genre_map sample", normalized);
       setGenreMap(normalized);
+      console.log("genre map key sample:",Object.keys(normalized).slice(0,10));
       localStorage.setItem("genre_map", JSON.stringify(normalized));
+      console.log("✅ Normalized genre map keys:", Object.keys(normalized).slice(0, 10));
 
-      const latestTrack = json.last_played_track?.track;
+      const latestTrack = played_track?.track;
       if (latestTrack) {
         setTrack(latestTrack);
         setLastUpdated(new Date());
@@ -241,7 +253,7 @@ function Home() {
       </motion.div>
 
       <Suspense fallback={null}>
-        <TopSubGenre genresData={genresData} />
+        {genresData && <TopSubGenre genresData={genresData} />}
       </Suspense>
 
       {track && (
@@ -256,8 +268,17 @@ function Home() {
         </div>
       )}
 
-      <Suspense fallback={null}>
-        <MusicTaste genresData={genresData} genreMap={genreMap} />
+      <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
+        {genresData && genreMap && (
+          <>
+            {console.log("genremap prop in music taste:",genreMap)}
+            <MusicTaste
+            key={user_id + "_taste"} // force remount on user change
+            genresData={genresData}
+            genreMap={genreMap}
+            />
+          </>
+        )}
       </Suspense>
 
       <motion.div

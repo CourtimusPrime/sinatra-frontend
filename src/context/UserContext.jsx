@@ -15,11 +15,13 @@ export function UserProvider({ children }) {
     const fromUrl = params.get("user_id");
     const fromStorage = localStorage.getItem("user_id");
 
-    if (fromUrl) {
-      localStorage.setItem("user_id", fromUrl);
-      return fromUrl;
+    const id = fromUrl || fromStorage;
+    if (id && id !== "null") {
+      localStorage.setItem("user_id", id);
+      return id;
     }
-    return fromStorage;
+
+    return null;
   });
 
   const setUser = (updates) => {
@@ -30,7 +32,7 @@ export function UserProvider({ children }) {
   };
 
   useEffect(() => {
-    if (!user_id || isPublicProfile) {
+    if (!user_id || user_id === "null" || isPublicProfile) {
       setLoading(false);
       return;
     }

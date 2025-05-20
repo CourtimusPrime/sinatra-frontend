@@ -1,90 +1,87 @@
 // src/components/ui/MusicTaste.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
 import { getMetaGenreColor, isMetaGenre } from "../../constants/metaGenres";
-import Loader from "../Loader"
-
-const BASE_API = import.meta.env.VITE_API_BASE_URL || "https://sinatra.up.railway.app";
 
 function MusicTaste({ genresData, genreMap }) {
   const [step, setStep] = useState(0);
-  const [metaGenres, setMetaGenres] = useState([]);
-  const [subGenres, setSubGenres] = useState([]);
 
-  useEffect(() => {
-    if (!genresData?.highest || !genreMap || Object.keys(genreMap).length === 0) {
-      return <div className="text-sm text-gray-400">Loading genre data...</div>;
-    }
+  const metaGenres = useMemo(() => {
+    if (!genresData?.highest) return [];
 
-    // 👇 Normalize in case it's already an array
     const highestEntries = Array.isArray(genresData.highest)
       ? genresData.highest
       : Object.entries(genresData.highest);
 
-    console.log("💽 genresData.highest", highestEntries);
-
-    const topMeta = highestEntries
+    return highestEntries
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
-      .map(([name, value]) => ({ name, value: Math.round(value * 10) / 10 }));
-
-    setMetaGenres(topMeta);
+      .map(([name, value]) => ({
+        name,
+        value: Math.round(value * 10) / 10,
+      }));
   }, [genresData]);
 
-  useEffect(() => {
-    if (!genresData?.sub_genres || Object.keys(genreMap).length === 0) return;
+  const subGenres = useMemo(() => {
+    if (!genresData?.sub_genres || !genreMap) return [];
 
-    console.log("🧪 Sub-genre filtering started");
-    console.log("📦 sub_genres:", Object.keys(genresData.sub_genres).slice(0, 10));
-    console.log("🗺️ genreMap sample:", Object.entries(genreMap).slice(0, 10));
-
-    const topSub = Object.entries(genresData.sub_genres)
+    return Object.entries(genresData.sub_genres)
       .filter(([name]) => {
         const lower = name.toLowerCase();
         const parent = genreMap[lower];
-        const isValid = parent && parent !== lower && !isMetaGenre(lower);
-        if (!isValid) {
-          console.log(`❌ Excluded sub-genre: ${name} (parent: ${parent})`);
+        const isExcluded =
+          !parent || parent === lower || isMetaGenre(lower);
+
+        if (isExcluded) {
+          console.log(`🚫 Excluded sub-genre: ${name} → parent: ${parent}`);
+        } else {
+          console.log(`✅ Included sub-genre: ${name} → parent: ${parent}`);
         }
-        return isValid;
+
+        ["post-grunge", "grunge", "classic rock", "hard rock", "metal"].forEach(name => {
+          const lower = name.toLowerCase();
+          console.log(`${name} → ${genreMap[lower]}`);
+        });
+
+        return !isExcluded;
       })
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([name, value]) => ({ name, value }));
-
-    console.log("✅ Final sub-genres:", topSub.map(d => d.name));
-
-    setSubGenres(topSub);
   }, [genresData, genreMap]);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => setStep((prev) => Math.min(prev + 1, 1)),
     onSwipedRight: () => setStep((prev) => Math.max(prev - 1, 0)),
+    trackTouch: true,
+    trackMouse: true,
   });
 
   const getColorForGenre = (subGenre) => {
-    const parent = genreMap[subGenre?.toLowerCase()] || "other";
+    const parent = genreMap?.[subGenre?.toLowerCase()] || "other";
     return getMetaGenreColor(parent);
   };
 
   const currentData = step === 0 ? metaGenres : subGenres;
-  console.log("🎯 metaGenres state", metaGenres);
-  console.log("🧩 subGenres state", subGenres);
+  const title = step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres";
+
+  console.log("🎛 step:", step);
+  console.log("🎯 subGenres computed:", subGenres);
 
   return (
     <div {...handlers} className="mt-6 bg-white rounded-2xl shadow p-4">
-      <h2 className="text-lg font-semibold mb-2">
-        {step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres"}
-      </h2>
+      <h2 className="text-lg font-semibold mb-2">{title}</h2>
 
       {!currentData.length ? (
-        <Loader />
+        <div className="text-sm text-gray-400">Loading genre data...</div>
       ) : step === 0 ? (
         <GenreBarList data={metaGenres} />
       ) : (
-        <SubGenreBarList data={subGenres} getColorForGenre={getColorForGenre} />
+        <SubGenreBarList data={subGenres} 
+        getColorForGenre={getColorForGenre} 
+        genreMap={genreMap}/>
       )}
 
       <div className="flex justify-center gap-2 mt-4">
