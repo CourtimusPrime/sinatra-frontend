@@ -36,10 +36,8 @@ function MusicTaste({ genresData, genreMap }) {
 
         if (isExcluded) {
           console.log(`🚫 Excluded sub-genre: ${name} → parent: ${parent}`);
-        } else {
-          console.log(`✅ Included sub-genre: ${name} → parent: ${parent}`);
         }
-
+        
         ["post-grunge", "grunge", "classic rock", "hard rock", "metal"].forEach(name => {
           const lower = name.toLowerCase();
           console.log(`${name} → ${genreMap[lower]}`);

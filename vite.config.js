@@ -30,6 +30,11 @@ export default defineConfig({
       '/refresh-session': 'http://localhost:8000',
       '/public-playlist': 'http://localhost:8000',
       '/playlist-info': 'http://localhost:8000',
+      '/spotify-playlists': 'http://localhost:8000',
+      '/docs': 'http://localhost:8000',
+      '/openapi.json': 'http://localhost:8000',
+      '/redoc': 'http://localhost:8000',
+      '/static': 'http://localhost:8000',
     },
   },
   build: {

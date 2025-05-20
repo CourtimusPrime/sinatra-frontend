@@ -271,7 +271,6 @@ function Home() {
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
         {genresData && genreMap && (
           <>
-            {console.log("genremap prop in music taste:",genreMap)}
             <MusicTaste
             key={user_id + "_taste"} // force remount on user change
             genresData={genresData}

@@ -1,17 +1,17 @@
 // src/components/ui/SubGenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
+import { getMetaGenreColor } from "../../constants/metaGenres";
 
 function SubGenreBarList({ data, getColorForGenre, genreMap }) {
   const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
-  console.log("🌎 genre map recieved in SubGenreBarList:",genreMap);
   return (
     <div className="space-y-3">
       {data.map(({ name, value }, index) => {
         const lower = name.toLowerCase();
         const parentGenre = genreMap?.[lower] || "other";
         const percent = ((value / total) * 100).toFixed(1);
-        const barColor = getColorForGenre?.(parentGenre) || "#d4af37";
+        const barColor = getMetaGenreColor(parentGenre);
 
         return (
           <motion.div
