@@ -293,11 +293,7 @@ function Home() {
 
       <Suspense fallback={null}>
         {isAllModalOpen && (
-          <AllPlaylistsModal
-            isOpen={isAllModalOpen}
-            onClose={() => setAllModalOpen(false)}
-            playlists={allPlaylists}
-          />
+          <AllPlaylistsModal isOpen={isAllModalOpen} onClose={() => setAllModalOpen(false)} user_id={user.user_id} />
         )}
         {isSettingsOpen && (
           <SettingsModal
