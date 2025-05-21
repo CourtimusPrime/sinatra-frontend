@@ -166,4 +166,10 @@ Please open an issue to discuss major changes before submitting a PR.
 ## 📬 Contact
 
 Questions? Suggestions?  
+<<<<<<< HEAD
 Open an issue or reach out at [sinatra.live](https://sinatra.live).
+=======
+Open an issue or reach out at [sinatra.live](https://sinatra.live).
+
+---
+>>>>>>> ce6e23462d273775e5259a133f9f4d014e1acb91
