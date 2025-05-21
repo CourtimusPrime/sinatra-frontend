@@ -4,6 +4,7 @@ import { motion } from "@motionone/react";
 
 function AllPlaylistsModal({ isOpen, onClose, playlists }) {
   const [isVisible, setIsVisible] = useState(isOpen);
+  const safePlaylists = Array.isArray(playlists) ? playlists : [];
 
   useEffect(() => {
     if (isOpen) {
@@ -26,7 +27,7 @@ function AllPlaylistsModal({ isOpen, onClose, playlists }) {
       >
         <h2 className="text-xl font-bold mb-4">All Playlists</h2>
         <div className="flex flex-col gap-3">
-          {playlists.map((p) => (
+          {safePlaylists.map((p) => (
             <a
               key={p.playlist_id}
               href={p.external_url}

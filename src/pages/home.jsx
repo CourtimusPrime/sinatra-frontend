@@ -97,9 +97,6 @@ function Home() {
 
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-
-      setAllPlaylists([]);
-      localStorage.removeItem("all_playlists");
       console.log("Raw genre_map from response:", genre_map);
 
       const normalized = Object.fromEntries(
@@ -187,14 +184,6 @@ function Home() {
       console.error("Failed to delete account:", err);
     }
   }
-
-  useEffect(() => {
-    if (!isAllModalOpen || allPlaylists.length > 0) return;
-    apiGet(`/user-playlists?user_id=${user_id}`).then((res) => {
-      setAllPlaylists(res.all);
-      localStorage.setItem("all_playlists", JSON.stringify(res.all));
-    });
-  }, [isAllModalOpen]);
 
   if (loading) {
     return (

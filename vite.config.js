@@ -35,6 +35,7 @@ export default defineConfig({
       '/openapi.json': 'http://localhost:8000',
       '/redoc': 'http://localhost:8000',
       '/static': 'http://localhost:8000',
+      '/update-playlists': 'http://localhost:8000',
     },
   },
   build: {

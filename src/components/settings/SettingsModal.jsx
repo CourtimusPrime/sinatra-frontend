@@ -1,11 +1,15 @@
 // src/components/settings/SettingsModal.jsx
 import React, { useState, useEffect } from "react";
-import EditFeaturedModal from "./EditFeatured";
 import { motion } from "@motionone/react";
+
+// Components
+import EditFeaturedModal from "./EditFeatured";
+import EditPlaylistsModal from "./EditPlaylists";
+
 
 function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave }) {
   const [isEditOpen, setEditOpen] = useState(false);
-
+  const [isPlaylistEditorOpen, setPlaylistEditorOpen] = useState(false);
   const [visible, setVisible] = useState(isOpen);
 
   // Handle manual unmount after exit animation
@@ -24,20 +28,16 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
     <>
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }} // not automatically handled in Motion One
-            transition={{ duration: 0.25 }}
-            className="modal-container max-w-md w-full max-h-[90vh] overflow-y-auto"
-          >
+          <motion.div className="modal-container max-w-md w-full max-h-[90vh] overflow-y-auto" /* other motion props */>
             <h2 className="text-xl font-bold mb-4">⚙️ Settings</h2>
             <div className="flex flex-col space-y-3">
-              <button
-                onClick={() => setEditOpen(true)}
-                className="w-full px-4 py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-700 rounded text-left"
-              >
+              {/* Existing buttons */}
+              <button onClick={() => setEditOpen(true)} className="...">
                 ✏️ Edit Featured Playlists
+              </button>
+
+              <button onClick={() => setPlaylistEditorOpen(true)} className="w-full px-4 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-700 rounded text-left">
+                🔄 Update Playlists
               </button>
 
               <button
@@ -72,6 +72,7 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
         user_id={user_id}
         onSave={onSave}
       />
+      <EditPlaylistsModal isOpen={isPlaylistEditorOpen} onClose={() => setPlaylistEditorOpen(false)} user_id={user_id} />
     </>
   );
 }
