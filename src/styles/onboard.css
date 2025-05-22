@@ -5,26 +5,62 @@
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--color-bg, #f9fafb);
+  font-family: sans-serif;
 }
 
 .onboard-content {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-@media (min-width: 640px) {
-  .onboard-content {
-    padding: 1.5rem;
-  }
+.onboard-wrapper {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-@media (min-width: 1024px) {
-  .onboard-content {
-    padding: 2rem;
-    max-width: 700px;
-    margin: 0 auto;
-  }
+.onboard-step-content {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.onboard-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.onboard-progress::-webkit-scrollbar {
+  display: none;
+}
+
+.onboard-step {
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  color: #4b5563;
+  min-width: 70px;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.onboard-step.active {
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  transform: scale(1.05);
 }
 
 .onboard-footer {
@@ -60,12 +96,18 @@
 }
 
 @media (min-width: 640px) {
+  .onboard-content {
+    padding: 1.5rem;
+  }
   .onboard-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
+  .onboard-content {
+    padding: 2rem;
+  }
   .onboard-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -76,7 +118,11 @@
   border-radius: 0.5rem;
   padding: 0.5rem;
   cursor: pointer;
-  transition: background 0.2s, border 0.2s;
+  transition: background 0.2s, border 0.2s, transform 0.15s;
+}
+
+.playlist-card:hover {
+  transform: scale(1.03);
 }
 
 .playlist-card.selected {
@@ -95,9 +141,11 @@
   margin-top: 0.5rem;
   font-weight: 500;
   font-size: 0.875rem;
+  text-align: center;
 }
 
 .playlist-count {
   font-size: 0.75rem;
   color: #6b7280;
+  text-align: center;
 }

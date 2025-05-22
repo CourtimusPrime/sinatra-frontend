@@ -1,11 +1,14 @@
 // src/components/OnboardingSteps.jsx
 import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 import NameEditor from "./steps/NameEditor";
 import PictureEditor from "./steps/PictureEditor";
 import GenreIntro from "./steps/GenreIntro";
 import PlaylistImporter from "./steps/PlaylistImporter";
 import FeaturedPicker from "./steps/FeaturedPicker";
 import FinalizeAccount from "./steps/FinalizeAccount";
+
+const totalSteps = 6;
 
 function OnboardingSteps({ step, user, genres, onboardData, setOnboardData, setCanProceed }) {
   const sharedProps = { user, genres, onboardData, setOnboardData, setCanProceed };
@@ -29,7 +32,23 @@ function OnboardingSteps({ step, user, genres, onboardData, setOnboardData, setC
     }
   };
 
-  return <div className="p-4 sm:p-6 lg:p-8">{renderStep()}</div>;
+  const progressPercent = ((step + 1) / totalSteps) * 100;
+
+  return (
+    <div className="onboard-wrapper">
+      <div className="w-full h-2 bg-gray-200 rounded-full mb-4 overflow-hidden">
+        <motion.div
+          className="h-full bg-blue-600"
+          initial={{ width: 0 }}
+          animate={{ width: `${progressPercent}%` }}
+          transition={{ duration: 0.4 }}
+        />
+      </div>
+      <div className="onboard-step-content">
+        {renderStep()}
+      </div>
+    </div>
+  );
 }
 
 export default OnboardingSteps;
