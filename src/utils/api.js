@@ -21,7 +21,11 @@ export async function apiPost(path, body, options = {}) {
     ...options,
   });
 
-  if (!res.ok) throw new Error(`POST ${path} failed`);
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Erorr(`API ${res.status}: ${errText}`);
+  }
+  
   return await res.json();
 }
 

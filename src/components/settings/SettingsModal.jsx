@@ -1,23 +1,31 @@
 // src/components/settings/SettingsModal.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "@motionone/react";
+import { apiPost } from "../../utils/api"; // 👈 place this near the top
 
 // Components
 import EditFeaturedModal from "./EditFeatured";
 import EditPlaylistsModal from "./EditPlaylists";
 
-
 function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave }) {
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPlaylistEditorOpen, setPlaylistEditorOpen] = useState(false);
   const [visible, setVisible] = useState(isOpen);
+  const handleClearGenreCache = async () => {
+    try {
+      await apiPost("/refresh_genres", { user_id });
+      alert("Your genre data is being refreshed!");
+    } catch (err) {
+      console.error("Failed to clear genre cache:", err);
+      alert("Something went wrong. Try again later.");
+    }
+  };
 
-  // Handle manual unmount after exit animation
   useEffect(() => {
     if (isOpen) {
       setVisible(true);
     } else {
-      const timeout = setTimeout(() => setVisible(false), 250); // match motion transition
+      const timeout = setTimeout(() => setVisible(false), 250);
       return () => clearTimeout(timeout);
     }
   }, [isOpen]);
@@ -59,6 +67,13 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
                 className="w-full mt-4 text-sm text-gray-600 dark:text-gray-300 underline"
               >
                 Back
+              </button>
+
+              <button
+                onClick={handleClearGenreCache}
+                className="w-full px-4 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-700 rounded text-left"
+              >
+                🧹 Clear Genre Cache (buggy but stable)
               </button>
             </div>
           </motion.div>
