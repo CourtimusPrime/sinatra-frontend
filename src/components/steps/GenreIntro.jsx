@@ -1,11 +1,15 @@
 // src/components/steps/GenreIntro.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 function GenreIntro({ genres, setCanProceed }) {
+  const [showSubGenres, setShowSubGenres] = useState(false);
+
   useEffect(() => {
     setCanProceed(true);
-  }, [setCanProceed]);
+    const timer = setTimeout(() => setShowSubGenres(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const highestObj = genres?.highest || {};
   const subGenresObj = genres?.sub_genres || {};
@@ -21,31 +25,52 @@ function GenreIntro({ genres, setCanProceed }) {
     .map(([genre]) => genre);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Your Sound in a Snapshot</h2>
-      <p>Here's a quick glimpse into your most listened-to genres:</p>
-
-      <div className="space-y-2">
-        <h3 className="font-medium">Top Meta-genres:</h3>
-        <ul className="list-disc ml-6">
+    <div className="space-y-10 text-center">
+      <motion.div
+        key="meta"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-2xl font-semibold mb-2">Welcome to Sinatra 👋</h2>
+        <p className="text-gray-700 mb-4">It seems you're a pretty big fan of:</p>
+        <ul className="list-disc ml-6 text-left inline-block">
           {topMetaGenres.map((genre, i) => (
-            <motion.li key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.2 }}>
+            <motion.li
+              key={i}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.2 }}
+            >
               {genre}
             </motion.li>
           ))}
         </ul>
-      </div>
+      </motion.div>
 
-      <div className="space-y-2">
-        <h3 className="font-medium">Top Sub-genres:</h3>
-        <ul className="list-disc ml-6">
-          {topSubGenres.map((sub, i) => (
-            <motion.li key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.1 }}>
-              {sub}
-            </motion.li>
-          ))}
-        </ul>
-      </div>
+      {showSubGenres && (
+        <motion.div
+          key="sub"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-2xl font-semibold mb-2">To be specific...</h2>
+          <p className="text-gray-700 mb-4">Lately you've been especially fond of these types of music:</p>
+          <ul className="list-disc ml-6 text-left inline-block">
+            {topSubGenres.map((sub, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                {sub}
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
+      )}
     </div>
   );
 }

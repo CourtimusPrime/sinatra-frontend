@@ -17,8 +17,9 @@ function NameEditor({ user, onboardData, setOnboardData, setCanProceed }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Hi {user?.display_name || "friend"}!</h2>
-      <p className="text-gray-700">Is that what we should call you?</p>
+      <h2 className="text-2xl font-semibold">We like the name "{user?.display_name || "friend"}".</h2>
+      <h2 className="text-3xl font-bold">Do you?</h2>
+      <p className="text-gray-700">Want to change the name you go by on Sinatra?</p>
 
       {!editing ? (
         <button
