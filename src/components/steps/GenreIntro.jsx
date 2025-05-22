@@ -4,11 +4,16 @@ import { motion } from "framer-motion";
 
 function GenreIntro({ genres, setCanProceed }) {
   const [showSubGenres, setShowSubGenres] = useState(false);
+  const [showOutro, setShowOutro] = useState(false);
 
   useEffect(() => {
     setCanProceed(true);
-    const timer = setTimeout(() => setShowSubGenres(true), 3000);
-    return () => clearTimeout(timer);
+    const t1 = setTimeout(() => setShowSubGenres(true), 3000);
+    const t2 = setTimeout(() => setShowOutro(true), 6000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   const highestObj = genres?.highest || {};
@@ -33,7 +38,7 @@ function GenreIntro({ genres, setCanProceed }) {
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-2xl font-semibold mb-2">Welcome to Sinatra 👋</h2>
-        <p className="text-gray-700 mb-4">It seems you're a pretty big fan of:</p>
+        <p className="text-gray-700 mb-4">Based on your Spotify data, your top musical styles are:</p>
         <ul className="list-disc ml-6 text-left inline-block">
           {topMetaGenres.map((genre, i) => (
             <motion.li
@@ -55,8 +60,8 @@ function GenreIntro({ genres, setCanProceed }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-2xl font-semibold mb-2">To be specific...</h2>
-          <p className="text-gray-700 mb-4">Lately you've been especially fond of these types of music:</p>
+          <h2 className="text-2xl font-semibold mb-2">You’re also into...</h2>
+          <p className="text-gray-700 mb-4">Here are your most played sub-genres lately:</p>
           <ul className="list-disc ml-6 text-left inline-block">
             {topSubGenres.map((sub, i) => (
               <motion.li
@@ -69,6 +74,20 @@ function GenreIntro({ genres, setCanProceed }) {
               </motion.li>
             ))}
           </ul>
+        </motion.div>
+      )}
+
+      {showOutro && (
+        <motion.div
+          key="outro"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-2xl font-semibold mb-2">But music is much more than just genres.</h2>
+          <p className="text-gray-700 mt-2">With Sinatra, you'll be able to share the <strong>tracks</strong> and <strong>playlists</strong>{" "}
+            that makes your music taste <strong>uniquely yours</strong>!
+          </p>
         </motion.div>
       )}
     </div>
