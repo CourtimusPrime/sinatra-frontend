@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingSteps from "../components/OnboardingSteps";
 import { apiGet, apiPost } from "../utils/api";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "@motionone/react";
 import "../styles/onboard.css";
 
 function Onboard() {
@@ -72,24 +72,21 @@ function Onboard() {
   return (
     <div className="onboard-container">
       <div className="onboard-content">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3 }}
-          >
-            <OnboardingSteps
-              step={step}
-              user={spotifyUser}
-              genres={genreData}
-              onboardData={onboardData}
-              setOnboardData={setOnboardData}
-              setCanProceed={setCanProceed}
-            />
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <OnboardingSteps
+            step={step}
+            user={spotifyUser}
+            genres={genreData}
+            onboardData={onboardData}
+            setOnboardData={setOnboardData}
+            setCanProceed={setCanProceed}
+          />
+        </motion.div>
       </div>
       <div className="onboard-footer">
         <button

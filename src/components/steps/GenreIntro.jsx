@@ -1,6 +1,6 @@
 // src/components/steps/GenreIntro.jsx
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@motionone/react";
 
 function GenreIntro({ genres, setCanProceed }) {
   const [showSubGenres, setShowSubGenres] = useState(false);

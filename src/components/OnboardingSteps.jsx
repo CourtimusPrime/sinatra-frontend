@@ -1,6 +1,6 @@
 // src/components/OnboardingSteps.jsx
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@motionone/react";
 import NameEditor from "./steps/NameEditor";
 import PictureEditor from "./steps/PictureEditor";
 import GenreIntro from "./steps/GenreIntro";
@@ -41,7 +41,7 @@ function OnboardingSteps({ step, user, genres, onboardData, setOnboardData, setC
           className="h-full bg-blue-600"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercent}%` }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.3 }}
         />
       </div>
       <div className="onboard-step-content">
