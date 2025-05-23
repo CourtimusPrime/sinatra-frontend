@@ -6,7 +6,6 @@ import Loader from "./components/Loader";
 
 const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
-const Playlists = lazy(() => import("./pages/playlists.jsx"));
 const Landing = lazy(() => import("./pages/landing.jsx"));
 const PublicProfile = lazy(() => import("./pages/public.jsx"));
 const Callback = lazy(() => import("./pages/Callback.jsx"));
@@ -25,7 +24,6 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<Home />} />
             <Route path="/onboard" element={<Onboard />} />
-            <Route path="/playlists" element={<Playlists />} />
             <Route path="/callback" element={<Callback />} />
             <Route path="/u/:user_id" element={<PublicProfile />} />
             <Route path="*" element={<NotFound />} />

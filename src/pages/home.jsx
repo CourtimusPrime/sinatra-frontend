@@ -96,7 +96,7 @@ function Home() {
       const sortedAll = playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
 
       setPlaylists(sortedFeatured.slice(0, 3));
-      localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
+      localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3).map(p => p.id)));
       console.log("Raw genre_map from response:", genre_map);
 
       const normalized = Object.fromEntries(
@@ -283,11 +283,20 @@ function Home() {
             See All →
           </button>
         </div>
-
         <div className="flex flex-col gap-3">
-          {playlists.map((playlist, idx) => (
-            <PlaylistCard key={playlist.id || idx} playlist={playlist} index={idx} />
-          ))}
+          {Array.isArray(playlists) ? (
+            playlists.map((playlist, i) => {
+              console.log(`✅ Playlist ${i}:`, playlist);
+              if (!playlist || typeof playlist !== "object") {
+                console.warn(`❌ Invalid playlist at index ${i}:`, playlist);
+                return <div key={i}>Invalid playlist</div>;
+              }
+
+              return <PlaylistCard key={playlist.id || i} playlist={playlist} index={i} />;
+            })
+          ) : (
+            <div className="text-red-500">❌ playlists is not an array</div>
+          )}
         </div>
       </motion.div>
 
