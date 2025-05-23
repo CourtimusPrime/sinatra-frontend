@@ -6,18 +6,13 @@ function PlaylistCard({ playlist, index = 0 }) {
   if (!playlist || typeof playlist !== "object") {
     return <div className="text-red-500">❌ Playlist not found or invalid</div>;
   }
-  console.log("🎴 PlaylistCard got:", playlist);
 
   const {
     name = "Untitled Playlist",
     image,
     external_url,
-    tracks,
+    tracks, // this should already be a number
   } = playlist;
-
-  const trackCount = typeof tracks === "number"
-    ? tracks
-    : tracks?.total ?? tracks?.$numberInt ?? null;
 
   return (
     <motion.a
@@ -37,8 +32,8 @@ function PlaylistCard({ playlist, index = 0 }) {
       <div className="flex flex-col overflow-hidden">
         <p className="font-bold leading-tight truncate">{name}</p>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          {typeof trackCount === "number"
-            ? `${trackCount} song${trackCount === 1 ? "" : "s"}`
+          {typeof tracks === "number"
+            ? `${tracks} song${tracks === 1 ? "" : "s"}`
             : "– songs"}
         </p>
       </div>

@@ -46,7 +46,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
           ) : (
             allPlaylists.map((p) => (
               <a
-                key={p.playlist_id}
+                key={p.id}
                 href={p.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
