@@ -20,6 +20,17 @@ function Home() {
   const loadStart = useRef(performance.now());
   const didInit = useRef(false);
 
+  try {
+    const maybeBadFeatured = JSON.parse(localStorage.getItem("featured_playlists"));
+    if (Array.isArray(maybeBadFeatured) && typeof maybeBadFeatured[0] === "string") {
+      localStorage.removeItem("featured_playlists");
+      console.warn("🧹 Removed invalid featured_playlists from localStorage.");
+    }
+  } catch (err) {
+    console.error("⚠️ Failed to parse featured_playlists from localStorage:", err);
+    localStorage.removeItem("featured_playlists");
+  }
+
   const getCached = (key, fallback) => {
     try {
       const cached = localStorage.getItem(key);
@@ -35,7 +46,11 @@ function Home() {
     const cached = localStorage.getItem("last_played_updated_at");
     return cached ? new Date(cached) : null;
   });
-  const [playlists, setPlaylists] = useState(() => getCached("featured_playlists", []));
+  const rawFeatured = getCached("featured_playlists", []);
+  const validFeatured = Array.isArray(rawFeatured) && typeof rawFeatured[0] === "object"
+    ? rawFeatured
+    : [];
+  const [playlists, setPlaylists] = useState(validFeatured);
   const [allPlaylists, setAllPlaylists] = useState(() => getCached("all_playlists", []));
   const [genreMap, setGenreMap] = useState(() => getCached("genre_map", {}));
   const [lastInit, setLastInit] = useState(() => {
@@ -92,7 +107,9 @@ function Home() {
         localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
       }
 
-      const sortedFeatured = playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
+      const sortedFeatured = playlists.featured
+        .map(pl => ({ ...pl, tracks: pl.track_count }))
+        .sort((a, b) => (b.tracks || 0) - (a.tracks || 0));
       const sortedAll = playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
 
       setPlaylists(sortedFeatured.slice(0, 3));
@@ -279,15 +296,50 @@ function Home() {
           <div className="font-semibold text-lg flex items-center gap-1">
             <span>🌟</span> Featured Playlists
           </div>
-          <button aria-label="Open all user's playlists" onClick={() => setAllModalOpen(true)} className="mt-4 underline">
+          <button
+            aria-label="Open all user's playlists"
+            onClick={() => setAllModalOpen(true)}
+            className="mt-4 underline"
+          >
             See All →
           </button>
         </div>
 
         <div className="flex flex-col gap-3">
-          {playlists.map((playlist, idx) => (
-            <PlaylistCard key={playlist.id || idx} playlist={playlist} index={idx} />
-          ))}
+          {Array.isArray(playlists) ? (
+            playlists.map((playlist, i) => {
+              const isValid =
+                playlist &&
+                typeof playlist === "object" &&
+                typeof playlist.name === "string" &&
+                typeof playlist.image === "string" &&
+                (typeof playlist.track_count === "number" || typeof playlist.tracks === "number");
+
+              console.log(`🔎 Playlist ${i}:`, playlist);
+
+              if (!isValid) {
+                console.warn(`❌ Invalid playlist at index ${i}:`, playlist);
+                return (
+                  <div key={playlist?.id || i} className="text-red-500 text-sm">
+                    ⚠️ Skipped invalid playlist
+                  </div>
+                );
+              }
+
+              return (
+                <PlaylistCard
+                  key={playlist.id || i}
+                  playlist={{
+                    ...playlist,
+                    tracks: playlist.track_count ?? playlist.tracks,
+                  }}
+                  index={i}
+                />
+              );
+            })
+          ) : (
+            <div className="text-red-500">❌ playlists is not an array</div>
+          )}
         </div>
       </motion.div>
 

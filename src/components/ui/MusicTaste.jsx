@@ -40,7 +40,6 @@ function MusicTaste({ genresData, genreMap }) {
         
         ["post-grunge", "grunge", "classic rock", "hard rock", "metal"].forEach(name => {
           const lower = name.toLowerCase();
-          console.log(`${name} → ${genreMap[lower]}`);
         });
 
         return !isExcluded;
@@ -64,9 +63,6 @@ function MusicTaste({ genresData, genreMap }) {
 
   const currentData = step === 0 ? metaGenres : subGenres;
   const title = step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres";
-
-  console.log("🎛 step:", step);
-  console.log("🎯 subGenres computed:", subGenres);
 
   return (
     <div {...handlers} className="mt-6 bg-white rounded-2xl shadow p-4">

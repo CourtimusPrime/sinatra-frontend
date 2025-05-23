@@ -15,22 +15,29 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
       .then((r) => r.json())
       .then((data) => {
         setAllPlaylists(data);
-        const featuredIds = data.slice(0, 3).map((p) => p.playlist_id);
-        setSelected(featuredIds);
+        fetch(`/dashboard?user_id=${user_id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setAllPlaylists(data.playlists.all);
+          setSelected(data.playlists.featured.map((p) => p.id || p.playlist_id));
+        });
       })
       .finally(() => setLoading(false));
   }, [isOpen, user_id]);
 
+  const handleToggle = (id) => {
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((pid) => pid !== id);
+      if (prev.length < 3) return [...prev, id];
+      return prev;
+    });
+  };
+
   const handleSave = () => {
-    fetch("/complete-onboarding", {
+    fetch("/update-featured", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: user_id,
-        playlist_ids: selected,
-        display_name: "",
-        profile_picture: "",
-      }),
+      body: JSON.stringify({ user_id, playlist_ids: selected }),
     }).then(() => {
       onSave();
       onClose();
@@ -64,16 +71,10 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
                 .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
                 .map((p) => (
                   <div
-                    key={p.playlist_id}
-                    onClick={() => {
-                      setSelected((prev) =>
-                        prev.includes(p.playlist_id)
-                          ? prev.filter((id) => id !== p.playlist_id)
-                          : [...prev, p.playlist_id].slice(0, 3)
-                      );
-                    }}
+                    key={p.id}
+                    onClick={() => handleToggle(p.id)}
                     className={`border p-2 rounded cursor-pointer text-center transition ${
-                      selected.includes(p.playlist_id)
+                      selected.includes(p.id)
                         ? "bg-blue-100 border-blue-500"
                         : ""
                     }`}
