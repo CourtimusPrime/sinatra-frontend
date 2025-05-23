@@ -1,7 +1,7 @@
 // src/components/ui/GenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
-import { getMetaGenreColor } from "../../constants/metaGenres";
+import { getMetaGenreGradient } from "../../constants/metaGenres";
 
 function GenreBarList({ data }) {
   if (!Array.isArray(data) || data.length === 0) {
@@ -29,16 +29,18 @@ function GenreBarList({ data }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
           >
-            <div className="flex justify-between text-sm font-medium mb-1">
+            <div className="flex justify-between text-sb font-medium mb-1">
               <span>{name}</span>
               <span className="text-gray-500">{displayPercent}%</span>
             </div>
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden border border-gray-300">
-              <div
-                className="h-full rounded-full transition-all"
+            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: barWidth }}
+                transition={{ duration: 0.6, delay: index * 0.08 }}
+                className="h-full rounded-full"
                 style={{
-                  width: barWidth,
-                  backgroundColor: getMetaGenreColor(name) || "#ccc",
+                  background: getMetaGenreGradient(name) || "#ccc",
                 }}
               />
             </div>

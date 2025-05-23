@@ -212,11 +212,13 @@ function Home() {
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      <button aria-label="Open settings"
+      {userState?.user_id && <ShareButton userId={userState.user_id} />}
+      <button
         onClick={() => setSettingsOpen(true)}
-        className="text-sm underline text-right block ml-auto"
+        className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-500 transition-all ml-auto"
       >
-        ⚙️ Settings
+        <span className="text-base">⚙️</span>
+        Settings
       </button>
 
       <motion.div
@@ -233,8 +235,6 @@ function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         />
-
-        {userState?.user_id && <ShareButton userId={userState.user_id} />}
 
         <motion.h1
           className="text-2xl font-bold text-center"

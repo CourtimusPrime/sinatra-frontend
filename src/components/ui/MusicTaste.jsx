@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
-import { getMetaGenreColor, isMetaGenre } from "../../constants/metaGenres";
+import { isMetaGenre } from "../../constants/metaGenres";
 
 function MusicTaste({ genresData, genreMap }) {
   const [step, setStep] = useState(0);
@@ -24,6 +24,8 @@ function MusicTaste({ genresData, genreMap }) {
       }));
   }, [genresData]);
 
+  
+
   const subGenres = useMemo(() => {
     if (!genresData?.sub_genres || !genreMap) return [];
 
@@ -37,10 +39,6 @@ function MusicTaste({ genresData, genreMap }) {
         if (isExcluded) {
           console.log(`🚫 Excluded sub-genre: ${name} → parent: ${parent}`);
         }
-        
-        ["post-grunge", "grunge", "classic rock", "hard rock", "metal"].forEach(name => {
-          const lower = name.toLowerCase();
-        });
 
         return !isExcluded;
       })
@@ -56,11 +54,6 @@ function MusicTaste({ genresData, genreMap }) {
     trackMouse: true,
   });
 
-  const getColorForGenre = (subGenre) => {
-    const parent = genreMap?.[subGenre?.toLowerCase()] || "other";
-    return getMetaGenreColor(parent);
-  };
-
   const currentData = step === 0 ? metaGenres : subGenres;
   const title = step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres";
 
@@ -73,9 +66,7 @@ function MusicTaste({ genresData, genreMap }) {
       ) : step === 0 ? (
         <GenreBarList data={metaGenres} />
       ) : (
-        <SubGenreBarList data={subGenres} 
-        getColorForGenre={getColorForGenre} 
-        genreMap={genreMap}/>
+        <SubGenreBarList data={subGenres} genreMap={genreMap} />
       )}
 
       <div className="flex justify-center gap-2 mt-4">
