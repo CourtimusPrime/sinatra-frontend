@@ -63,6 +63,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
       if (tab === "add") {
         const selectedPlaylists = allSpotifyPlaylists
           .filter((p) => selectedIds.includes(p.playlist_id))
+          .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
           .map((p) => ({
             id: p.playlist_id,
             name: p.name,
@@ -109,13 +110,21 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         <div className="flex space-x-2 mb-4">
           <button
             onClick={() => setTab("add")}
-            className={`px-4 py-2 rounded ${tab === "add" ? "bg-green-500 text-white" : "bg-gray-100"}`}
+            className={`px-4 py-2 rounded ${
+              tab === "add"
+                ? "bg-green-500 text-white"
+                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
             ➕ Add
           </button>
           <button
             onClick={() => setTab("remove")}
-            className={`px-4 py-2 rounded ${tab === "remove" ? "bg-red-500 text-white" : "bg-gray-100"}`}
+            className={`px-4 py-2 rounded ${
+              tab === "remove"
+                ? "bg-red-500 text-white"
+                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
             ➖ Remove
           </button>
@@ -128,11 +137,13 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
           [...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="border rounded-lg p-2 text-center flex flex-col items-center animate-pulse"
+              className="flex items-center gap-4 cursor-pointer bg-white dark:bg-gray-900 p-2 rounded-md animate-pulse border"
             >
-              <GlintBox width="w-20" height="h-20" rounded="rounded" />
-              <GlintBox width="w-4/5" height="h-3" className="mt-2" />
-              <GlintBox width="w-2/5" height="h-2" className="mt-1" />
+              <GlintBox width="w-14" height="h-14" rounded="rounded-md" />
+              <div className="flex flex-col gap-2 flex-1">
+                <GlintBox width="w-3/4" height="h-4" />
+                <GlintBox width="w-1/2" height="h-3" />
+              </div>
             </div>
           ))
         ) : playlists.length === 0 ? (
@@ -140,27 +151,30 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
             {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
           </p>
         ) : (
-          playlists.map((p) => {
-            const id = p.playlist_id || p.id;
-            return (
-              <PlaylistCardMini
-                key={id}
-                playlist={p}
-                onClick={() =>
-                  setSelectedIds((prev) =>
-                    prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-                  )
-                }
-                isSelected={selectedIds.includes(id)}
-                selectable
-                showTracks
-              />
-            );
-          })
+          [...playlists]
+            .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
+            .map((p, i) => {
+              const id = p.playlist_id || p.id;
+              return (
+                <PlaylistCardMini
+                  key={id}
+                  playlist={p}
+                  index={i}
+                  onClick={() =>
+                    setSelectedIds((prev) =>
+                      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+                    )
+                  }
+                  isSelected={selectedIds.includes(id)}
+                  selectable
+                  showTracks
+                />
+              );
+            })
         )}
       </div>
 
-        <div className="mt-4 flex justify-between">
+        <div className="sticky bottom-0 left-0 bg-white dark:bg-gray-800 border-t mt-4 pt-3 pb-4 px-6 flex justify-between z-10">
           <button onClick={onClose} className="text-sm underline text-gray-500 dark:text-gray-300">
             Cancel
           </button>
@@ -168,9 +182,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
             onClick={handleSave}
             disabled={loading || selectedIds.length === 0}
             className={`px-4 py-2 rounded text-white ${
-              tab === "add"
-                ? "bg-green-500"
-                : "bg-red-500"
+              tab === "add" ? "bg-green-500" : "bg-red-500"
             } ${loading ? "opacity-50 cursor-wait" : ""}`}
           >
             {loading ? "Saving..." : "Save"}

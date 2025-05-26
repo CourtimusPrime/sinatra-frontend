@@ -61,9 +61,11 @@ function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
           ) : allPlaylists.length === 0 ? (
             <p className="text-center text-gray-500 text-sm">No playlists found.</p>
           ) : (
-            allPlaylists.map((p, i) => (
-              <PlaylistCardMini key={p.id || p.playlist_id} playlist={p} index={i} showTracks />
-            ))
+            [...allPlaylists]
+              .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
+              .map((p, i) => (
+                <PlaylistCardMini key={p.id || p.playlist_id} playlist={p} index={i} showTracks />
+              ))
           )}
         </div>
         <button

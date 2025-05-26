@@ -53,35 +53,39 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow w-full max-w-md flex flex-col max-h-[90vh]">
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-bold mb-2">Select 3 Featured Playlists</h2>
+      <div className="bg-white dark:bg-gray-800 rounded shadow w-full max-w-md flex flex-col max-h-[90vh]">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+            🌟 Select 3 Playlists to Feature
+          </h2>
           <input
             type="text"
             placeholder="Search playlists..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600"
           />
         </div>
 
         <div className="p-4 overflow-y-auto flex-1 relative min-h-[200px]">
-          {loading ? (
-            <div className="grid grid-cols-2 gap-2">
-              {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-2 gap-2">
+            {loading ? (
+              [...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="border p-2 rounded text-center flex flex-col items-center animate-pulse"
+                  className="flex items-center gap-3 bg-white dark:bg-gray-900 p-2 rounded-md border animate-pulse"
                 >
-                  <GlintBox width="w-full" height="aspect-square" rounded="rounded mb-1" />
-                  <GlintBox width="w-3/4" height="h-3" />
+                  <GlintBox width="w-14" height="h-14" rounded="rounded-md" />
+                  <div className="flex flex-col gap-2 flex-1">
+                    <GlintBox width="w-3/4" height="h-4" />
+                    <GlintBox width="w-1/2" height="h-3" />
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {allPlaylists
+              ))
+            ) : (
+              allPlaylists
                 .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+                .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
                 .map((p) => (
                   <PlaylistCardMini
                     key={p.id}
@@ -90,13 +94,17 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
                     isSelected={selected.includes(p.id)}
                     selectable
                   />
-                ))}
-            </div>
-          )}
+                ))
+            )}
+          </div>
         </div>
 
-        <div className="p-4 border-t flex justify-end space-x-2">
-          <button aria-label="Close modal" onClick={onClose} className="text-sm underline">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2 bg-white dark:bg-gray-800">
+          <button
+            aria-label="Close modal"
+            onClick={onClose}
+            className="text-sm underline text-gray-600 dark:text-gray-300"
+          >
             Cancel
           </button>
           <button
