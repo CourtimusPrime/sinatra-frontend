@@ -334,8 +334,6 @@ function Home() {
                 typeof playlist.name === "string" &&
                 typeof playlist.tracks === "number";
 
-              console.log(`🔎 Playlist ${i}:`, playlist);
-
               if (!isValid) {
                 console.warn(`❌ Invalid playlist at index ${i}:`, playlist);
                 return (
