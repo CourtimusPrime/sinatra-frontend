@@ -1,7 +1,7 @@
-// src/components/RecentlyPlayedCard.jsx
+// frontend/src/components/RecentlyPlayedCard.jsx
 import { RefreshCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { motion } from "@motionone/react";
+import { motion } from "framer-motion";
 
 function cleanTrackName(name) {
   return name
@@ -23,28 +23,12 @@ function RecentlyPlayedCard({
   animateChange,
   isRefreshing,
 }) {
-  const cardRef = useRef(null);
-  const [bgY, setBgY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!cardRef.current) return;
-      const rect = cardRef.current.getBoundingClientRect();
-      const offset = rect.top + window.scrollY;
-      const scrollPos = window.scrollY;
-      const speedFactor = 0.4;
-      setBgY((scrollPos - offset) * speedFactor);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const getFreshnessLabel = (date) => {
     if (!date) return null;
     const now = new Date();
     const diffMs = now - new Date(date);
     const diffMin = Math.floor(diffMs / 60000);
+
     if (diffMin < 1) return "just now";
     if (diffMin === 1) return "1m ago";
     return `${diffMin}m ago`;
@@ -52,26 +36,32 @@ function RecentlyPlayedCard({
 
   return (
     <motion.div
-      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`relative rounded-2xl overflow-hidden text-white shadow-md w-full mt-6 ${
+      className={`relative rounded-2xl overflow-hidden text-white shadow-md w-full mt-6 transition-colors duration-300 ${
         animateChange ? "animate-bgfade" : ""
       }`}
       style={{
-        backgroundImage: `url(${track.album_art_url})`,
+        backgroundImage: track.album_art_url
+          ? `url(${track.album_art_url})`
+          : undefined,
+        backgroundColor: !track.album_art_url
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "#111827" // Tailwind's dark:bg-gray-900
+          : "#ffffff" // Tailwind's bg-white
+        : undefined,
         backgroundSize: "cover",
-        backgroundPosition: `center ${bgY}px`,
+        backgroundPosition: "center",
         minHeight: "140px",
-        willChange: "background-position, opacity, transform",
+        willChange: "opacity, transform",
       }}
     >
       {/* 🔲 Blur overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-sm" />
 
       {/* 🎵 Main content */}
-      <div className="relative z-10 p-4 flex flex-col gap-2">
+      <div className="relative z-10 p-4 flex flex-col gap-2 text-white dark:text-white">
         <h2 className="text-sm sm:text-base font-semibold flex items-center gap-2">
           🎧 Recently Played
           {lastUpdated && (

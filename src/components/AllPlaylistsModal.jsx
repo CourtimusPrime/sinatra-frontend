@@ -60,7 +60,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
                 <div>
                   <p className="font-bold text-sm">{p.name}</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {p.track_count || "–"} songs
+                    {typeof p.tracks === "number" ? `${p.tracks} song${p.tracks === 1 ? "" : "s"}` : "– songs"}
                   </p>
                 </div>
               </a>
