@@ -1,26 +1,19 @@
-// src/components/ui/GenreBarList.jsx
+// src/components/music/SubGenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
 import { getMetaGenreGradient } from "../../constants/metaGenres";
 
-function GenreBarList({ data }) {
-  if (!Array.isArray(data) || data.length === 0) {
-    return <div className="text-sm text-gray-400">No genre data available.</div>;
-  }
-
-  const total = data.reduce((sum, d) => {
-    const val = typeof d.value === "number" && isFinite(d.value) ? d.value : 0;
-    return sum + val;
-  }, 0) || 1;
+function SubGenreBarList({ data, getColorForGenre, genreMap }) {
+  const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
 
   return (
     <div className="space-y-3">
       {data.map(({ name, value }, index) => {
-        if (typeof value !== "number" || !isFinite(value)) return null;
-
-        const rawPercent = (value / total) * 100;
-        const displayPercent = rawPercent.toFixed(1);
-        const barWidth = `${rawPercent}%`;
+        const lower = name.toLowerCase();
+        const parentGenre = genreMap?.[lower] || "other";
+        const percent = ((value / total) * 100).toFixed(1);
+        const barGradient = getMetaGenreGradient(parentGenre);
+        const barWidth = `${percent}%`;
 
         return (
           <motion.div
@@ -30,17 +23,17 @@ function GenreBarList({ data }) {
             transition={{ delay: index * 0.08 }}
           >
             <div className="flex justify-between text-sb font-medium mb-1">
-              <span>{name}</span>
-              <span className="text-gray-500">{displayPercent}%</span>
+              <span className="italic">{name}</span>
+              <span className="text-gray-400">{percent}%</span>
             </div>
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: barWidth }}
                 transition={{ duration: 0.6, delay: index * 0.08 }}
                 className="h-full rounded-full"
                 style={{
-                  background: getMetaGenreGradient(name) || "#ccc",
+                  background: barGradient,
                 }}
               />
             </div>
@@ -51,4 +44,4 @@ function GenreBarList({ data }) {
   );
 }
 
-export default GenreBarList;
+export default SubGenreBarList;

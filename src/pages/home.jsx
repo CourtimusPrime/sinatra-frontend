@@ -8,10 +8,10 @@ import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import { motion } from "@motionone/react";
 import { apiGet, apiDelete } from "../utils/api";
 import ShareButton from "../components/ShareButton";
-
+import { Menu, Share } from "lucide-react";
 
 // Lazy-loaded components
-const MusicTaste = lazy(() => import("../components/ui/MusicTaste"));
+const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
 const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
 const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
 const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
@@ -40,6 +40,7 @@ function Home() {
     }
   };
   const [userState, setUserState] = useState(() => getCached("user", null));
+  const [copied, setCopied] = useState(false);
   const [genresData, setGenresData] = useState(() => getCached("genres_data", null));
   const [track, setTrack] = useState(() => getCached("last_played_track", null));
   const [lastUpdated, setLastUpdated] = useState(() => {
@@ -212,15 +213,34 @@ function Home() {
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      {userState?.user_id && <ShareButton userId={userState.user_id} />}
-      <button
-        onClick={() => setSettingsOpen(true)}
-        className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-500 transition-all ml-auto"
-      >
-        <span className="text-base">⚙️</span>
-        Settings
-      </button>
+      <div className="flex justify-between mb-2">
+        {userState?.user_id && (
+          <button
+            onClick={() => {
+              const profileUrl = `https://sinatra.live/u/${userState.user_id}`;
+              navigator.clipboard.writeText(profileUrl);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+            aria-label="Copy profile link"
+            className="text-black hover:opacity-60 transition"
+          >
+            {copied ? (
+              <span className="text-xs font-semibold">✅</span>
+            ) : (
+              <Share className="w-5 h-5" />
+            )}
+          </button>
+        )}
 
+        <button
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Open settings"
+          className="text-black hover:opacity-60 transition"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </div>
       <motion.div
         className="flex flex-col items-center my-4"
         initial={{ opacity: 0 }}

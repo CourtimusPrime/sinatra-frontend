@@ -1,4 +1,4 @@
-// src/components/ui/MusicTaste.jsx
+// src/components/music/MusicTaste.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
