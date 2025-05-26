@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     compression({
-      algorithm: 'brotliCompress', // or 'gzip'
+      algorithm: 'brotliCompress',
       ext: '.br',
       deleteOriginFile: false
     })

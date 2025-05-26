@@ -22,7 +22,7 @@ function TopSubGenre({ genresData }) {
   if (!topSub) return null;
 
   return (
-    <div className="text-sm text-gray-500 mt-1 text-center">
+    <div className="text-sm text-gray-500 text-center">
       Current taste: <span className="font-semibold">{topSub}</span>
     </div>
   );

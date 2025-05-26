@@ -1,31 +1,34 @@
 // src/App.jsx
-import React, { lazy, Suspense, useState } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Loader from "./components/Loader";
 
 const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
-const Playlists = lazy(() => import("./pages/playlists.jsx"));
 const Landing = lazy(() => import("./pages/landing.jsx"));
 const PublicProfile = lazy(() => import("./pages/public.jsx"));
 const Callback = lazy(() => import("./pages/Callback.jsx"));
 const NotFound = lazy(() => import("./pages/404.jsx"));
 
 function App() {
-  const [bgStyle, setBgStyle] = useState("");
-  const [fontStyle, setFontStyle] = useState("");
-  const [textColorClass, setTextColorClass] = useState("");
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
 
   return (
-    <div className={`min-h-screen ${bgStyle} ${fontStyle} ${textColorClass}`}>
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] font-[var(--font)] transition-colors duration-300">
       <Suspense fallback={<Loader />}>
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<Home />} />
             <Route path="/onboard" element={<Onboard />} />
-            <Route path="/playlists" element={<Playlists />} />
             <Route path="/callback" element={<Callback />} />
             <Route path="/u/:user_id" element={<PublicProfile />} />
             <Route path="*" element={<NotFound />} />

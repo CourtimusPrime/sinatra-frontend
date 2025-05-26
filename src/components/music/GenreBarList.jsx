@@ -1,7 +1,7 @@
-// src/components/ui/GenreBarList.jsx
+// src/components/music/GenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
-import { getMetaGenreColor } from "../../constants/metaGenres";
+import { getMetaGenreGradient } from "../../constants/metaGenres";
 
 function GenreBarList({ data }) {
   if (!Array.isArray(data) || data.length === 0) {
@@ -14,7 +14,12 @@ function GenreBarList({ data }) {
   }, 0) || 1;
 
   return (
-    <div className="space-y-3">
+    <motion.div
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300 space-y-3"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       {data.map(({ name, value }, index) => {
         if (typeof value !== "number" || !isFinite(value)) return null;
 
@@ -31,21 +36,23 @@ function GenreBarList({ data }) {
           >
             <div className="flex justify-between text-sm font-medium mb-1">
               <span>{name}</span>
-              <span className="text-gray-500">{displayPercent}%</span>
+              <span className="text-gray-500 dark:text-gray-400">{displayPercent}%</span>
             </div>
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden border border-gray-300">
-              <div
-                className="h-full rounded-full transition-all"
+            <div className="h-3 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: barWidth }}
+                transition={{ duration: 0.6, delay: index * 0.08 }}
+                className="h-full rounded-full"
                 style={{
-                  width: barWidth,
-                  backgroundColor: getMetaGenreColor(name) || "#ccc",
+                  background: getMetaGenreGradient(name) || "#ccc",
                 }}
               />
             </div>
           </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 

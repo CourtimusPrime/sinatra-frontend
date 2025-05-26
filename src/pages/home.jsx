@@ -1,17 +1,17 @@
 // src/pages/home.jsx
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
-import PlaylistCard from "../components/PlaylistCard";
+import PlaylistCard from "../components/FeaturedPlaylists";
 import { useNavigate } from "react-router-dom";
 import "../styles/loader.css";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import { motion } from "@motionone/react";
 import { apiGet, apiDelete } from "../utils/api";
-import ShareButton from "../components/ShareButton";
-
+import { Menu, Share } from "lucide-react";
+import { normalizePlaylist } from "../utils/normalize";
 
 // Lazy-loaded components
-const MusicTaste = lazy(() => import("../components/ui/MusicTaste"));
+const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
 const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
 const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
 const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
@@ -19,6 +19,17 @@ const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 function Home() {
   const loadStart = useRef(performance.now());
   const didInit = useRef(false);
+
+  try {
+    const maybeBadFeatured = JSON.parse(localStorage.getItem("featured_playlists"));
+    if (Array.isArray(maybeBadFeatured) && typeof maybeBadFeatured[0] === "string") {
+      localStorage.removeItem("featured_playlists");
+      console.warn("🧹 Removed invalid featured_playlists from localStorage.");
+    }
+  } catch (err) {
+    console.error("⚠️ Failed to parse featured_playlists from localStorage:", err);
+    localStorage.removeItem("featured_playlists");
+  }
 
   const getCached = (key, fallback) => {
     try {
@@ -29,13 +40,18 @@ function Home() {
     }
   };
   const [userState, setUserState] = useState(() => getCached("user", null));
+  const [copied, setCopied] = useState(false);
   const [genresData, setGenresData] = useState(() => getCached("genres_data", null));
   const [track, setTrack] = useState(() => getCached("last_played_track", null));
   const [lastUpdated, setLastUpdated] = useState(() => {
     const cached = localStorage.getItem("last_played_updated_at");
     return cached ? new Date(cached) : null;
   });
-  const [playlists, setPlaylists] = useState(() => getCached("featured_playlists", []));
+  const rawFeatured = getCached("featured_playlists", []);
+  const validFeatured = Array.isArray(rawFeatured)
+    ? rawFeatured.map(normalizePlaylist)
+    : [];
+  const [playlists, setPlaylists] = useState(validFeatured);
   const [allPlaylists, setAllPlaylists] = useState(() => getCached("all_playlists", []));
   const [genreMap, setGenreMap] = useState(() => getCached("genre_map", {}));
   const [lastInit, setLastInit] = useState(() => {
@@ -92,12 +108,14 @@ function Home() {
         localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
       }
 
-      const sortedFeatured = playlists.featured.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
-      const sortedAll = playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
+      const sortedFeatured = playlists.featured
+        .map(normalizePlaylist)
+        .sort((a, b) => b.tracks - a.tracks);
+      const sortedAll = playlists.all.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
 
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-      console.log("Raw genre_map from response:", genre_map);
+      localStorage.setItem("all_playlists", JSON.stringify(sortedAll));
 
       const normalized = Object.fromEntries(
         Object.entries(genre_map || {}).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
@@ -195,13 +213,34 @@ function Home() {
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      <button aria-label="Open settings"
-        onClick={() => setSettingsOpen(true)}
-        className="text-sm underline text-right block ml-auto"
-      >
-        ⚙️ Settings
-      </button>
+      <div className="flex justify-between mb-2">
+        {userState?.user_id && (
+          <button
+            onClick={() => {
+              const profileUrl = `https://sinatra.live/u/${userState.user_id}`;
+              navigator.clipboard.writeText(profileUrl);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+            aria-label="Copy profile link"
+            className="text-black dark:text-white hover:opacity-60 transition"
+          >
+            {copied ? (
+              <span className="text-xs font-semibold">✅</span>
+            ) : (
+              <Share className="w-5 h-5" />
+            )}
+          </button>
+        )}
 
+        <button
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Open settings"
+          className="text-black dark:text-white hover:opacity-60 transition"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </div>
       <motion.div
         className="flex flex-col items-center my-4"
         initial={{ opacity: 0 }}
@@ -216,8 +255,6 @@ function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         />
-
-        {userState?.user_id && <ShareButton userId={userState.user_id} />}
 
         <motion.h1
           className="text-2xl font-bold text-center"
@@ -259,13 +296,13 @@ function Home() {
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
         {genresData && genreMap && (
-          <>
+          <div className="mt-3">
             <MusicTaste
-            key={user_id + "_taste"} // force remount on user change
-            genresData={genresData}
-            genreMap={genreMap}
+              key={user_id + "_taste"} // force remount on user change
+              genresData={genresData}
+              genreMap={genreMap}
             />
-          </>
+          </div>
         )}
       </Suspense>
 
@@ -273,21 +310,52 @@ function Home() {
         initial="hidden"
         animate="visible"
         variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
-        className="bg-white rounded-2xl shadow p-4 mt-6"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3 transition-colors duration-300"
       >
         <div className="flex justify-between items-center mb-2">
           <div className="font-semibold text-lg flex items-center gap-1">
             <span>🌟</span> Featured Playlists
           </div>
-          <button aria-label="Open all user's playlists" onClick={() => setAllModalOpen(true)} className="mt-4 underline">
+          <button
+            aria-label="Open all user's playlists"
+            onClick={() => setAllModalOpen(true)}
+            className="mt-4 underline"
+          >
             See All →
           </button>
         </div>
 
         <div className="flex flex-col gap-3">
-          {playlists.map((playlist, idx) => (
-            <PlaylistCard key={playlist.id || idx} playlist={playlist} index={idx} />
-          ))}
+          {Array.isArray(playlists) ? (
+            playlists.map((playlist, i) => {
+              const isValid =
+                playlist &&
+                typeof playlist === "object" &&
+                typeof playlist.name === "string" &&
+                typeof playlist.tracks === "number";
+
+              console.log(`🔎 Playlist ${i}:`, playlist);
+
+              if (!isValid) {
+                console.warn(`❌ Invalid playlist at index ${i}:`, playlist);
+                return (
+                  <div key={playlist?.id || i} className="text-red-500 text-sm">
+                    ⚠️ Skipped invalid playlist
+                  </div>
+                );
+              }
+
+              return (
+                <PlaylistCard
+                  key={playlist.id || i}
+                  playlist={playlist}
+                  index={i}
+                />
+              );
+            })
+          ) : (
+            <div className="text-red-500">❌ playlists is not an array</div>
+          )}
         </div>
       </motion.div>
 

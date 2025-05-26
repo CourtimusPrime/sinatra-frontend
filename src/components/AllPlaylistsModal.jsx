@@ -46,7 +46,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
           ) : (
             allPlaylists.map((p) => (
               <a
-                key={p.playlist_id}
+                key={p.id}
                 href={p.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -60,7 +60,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
                 <div>
                   <p className="font-bold text-sm">{p.name}</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {p.track_count || "–"} songs
+                    {typeof p.tracks === "number" ? `${p.tracks} song${p.tracks === 1 ? "" : "s"}` : "– songs"}
                   </p>
                 </div>
               </a>
