@@ -41,17 +41,6 @@ function Landing() {
           Login with Spotify
         </button>
       </div>
-
-      {/* Sticky Mobile CTA */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 sm:hidden">
-        <button
-          onClick={handleLogin}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-green-600 hover:bg-green-700 text-white text-base font-medium transition"
-        >
-          <img src={Spotify} alt="Spotify logo" className="w-5 h-5" />
-          Start with Spotify
-        </button>
-      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import Loader from "../components/Loader";
 import { motion } from "@motionone/react";
 import { Share } from "lucide-react";
 const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
+import Spotify from "../assets/spotify.svg";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
@@ -21,6 +22,11 @@ export default function PublicProfile() {
   const [showCTA, setShowCTA] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAllModalOpen, setAllModalOpen] = useState(false);
+  const handleLogin = () => {
+    const target = import.meta.env.VITE_API_BASE_URL + "/login";
+    console.log("🛩️ Redirecting to:", target);
+    window.location.href = target;
+  };
 
   useEffect(() => {
     async function load() {
@@ -175,14 +181,16 @@ export default function PublicProfile() {
         </div>
       </motion.div>
 
-      <a
-        href="/"
-        className={`fixed bottom-0 left-0 w-full text-center text-sm font-medium text-white bg-black dark:bg-white dark:text-black py-2 transition-opacity duration-500 ${
-          showCTA ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        Create your own music profile with Sinatra →
-      </a>
+      <div className="fixed bottom-0 left-0 w-full sm:hidden z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 shadow-md">
+        <button
+          onClick={handleLogin}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-green-600 hover:bg-green-700 text-white text-base font-medium transition"
+        >
+          <img src={Spotify} alt="Spotify logo" className="w-5 h-5" />
+          Create Your Own →
+        </button>
+      </div>
+      <div className="h-20 sm:hidden" />
       <Suspense fallback={null}>
         {isAllModalOpen && (
           <AllPlaylistsModal
