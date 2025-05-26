@@ -12,17 +12,27 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
 
     setLoading(true);
     fetch(`/all-playlists?user_id=${user_id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setAllPlaylists(data);
-        fetch(`/dashboard?user_id=${user_id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setAllPlaylists(data.playlists.all);
-          setSelected(data.playlists.featured.map((p) => p.id || p.playlist_id));
-        });
-      })
-      .finally(() => setLoading(false));
+    .then((r) => {
+      if (!r.ok) throw new Error(`❌ Failed to fetch /all-playlists: ${r.status}`);
+      return r.json();
+    })
+    .then((data) => {
+      setAllPlaylists(data);
+      return fetch(`/dashboard?user_id=${user_id}`);
+    })
+    .then((res) => {
+      if (!res.ok) throw new Error(`❌ Failed to fetch /dashboard: ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      setAllPlaylists(data.playlists.all);
+      setSelected(data.playlists.featured.map((p) => p.id || p.playlist_id));
+    })
+    .catch((err) => {
+      console.error("🔥 EditFeatured fetch failed:", err);
+      setAllPlaylists([]);
+    })
+    .finally(() => setLoading(false));
   }, [isOpen, user_id]);
 
   const handleToggle = (id) => {
