@@ -13,11 +13,20 @@ const NotFound = lazy(() => import("./pages/404.jsx"));
 
 function App() {
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
+    const saved = localStorage.getItem("theme");
+
+    // Check for saved preference; otherwise fallback to system
+    if (saved === "dark") {
       document.documentElement.classList.add("dark");
-    } else {
+    } else if (saved === "light") {
       document.documentElement.classList.remove("dark");
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefersDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
     }
   }, []);
 
