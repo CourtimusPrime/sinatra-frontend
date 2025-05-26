@@ -1,5 +1,6 @@
 // src/components/settings/EditFeatured.jsx
 import { useState, useEffect } from "react";
+import { apiGet, apiPost } from "../../utils/api";
 
 function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   const [allPlaylists, setAllPlaylists] = useState([]);
@@ -12,11 +13,7 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
 
     setLoading(true);
 
-    fetch(`/dashboard?user_id=${user_id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`❌ Failed to fetch /dashboard: ${res.status}`);
-        return res.json();
-      })
+    apiGet(`/dashboard?user_id=${user_id}`)
       .then((data) => {
         setAllPlaylists(data.playlists.all);
         setSelected(data.playlists.featured.map((p) => p.id || p.playlist_id));
@@ -37,14 +34,17 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   };
 
   const handleSave = () => {
-    fetch("/update-featured", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id, playlist_ids: selected }),
-    }).then(() => {
-      onSave();
-      onClose();
-    });
+    apiPost("/update-featured", {
+      user_id,
+      playlist_ids: selected,
+    })
+      .then(() => {
+        onSave();
+        onClose();
+      })
+      .catch((err) => {
+        console.error("❌ Failed to update featured playlists:", err);
+      });
   };
 
   if (!isOpen) return null;
