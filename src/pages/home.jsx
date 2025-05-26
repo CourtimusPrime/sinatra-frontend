@@ -223,7 +223,7 @@ function Home() {
               setTimeout(() => setCopied(false), 1500);
             }}
             aria-label="Copy profile link"
-            className="text-black hover:opacity-60 transition"
+            className="text-black dark:text-white hover:opacity-60 transition"
           >
             {copied ? (
               <span className="text-xs font-semibold">✅</span>
@@ -236,7 +236,7 @@ function Home() {
         <button
           onClick={() => setSettingsOpen(true)}
           aria-label="Open settings"
-          className="text-black hover:opacity-60 transition"
+          className="text-black dark:text-white hover:opacity-60 transition"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -296,13 +296,13 @@ function Home() {
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
         {genresData && genreMap && (
-          <>
+          <div className="mt-3">
             <MusicTaste
-            key={user_id + "_taste"} // force remount on user change
-            genresData={genresData}
-            genreMap={genreMap}
+              key={user_id + "_taste"} // force remount on user change
+              genresData={genresData}
+              genreMap={genreMap}
             />
-          </>
+          </div>
         )}
       </Suspense>
 
@@ -310,7 +310,7 @@ function Home() {
         initial="hidden"
         animate="visible"
         variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
-        className="bg-white rounded-2xl shadow p-4 mt-6"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3 transition-colors duration-300"
       >
         <div className="flex justify-between items-center mb-2">
           <div className="font-semibold text-lg flex items-center gap-1">

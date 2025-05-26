@@ -14,7 +14,12 @@ function GenreBarList({ data }) {
   }, 0) || 1;
 
   return (
-    <div className="space-y-3">
+    <motion.div
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300 space-y-3"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       {data.map(({ name, value }, index) => {
         if (typeof value !== "number" || !isFinite(value)) return null;
 
@@ -29,11 +34,11 @@ function GenreBarList({ data }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
           >
-            <div className="flex justify-between text-sb font-medium mb-1">
+            <div className="flex justify-between text-sm font-medium mb-1">
               <span>{name}</span>
-              <span className="text-gray-500">{displayPercent}%</span>
+              <span className="text-gray-500 dark:text-gray-400">{displayPercent}%</span>
             </div>
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-3 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: barWidth }}
@@ -47,7 +52,7 @@ function GenreBarList({ data }) {
           </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 

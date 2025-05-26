@@ -11,6 +11,16 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPlaylistEditorOpen, setPlaylistEditorOpen] = useState(false);
   const [visible, setVisible] = useState(isOpen);
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains("dark")
+  );
+
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    html.classList.toggle("dark");
+    setIsDark(html.classList.contains("dark"));
+    localStorage.setItem("theme", html.classList.contains("dark") ? "dark" : "light");
+  };
 
   const handleClearGenreCache = async () => {
     try {
@@ -58,6 +68,11 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       label: "🧹 Clear Genre Cache (buggy but stable)",
       onClick: handleClearGenreCache,
       className: "w-full px-4 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-700 rounded text-left",
+    },
+    {
+      label: isDark ? "🌞 Switch to Light Mode" : "🌙 Switch to Dark Mode",
+      onClick: toggleTheme,
+      className: "w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-left",
     },
     {
       label: "Back",

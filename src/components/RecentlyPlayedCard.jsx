@@ -39,11 +39,18 @@ function RecentlyPlayedCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`relative rounded-2xl overflow-hidden text-white shadow-md w-full mt-6 ${
+      className={`relative rounded-2xl overflow-hidden text-white shadow-md w-full mt-6 transition-colors duration-300 ${
         animateChange ? "animate-bgfade" : ""
       }`}
       style={{
-        backgroundImage: `url(${track.album_art_url})`,
+        backgroundImage: track.album_art_url
+          ? `url(${track.album_art_url})`
+          : undefined,
+        backgroundColor: !track.album_art_url
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "#111827" // Tailwind's dark:bg-gray-900
+          : "#ffffff" // Tailwind's bg-white
+        : undefined,
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "140px",
@@ -54,7 +61,7 @@ function RecentlyPlayedCard({
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-sm" />
 
       {/* 🎵 Main content */}
-      <div className="relative z-10 p-4 flex flex-col gap-2">
+      <div className="relative z-10 p-4 flex flex-col gap-2 text-white dark:text-white">
         <h2 className="text-sm sm:text-base font-semibold flex items-center gap-2">
           🎧 Recently Played
           {lastUpdated && (

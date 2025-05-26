@@ -58,7 +58,7 @@ function MusicTaste({ genresData, genreMap }) {
   const title = step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres";
 
   return (
-    <div {...handlers} className="mt-6 bg-white rounded-2xl shadow p-4">
+    <div {...handlers} className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
 
       {!currentData.length ? (
@@ -75,7 +75,9 @@ function MusicTaste({ genresData, genreMap }) {
             key={i}
             onClick={() => setStep(i)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              i === step ? "bg-gray-800 scale-110" : "bg-gray-300 scale-90"
+              i === step
+                ? "bg-gray-800 dark:bg-white scale-110"
+                : "bg-gray-300 dark:bg-gray-600 scale-90"
             }`}
           />
         ))}

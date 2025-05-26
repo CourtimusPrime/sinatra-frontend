@@ -7,7 +7,12 @@ function SubGenreBarList({ data, getColorForGenre, genreMap }) {
   const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
 
   return (
-    <div className="space-y-3">
+    <motion.div
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300 space-y-3"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       {data.map(({ name, value }, index) => {
         const lower = name.toLowerCase();
         const parentGenre = genreMap?.[lower] || "other";
@@ -22,11 +27,11 @@ function SubGenreBarList({ data, getColorForGenre, genreMap }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
           >
-            <div className="flex justify-between text-sb font-medium mb-1">
+            <div className="flex justify-between text-sm font-medium mb-1">
               <span className="italic">{name}</span>
               <span className="text-gray-400">{percent}%</span>
             </div>
-            <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: barWidth }}
@@ -40,7 +45,7 @@ function SubGenreBarList({ data, getColorForGenre, genreMap }) {
           </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 
