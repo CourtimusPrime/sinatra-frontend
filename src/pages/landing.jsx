@@ -15,7 +15,7 @@ function Landing() {
 
   const handleLogin = () => {
     const target = import.meta.env.VITE_API_BASE_URL + "/login";
-    console.log("🔁 Redirecting to:", target);
+    console.log("🛩️ Redirecting to:", target);
     window.location.href = target;
   };
 

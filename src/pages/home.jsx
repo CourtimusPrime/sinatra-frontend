@@ -82,13 +82,11 @@ function Home() {
   }, [user_id]);
 
   async function loadDashboard() {
-    console.log("🚀 loadDashboard triggered!");
     if (!user_id) return;
 
     try {
       const json = await apiGet(`/dashboard?user_id=${user_id}`);
       const { user, playlists, played_track, genre_map } = json;
-      console.log("🎹 Recived genre_map keys:", Object.keys(genre_map || {}));
 
       const userData = {
         display_name: user.display_name,
@@ -96,8 +94,6 @@ function Home() {
         genre_analysis: user.genre_analysis,
         user_id: user.user_id,
       };
-
-      console.log("✅ DASHBOARD genre_analysis:", user.genre_analysis);
 
       setUser(userData);
       setUserState(userData);
@@ -120,11 +116,8 @@ function Home() {
       const normalized = Object.fromEntries(
         Object.entries(genre_map || {}).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
       );
-      console.log("Normalized genre_map sample", normalized);
       setGenreMap(normalized);
-      console.log("genre map key sample:",Object.keys(normalized).slice(0,10));
       localStorage.setItem("genre_map", JSON.stringify(normalized));
-      console.log("✅ Normalized genre map keys:", Object.keys(normalized).slice(0, 10));
 
       const latestTrack = played_track?.track;
       if (latestTrack) {
