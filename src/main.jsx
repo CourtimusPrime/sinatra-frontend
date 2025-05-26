@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import App from "./App.jsx";
 import "./index.css";
+import { injectSpeedInsights } from "@vercel/speed-insights";
 
 injectSpeedInsights();
 
