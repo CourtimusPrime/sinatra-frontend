@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { apiGet, apiPost } from "../../utils/api";
 import { motion } from "@motionone/react";
 import "../../styles/loader.css";
+import GlintBox from "../GlintBox";
 
 function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [tab, setTab] = useState("add");
@@ -130,43 +131,50 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
 
         <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-24">
-          {loading ? (
-            <div className="col-span-2 flex justify-center items-center py-8">
-              <div className="loader"></div>
+        {loading ? (
+          [...Array(8)].map((_, i) => (
+            <div
+              key={i}
+              className="border rounded-lg p-2 text-center flex flex-col items-center animate-pulse"
+            >
+              <GlintBox width="w-20" height="h-20" rounded="rounded" />
+              <GlintBox width="w-4/5" height="h-3" className="mt-2" />
+              <GlintBox width="w-2/5" height="h-2" className="mt-1" />
             </div>
-          ) : playlists.length === 0 ? (
-            <p className="text-sm text-center col-span-2 text-gray-400">
-              {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
-            </p>
-          ) : (
-            playlists.map((p) => {
-              const id = p.playlist_id;
-              return (
-                <div
-                  key={id}
-                  onClick={() =>
-                    setSelectedIds((prev) =>
-                      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-                    )
-                  }
-                  className={`border rounded-lg p-2 text-center cursor-pointer flex flex-col items-center transition ${
-                    selectedIds.includes(id)
-                      ? "border-blue-500 bg-blue-50"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <img
-                    src={p.image || "/static/default-cover.jpg"}
-                    alt={p.name}
-                    className="w-20 h-20 object-cover rounded mb-2"
-                  />
-                  <p className="text-xs font-medium text-center break-words leading-tight">{p.name}</p>
-                  <p className="text-[10px] text-gray-500">{p.tracks} songs</p>
-                </div>
-              );
-            })
-          )}
-        </div>
+          ))
+        ) : playlists.length === 0 ? (
+          <p className="text-sm text-center col-span-2 text-gray-400">
+            {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
+          </p>
+        ) : (
+          playlists.map((p) => {
+            const id = p.playlist_id;
+            return (
+              <div
+                key={id}
+                onClick={() =>
+                  setSelectedIds((prev) =>
+                    prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+                  )
+                }
+                className={`border rounded-lg p-2 text-center cursor-pointer flex flex-col items-center transition ${
+                  selectedIds.includes(id)
+                    ? "border-blue-500 bg-blue-50"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                <img
+                  src={p.image || "/static/default-cover.jpg"}
+                  alt={p.name}
+                  className="w-20 h-20 object-cover rounded mb-2"
+                />
+                <p className="text-xs font-medium text-center break-words leading-tight">{p.name}</p>
+                <p className="text-[10px] text-gray-500">{p.tracks} songs</p>
+              </div>
+            );
+          })
+        )}
+      </div>
 
         <div className="mt-4 flex justify-between">
           <button onClick={onClose} className="text-sm underline text-gray-500 dark:text-gray-300">

@@ -1,6 +1,8 @@
 // src/components/settings/EditFeatured.jsx
 import { useState, useEffect } from "react";
 import { apiGet, apiPost } from "../../utils/api";
+import GlintBox from "../GlintBox";
+import PlaylistCardMini from "../PlaylistCardMini";
 
 function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   const [allPlaylists, setAllPlaylists] = useState([]);
@@ -65,8 +67,16 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
 
         <div className="p-4 overflow-y-auto flex-1 relative min-h-[200px]">
           {loading ? (
-            <div className="absolute inset-0 flex justify-center items-center">
-              <div className="loader"></div>
+            <div className="grid grid-cols-2 gap-2">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="border p-2 rounded text-center flex flex-col items-center animate-pulse"
+                >
+                  <GlintBox width="w-full" height="aspect-square" rounded="rounded mb-1" />
+                  <GlintBox width="w-3/4" height="h-3" />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2">

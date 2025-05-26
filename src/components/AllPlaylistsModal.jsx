@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "@motionone/react";
 import { apiGet } from "../utils/api";
+import GlintBox from "./GlintBox";
 
 function AllPlaylistsModal({ isOpen, onClose, user_id }) {
   const [isVisible, setIsVisible] = useState(isOpen);
   const [allPlaylists, setAllPlaylists] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let timer;
@@ -19,6 +21,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
   }, [isOpen]);
 
   const fetchPlaylists = async () => {
+    setLoading(true);
     try {
       const res = await apiGet(`/dashboard?user_id=${user_id}`);
       const playlists = res?.playlists?.all || [];
@@ -26,6 +29,8 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
     } catch (err) {
       console.error("❌ Failed to fetch all playlists", err);
       setAllPlaylists([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,7 +46,17 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
       >
         <h2 className="text-xl font-bold mb-4 text-center">All Imported Playlists</h2>
         <div className="flex flex-col gap-3">
-          {allPlaylists.length === 0 ? (
+          {loading ? (
+            [...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-2 rounded">
+                <GlintBox width="w-14" height="h-14" rounded="rounded" />
+                <div className="flex flex-col gap-2 flex-1">
+                  <GlintBox width="w-3/4" height="h-4" />
+                  <GlintBox width="w-1/2" height="h-3" />
+                </div>
+              </div>
+            ))
+          ) : allPlaylists.length === 0 ? (
             <p className="text-center text-gray-500 text-sm">No playlists found.</p>
           ) : (
             allPlaylists.map((p) => (

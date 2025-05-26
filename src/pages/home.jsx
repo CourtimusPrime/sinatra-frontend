@@ -9,6 +9,7 @@ import { motion } from "@motionone/react";
 import { apiGet, apiDelete } from "../utils/api";
 import { Menu, Share } from "lucide-react";
 import { normalizePlaylist } from "../utils/normalize";
+import GlintBox from "../components/GlintBox";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
@@ -193,10 +194,10 @@ function Home() {
   if (showSkeleton) {
     return (
       <div className="max-w-md w-full mx-auto p-4 space-y-6">
-        <div className="w-24 h-24 rounded-full mx-auto bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
-        <div className="w-32 h-6 rounded mx-auto bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
-        <div className="w-24 h-5 rounded-full mx-auto bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
-        <div className="h-24 w-full rounded-lg bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
+        <GlintBox width="w-24" height="h-24" rounded="rounded-full" className="mx-auto" />
+        <GlintBox width="w-32" height="h-6" className="mx-auto" />
+        <GlintBox width="w-24" height="h-5" rounded="rounded-full" className="mx-auto" />
+        <GlintBox height="h-24" rounded="rounded-lg" />
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 space-y-3">
           <div className="h-6 w-40 rounded bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
