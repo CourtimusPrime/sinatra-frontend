@@ -2,11 +2,13 @@
 import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
-import PlaylistCard from "../components/FeaturedPlaylists";
+import PlaylistCardMini from "../components/PlaylistCardMini";
+import { normalizePlaylist } from "../utils/normalize";
 import { apiGet } from "../utils/api";
 import Loader from "../components/Loader";
 import { motion } from "@motionone/react";
 import { Share } from "lucide-react";
+const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
@@ -18,6 +20,7 @@ export default function PublicProfile() {
   const [genreMap, setGenreMap] = useState({});
   const [showCTA, setShowCTA] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isAllModalOpen, setAllModalOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -26,7 +29,15 @@ export default function PublicProfile() {
           apiGet(`/public-profile/${user_id}`),
           apiGet(`/genre-map`),
         ]);
-        setProfile(userData);
+
+        console.log("🎯 Public profile loaded:", userData); // ADD THIS
+
+        setProfile({
+          ...userData,
+          featured_playlists: Array.isArray(userData.featured_playlists)
+            ? userData.featured_playlists.map(normalizePlaylist)
+            : [],
+        });
         setGenreMap(
           Object.fromEntries(
             Object.entries(map).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
@@ -138,13 +149,20 @@ export default function PublicProfile() {
           <div className="font-semibold text-lg flex items-center gap-1">
             <span>🌟</span> Featured Playlists
           </div>
+          <button
+            aria-label="Open all user's playlists"
+            onClick={() => setAllModalOpen(true)}
+            className="underline text-sm text-blue-600 dark:text-blue-400"
+          >
+            See All →
+          </button>
         </div>
 
         <div className="flex flex-col gap-3">
-          {Array.isArray(featured_playlists) ? (
+          {Array.isArray(featured_playlists) && featured_playlists.length > 0 ? (
             featured_playlists.map((playlist, i) =>
               playlist && typeof playlist === "object" ? (
-                <PlaylistCard key={playlist.id || i} playlist={playlist} index={i} />
+                <PlaylistCardMini key={playlist.id || i} playlist={playlist} index={i} showTracks />
               ) : (
                 <div key={i} className="text-red-500 text-sm">
                   ⚠️ Skipped invalid playlist
@@ -152,7 +170,7 @@ export default function PublicProfile() {
               )
             )
           ) : (
-            <div className="text-red-500">❌ No playlists found</div>
+            <div className="text-gray-500 text-sm text-center">No featured playlists found.</div>
           )}
         </div>
       </motion.div>
@@ -165,6 +183,16 @@ export default function PublicProfile() {
       >
         Create your own music profile with Sinatra →
       </a>
+      <Suspense fallback={null}>
+        {isAllModalOpen && (
+          <AllPlaylistsModal
+            isOpen={isAllModalOpen}
+            onClose={() => setAllModalOpen(false)}
+            user_id={user_id}
+            user={profile}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
