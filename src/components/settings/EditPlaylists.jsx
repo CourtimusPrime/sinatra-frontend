@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { apiGet, apiPost } from "../../utils/api";
 import { motion } from "@motionone/react";
+import "../../styles/loader.css";
 
 function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [tab, setTab] = useState("add");
@@ -10,6 +11,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  
 
   const normalizePlaylists = (arr) =>
     arr.map((p) => ({
@@ -42,7 +44,9 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         setImportedPlaylists(imported);
 
         const importedIds = new Set(imported.map((p) => p.playlist_id));
-        const unimported = spotifyPlaylists.filter((p) => !importedIds.has(p.playlist_id));
+        const unimported = spotifyPlaylists.filter(
+          (p) => !importedIds.has(p.playlist_id) && typeof p.image === "string" && p.image.trim() !== ""
+        );
         setAllSpotifyPlaylists(unimported);
       } catch (err) {
         console.error("❌ Failed to load playlists", err);
@@ -127,7 +131,9 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
 
         <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-24">
           {loading ? (
-            <p className="text-sm text-center col-span-2 text-gray-400">Loading...</p>
+            <div className="col-span-2 flex justify-center items-center py-8">
+              <div className="loader"></div>
+            </div>
           ) : playlists.length === 0 ? (
             <p className="text-sm text-center col-span-2 text-gray-400">
               {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
