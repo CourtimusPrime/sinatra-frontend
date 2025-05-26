@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
-import PlaylistCard from "../components/PlaylistCard";
+import PlaylistCard from "../components/FeaturedPlaylists";
 import MusicTaste from "../components/ui/MusicTaste";
 import TopSubGenre from "../components/ui/TopSubGenre";
 import { apiGet } from "../utils/api";

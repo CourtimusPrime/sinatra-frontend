@@ -1,14 +1,14 @@
 // src/pages/home.jsx
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
-import PlaylistCard from "../components/PlaylistCard";
+import PlaylistCard from "../components/FeaturedPlaylists";
 import { useNavigate } from "react-router-dom";
 import "../styles/loader.css";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import { motion } from "@motionone/react";
 import { apiGet, apiDelete } from "../utils/api";
-import ShareButton from "../components/ShareButton";
 import { Menu, Share } from "lucide-react";
+import { normalizePlaylist } from "../utils/normalize";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
@@ -48,8 +48,8 @@ function Home() {
     return cached ? new Date(cached) : null;
   });
   const rawFeatured = getCached("featured_playlists", []);
-  const validFeatured = Array.isArray(rawFeatured) && typeof rawFeatured[0] === "object"
-    ? rawFeatured
+  const validFeatured = Array.isArray(rawFeatured)
+    ? rawFeatured.map(normalizePlaylist)
     : [];
   const [playlists, setPlaylists] = useState(validFeatured);
   const [allPlaylists, setAllPlaylists] = useState(() => getCached("all_playlists", []));
@@ -109,13 +109,13 @@ function Home() {
       }
 
       const sortedFeatured = playlists.featured
-        .map(pl => ({ ...pl, tracks: pl.track_count }))
-        .sort((a, b) => (b.tracks || 0) - (a.tracks || 0));
-      const sortedAll = playlists.all.sort((a, b) => (b.track_count || 0) - (a.track_count || 0));
+        .map(normalizePlaylist)
+        .sort((a, b) => b.tracks - a.tracks);
+      const sortedAll = playlists.all.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
 
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-      console.log("Raw genre_map from response:", genre_map);
+      localStorage.setItem("all_playlists", JSON.stringify(sortedAll));
 
       const normalized = Object.fromEntries(
         Object.entries(genre_map || {}).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
@@ -332,8 +332,7 @@ function Home() {
                 playlist &&
                 typeof playlist === "object" &&
                 typeof playlist.name === "string" &&
-                typeof playlist.image === "string" &&
-                (typeof playlist.track_count === "number" || typeof playlist.tracks === "number");
+                typeof playlist.tracks === "number";
 
               console.log(`🔎 Playlist ${i}:`, playlist);
 
@@ -349,10 +348,7 @@ function Home() {
               return (
                 <PlaylistCard
                   key={playlist.id || i}
-                  playlist={{
-                    ...playlist,
-                    tracks: playlist.track_count ?? playlist.tracks,
-                  }}
+                  playlist={playlist}
                   index={i}
                 />
               );
