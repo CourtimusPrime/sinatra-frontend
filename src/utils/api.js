@@ -1,5 +1,8 @@
 // src/utils/api.js
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? ""
+    : import.meta.env.VITE_API_BASE_URL;
 
 export async function apiGet(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -23,9 +26,9 @@ export async function apiPost(path, body, options = {}) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Erorr(`API ${res.status}: ${errText}`);
+    throw new Error(`API ${res.status}: ${errText}`);
   }
-  
+
   return await res.json();
 }
 
