@@ -6,6 +6,8 @@ import { UserProvider } from "./context/UserContext";
 import App from "./App.jsx";
 import "./index.css";
 
+injectSpeedInsights();
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter
