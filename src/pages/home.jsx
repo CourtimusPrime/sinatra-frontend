@@ -20,17 +20,6 @@ function Home() {
   const loadStart = useRef(performance.now());
   const didInit = useRef(false);
 
-  try {
-    const maybeBadFeatured = JSON.parse(localStorage.getItem("featured_playlists"));
-    if (Array.isArray(maybeBadFeatured) && typeof maybeBadFeatured[0] === "string") {
-      localStorage.removeItem("featured_playlists");
-      console.warn("🧹 Removed invalid featured_playlists from localStorage.");
-    }
-  } catch (err) {
-    console.error("⚠️ Failed to parse featured_playlists from localStorage:", err);
-    localStorage.removeItem("featured_playlists");
-  }
-
   const getCached = (key, fallback) => {
     try {
       const cached = localStorage.getItem(key);
@@ -39,6 +28,7 @@ function Home() {
       return fallback;
     }
   };
+
   const [userState, setUserState] = useState(() => getCached("user", null));
   const [copied, setCopied] = useState(false);
   const [genresData, setGenresData] = useState(() => getCached("genres_data", null));
@@ -47,10 +37,9 @@ function Home() {
     const cached = localStorage.getItem("last_played_updated_at");
     return cached ? new Date(cached) : null;
   });
+
   const rawFeatured = getCached("featured_playlists", []);
-  const validFeatured = Array.isArray(rawFeatured)
-    ? rawFeatured.map(normalizePlaylist)
-    : [];
+  const validFeatured = Array.isArray(rawFeatured) ? rawFeatured.map(normalizePlaylist) : [];
   const [playlists, setPlaylists] = useState(validFeatured);
   const [allPlaylists, setAllPlaylists] = useState(() => getCached("all_playlists", []));
   const [genreMap, setGenreMap] = useState(() => getCached("genre_map", {}));
@@ -64,6 +53,7 @@ function Home() {
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
   const [isAllModalOpen, setAllModalOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(true);
 
   const { user, user_id, loading, setUser } = useUser();
   const navigate = useNavigate();
@@ -76,10 +66,16 @@ function Home() {
 
     runIdle(() => {
       const now = new Date();
-      const shouldUpdate = !lastInit || (now - new Date(lastInit)) > 60 * 60 * 1000;
+      const shouldUpdate = !lastInit || now - new Date(lastInit) > 60 * 60 * 1000;
       if (shouldUpdate) loadDashboard();
     });
   }, [user_id]);
+
+  useEffect(() => {
+    if (userState && playlists.length > 0) {
+      setShowSkeleton(false);
+    }
+  }, [userState, playlists]);
 
   async function loadDashboard() {
     if (!user_id) return;
@@ -104,9 +100,7 @@ function Home() {
         localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
       }
 
-      const sortedFeatured = playlists.featured
-        .map(normalizePlaylist)
-        .sort((a, b) => b.tracks - a.tracks);
+      const sortedFeatured = playlists.featured.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
       const sortedAll = playlists.all.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
 
       setPlaylists(sortedFeatured.slice(0, 3));
@@ -187,7 +181,7 @@ function Home() {
   }
 
   async function deleteAccount() {
-    if (!window.confirm("You sure you wanna delete your account? You'll be able to start again.")) return;
+    if (!window.confirm("You sure you wanna delete your account?")) return;
     try {
       await apiDelete(`/delete-user?user_id=${user_id}`);
       logout();
@@ -196,10 +190,25 @@ function Home() {
     }
   }
 
-  if (loading) {
+  if (showSkeleton) {
     return (
-      <div className="loader-container">
-        <div className="loader" />
+      <div className="max-w-md w-full mx-auto p-4 space-y-6">
+        <div className="w-24 h-24 rounded-full mx-auto bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
+        <div className="w-32 h-6 rounded mx-auto bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
+        <div className="w-24 h-5 rounded-full mx-auto bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
+        <div className="h-24 w-full rounded-lg bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
+
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 space-y-3">
+          <div className="h-6 w-40 rounded bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="h-16 w-full rounded-md bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]"
+            />
+          ))}
+        </div>
+
+        <div className="h-40 w-full rounded-xl bg-[linear-gradient(90deg,#e0e0e0_0%,#f8f8f8_50%,#e0e0e0_100%)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite_linear]" />
       </div>
     );
   }
