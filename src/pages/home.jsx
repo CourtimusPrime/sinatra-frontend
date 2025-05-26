@@ -1,7 +1,7 @@
 // src/pages/home.jsx
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
-import PlaylistCard from "../components/FeaturedPlaylists";
+import PlaylistCardMini from "../components/PlaylistCardMini";
 import { useNavigate } from "react-router-dom";
 import "../styles/loader.css";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
@@ -347,15 +347,16 @@ function Home() {
               }
 
               return (
-                <PlaylistCard
+                <PlaylistCardMini
                   key={playlist.id || i}
                   playlist={playlist}
                   index={i}
+                  showTracks
                 />
               );
             })
           ) : (
-            <div className="text-red-500">❌ playlists is not an array</div>
+            <div className="text-red-500">Had trouble fetching their playlist</div>
           )}
         </div>
       </motion.div>
@@ -366,6 +367,7 @@ function Home() {
             isOpen={isAllModalOpen}
             onClose={() => setAllModalOpen(false)}
             user_id={user_id}
+            user={userState}
           />
         )}
         {isSettingsOpen && (

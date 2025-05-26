@@ -1,46 +1,25 @@
 // src/components/FeaturedPlaylists.jsx
 import React from "react";
-import { motion } from "@motionone/react";
+import PlaylistCardMini from "./PlaylistCardMini";
+import { normalizePlaylist } from "../utils/normalize"; // optional if not normalized yet
 
-function PlaylistCard({ playlist, index = 0 }) {
-  if (!playlist || typeof playlist !== "object") {
-    return <div className="text-red-500">❌ Playlist not found or invalid</div>;
+function FeaturedPlaylists({ playlists = [] }) {
+  if (!Array.isArray(playlists) || playlists.length === 0) {
+    return <p className="text-sm text-gray-500 text-center">No featured playlists available.</p>;
   }
 
-  const {
-    name = "Untitled Playlist",
-    image = "/default-playlist.png",
-    external_url = `https://open.spotify.com/playlist/${playlist.id || ""}`,
-    tracks,
-  } = playlist;
-
-  const trackCount = typeof tracks === "number" ? tracks : playlist.track_count ?? "–";
-
   return (
-    <motion.a
-      href={external_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-4 cursor-pointer transition-transform hover:scale-[1.02] bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md text-black dark:text-white"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.08 }}
-    >
-      <img
-        src={image}
-        alt={name}
-        className="w-16 h-16 object-cover rounded-md transition-shadow hover:shadow-md"
-      />
-      <div className="flex flex-col overflow-hidden">
-        <p className="font-bold leading-tight truncate">{name}</p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {typeof trackCount === "number"
-            ? `${trackCount} song${trackCount === 1 ? "" : "s"}`
-            : "– songs"}
-        </p>
-      </div>
-    </motion.a>
+    <div className="flex flex-col gap-3">
+      {playlists.map((playlist, i) => (
+        <PlaylistCardMini
+          key={playlist.id || playlist.playlist_id}
+          playlist={normalizePlaylist(playlist)} // optional if not already normalized
+          index={i}
+          showTracks
+        />
+      ))}
+    </div>
   );
 }
 
-export default PlaylistCard;
+export default FeaturedPlaylists;

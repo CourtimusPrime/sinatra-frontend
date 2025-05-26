@@ -83,24 +83,13 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
               {allPlaylists
                 .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
                 .map((p) => (
-                  <div
+                  <PlaylistCardMini
                     key={p.id}
+                    playlist={p}
                     onClick={() => handleToggle(p.id)}
-                    className={`border p-2 rounded cursor-pointer text-center transition ${
-                      selected.includes(p.id)
-                        ? "bg-blue-100 border-blue-500"
-                        : ""
-                    }`}
-                  >
-                    <div className="w-full aspect-square overflow-hidden rounded mb-1">
-                      <img
-                        src={p.image}
-                        className="w-full h-full object-cover"
-                        alt={p.name}
-                      />
-                    </div>
-                    <p className="text-sm truncate">{p.name}</p>
-                  </div>
+                    isSelected={selected.includes(p.id)}
+                    selectable
+                  />
                 ))}
             </div>
           )}
