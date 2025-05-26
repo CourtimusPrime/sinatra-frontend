@@ -2,10 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "@motionone/react";
 import { apiGet } from "../utils/api";
+import GlintBox from "./GlintBox";
+import PlaylistCardMini from "./PlaylistCardMini";
+import { normalizePlaylist } from "../utils/normalize";
 
-function AllPlaylistsModal({ isOpen, onClose, user_id }) {
+function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
   const [isVisible, setIsVisible] = useState(isOpen);
   const [allPlaylists, setAllPlaylists] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let timer;
@@ -19,13 +23,16 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
   }, [isOpen]);
 
   const fetchPlaylists = async () => {
+    setLoading(true);
     try {
       const res = await apiGet(`/dashboard?user_id=${user_id}`);
-      const playlists = res?.playlists?.all || [];
-      setAllPlaylists(playlists);
+      const raw = res?.playlists?.all || [];
+      setAllPlaylists(raw.map(normalizePlaylist));
     } catch (err) {
       console.error("❌ Failed to fetch all playlists", err);
       setAllPlaylists([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,32 +46,26 @@ function AllPlaylistsModal({ isOpen, onClose, user_id }) {
         transition={{ duration: 0.25 }}
         className="modal-container max-w-md w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg"
       >
-        <h2 className="text-xl font-bold mb-4 text-center">All Imported Playlists</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">📚 {user?.display_name || "Your"}'s Collection</h2>
         <div className="flex flex-col gap-3">
-          {allPlaylists.length === 0 ? (
+          {loading ? (
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-2 rounded animate-pulse">
+                <GlintBox width="w-14" height="h-14" rounded="rounded" />
+                <div className="flex flex-col gap-2 flex-1">
+                  <GlintBox width="w-3/4" height="h-4" />
+                  <GlintBox width="w-1/2" height="h-3" />
+                </div>
+              </div>
+            ))
+          ) : allPlaylists.length === 0 ? (
             <p className="text-center text-gray-500 text-sm">No playlists found.</p>
           ) : (
-            allPlaylists.map((p) => (
-              <a
-                key={p.id}
-                href={p.external_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded"
-              >
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  className="w-14 h-14 object-cover rounded"
-                />
-                <div>
-                  <p className="font-bold text-sm">{p.name}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {typeof p.tracks === "number" ? `${p.tracks} song${p.tracks === 1 ? "" : "s"}` : "– songs"}
-                  </p>
-                </div>
-              </a>
-            ))
+            [...allPlaylists]
+              .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
+              .map((p, i) => (
+                <PlaylistCardMini key={p.id || p.playlist_id} playlist={p} index={i} showTracks />
+              ))
           )}
         </div>
         <button

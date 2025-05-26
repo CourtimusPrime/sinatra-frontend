@@ -23,6 +23,7 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
   };
 
   const handleClearGenreCache = async () => {
+    console.log("Sending user_id:", user_id);
     try {
       await apiPost("/refresh_genres", { user_id });
       alert("Your genre data is being refreshed!");

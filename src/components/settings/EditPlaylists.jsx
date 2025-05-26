@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { apiGet, apiPost } from "../../utils/api";
 import { motion } from "@motionone/react";
 import "../../styles/loader.css";
+import GlintBox from "../GlintBox";
+import PlaylistCardMini from "../PlaylistCardMini";
+import { normalizePlaylist } from "../../utils/normalize";
 
 function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [tab, setTab] = useState("add");
@@ -12,14 +15,6 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   
-
-  const normalizePlaylists = (arr) =>
-    arr.map((p) => ({
-      ...p,
-      playlist_id: p.playlist_id || p.id,
-      tracks: typeof p.tracks === "number" ? p.tracks : p.tracks?.total ?? 0,
-    }));
-
   useEffect(() => {
     if (!isOpen) return;
 
@@ -34,12 +29,11 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
           apiGet("/dashboard?user_id=" + user_id),
         ]);
 
-        const spotifyPlaylists = normalizePlaylists(
-          Array.isArray(spotifyRes.items) ? spotifyRes.items : []
-        );
-        const imported = normalizePlaylists(
-          Array.isArray(mongoRes.playlists?.all) ? mongoRes.playlists.all : []
-        );
+        const spotifyPlaylistsRaw = Array.isArray(spotifyRes.items) ? spotifyRes.items : [];
+        const mongoPlaylistsRaw = Array.isArray(mongoRes.playlists?.all) ? mongoRes.playlists.all : [];
+
+        const spotifyPlaylists = spotifyPlaylistsRaw.map(normalizePlaylist);
+        const imported = mongoPlaylistsRaw.map(normalizePlaylist);
 
         setImportedPlaylists(imported);
 
@@ -69,6 +63,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
       if (tab === "add") {
         const selectedPlaylists = allSpotifyPlaylists
           .filter((p) => selectedIds.includes(p.playlist_id))
+          .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
           .map((p) => ({
             id: p.playlist_id,
             name: p.name,
@@ -115,13 +110,21 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         <div className="flex space-x-2 mb-4">
           <button
             onClick={() => setTab("add")}
-            className={`px-4 py-2 rounded ${tab === "add" ? "bg-green-500 text-white" : "bg-gray-100"}`}
+            className={`px-4 py-2 rounded ${
+              tab === "add"
+                ? "bg-green-500 text-white"
+                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
             ➕ Add
           </button>
           <button
             onClick={() => setTab("remove")}
-            className={`px-4 py-2 rounded ${tab === "remove" ? "bg-red-500 text-white" : "bg-gray-100"}`}
+            className={`px-4 py-2 rounded ${
+              tab === "remove"
+                ? "bg-red-500 text-white"
+                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
             ➖ Remove
           </button>
@@ -130,45 +133,48 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
 
         <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-24">
-          {loading ? (
-            <div className="col-span-2 flex justify-center items-center py-8">
-              <div className="loader"></div>
+        {loading ? (
+          [...Array(8)].map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 cursor-pointer bg-white dark:bg-gray-900 p-2 rounded-md animate-pulse border"
+            >
+              <GlintBox width="w-14" height="h-14" rounded="rounded-md" />
+              <div className="flex flex-col gap-2 flex-1">
+                <GlintBox width="w-3/4" height="h-4" />
+                <GlintBox width="w-1/2" height="h-3" />
+              </div>
             </div>
-          ) : playlists.length === 0 ? (
-            <p className="text-sm text-center col-span-2 text-gray-400">
-              {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
-            </p>
-          ) : (
-            playlists.map((p) => {
-              const id = p.playlist_id;
+          ))
+        ) : playlists.length === 0 ? (
+          <p className="text-sm text-center col-span-2 text-gray-400">
+            {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
+          </p>
+        ) : (
+          [...playlists]
+            .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
+            .map((p, i) => {
+              const id = p.playlist_id || p.id;
               return (
-                <div
+                <PlaylistCardMini
                   key={id}
+                  playlist={p}
+                  index={i}
                   onClick={() =>
                     setSelectedIds((prev) =>
                       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
                     )
                   }
-                  className={`border rounded-lg p-2 text-center cursor-pointer flex flex-col items-center transition ${
-                    selectedIds.includes(id)
-                      ? "border-blue-500 bg-blue-50"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <img
-                    src={p.image || "/static/default-cover.jpg"}
-                    alt={p.name}
-                    className="w-20 h-20 object-cover rounded mb-2"
-                  />
-                  <p className="text-xs font-medium text-center break-words leading-tight">{p.name}</p>
-                  <p className="text-[10px] text-gray-500">{p.tracks} songs</p>
-                </div>
+                  isSelected={selectedIds.includes(id)}
+                  selectable
+                  showTracks
+                />
               );
             })
-          )}
-        </div>
+        )}
+      </div>
 
-        <div className="mt-4 flex justify-between">
+        <div className="sticky bottom-0 left-0 bg-white dark:bg-gray-800 border-t mt-4 pt-3 pb-4 px-6 flex justify-between z-10">
           <button onClick={onClose} className="text-sm underline text-gray-500 dark:text-gray-300">
             Cancel
           </button>
@@ -176,9 +182,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
             onClick={handleSave}
             disabled={loading || selectedIds.length === 0}
             className={`px-4 py-2 rounded text-white ${
-              tab === "add"
-                ? "bg-green-500"
-                : "bg-red-500"
+              tab === "add" ? "bg-green-500" : "bg-red-500"
             } ${loading ? "opacity-50 cursor-wait" : ""}`}
           >
             {loading ? "Saving..." : "Save"}

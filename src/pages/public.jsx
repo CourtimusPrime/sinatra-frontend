@@ -2,11 +2,14 @@
 import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
-import PlaylistCard from "../components/FeaturedPlaylists";
+import PlaylistCardMini from "../components/PlaylistCardMini";
+import { normalizePlaylist } from "../utils/normalize";
 import { apiGet } from "../utils/api";
 import Loader from "../components/Loader";
 import { motion } from "@motionone/react";
 import { Share } from "lucide-react";
+const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
+import Spotify from "../assets/spotify.svg";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
@@ -18,6 +21,12 @@ export default function PublicProfile() {
   const [genreMap, setGenreMap] = useState({});
   const [showCTA, setShowCTA] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isAllModalOpen, setAllModalOpen] = useState(false);
+  const handleLogin = () => {
+    const target = import.meta.env.VITE_API_BASE_URL + "/login";
+    console.log("🛩️ Redirecting to:", target);
+    window.location.href = target;
+  };
 
   useEffect(() => {
     async function load() {
@@ -26,7 +35,15 @@ export default function PublicProfile() {
           apiGet(`/public-profile/${user_id}`),
           apiGet(`/genre-map`),
         ]);
-        setProfile(userData);
+
+        console.log("🎯 Public profile loaded:", userData); // ADD THIS
+
+        setProfile({
+          ...userData,
+          featured_playlists: Array.isArray(userData.featured_playlists)
+            ? userData.featured_playlists.map(normalizePlaylist)
+            : [],
+        });
         setGenreMap(
           Object.fromEntries(
             Object.entries(map).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
@@ -138,13 +155,20 @@ export default function PublicProfile() {
           <div className="font-semibold text-lg flex items-center gap-1">
             <span>🌟</span> Featured Playlists
           </div>
+          <button
+            aria-label="Open all user's playlists"
+            onClick={() => setAllModalOpen(true)}
+            className="underline text-sm text-blue-600 dark:text-blue-400"
+          >
+            See All →
+          </button>
         </div>
 
         <div className="flex flex-col gap-3">
-          {Array.isArray(featured_playlists) ? (
+          {Array.isArray(featured_playlists) && featured_playlists.length > 0 ? (
             featured_playlists.map((playlist, i) =>
               playlist && typeof playlist === "object" ? (
-                <PlaylistCard key={playlist.id || i} playlist={playlist} index={i} />
+                <PlaylistCardMini key={playlist.id || i} playlist={playlist} index={i} showTracks />
               ) : (
                 <div key={i} className="text-red-500 text-sm">
                   ⚠️ Skipped invalid playlist
@@ -152,19 +176,31 @@ export default function PublicProfile() {
               )
             )
           ) : (
-            <div className="text-red-500">❌ No playlists found</div>
+            <div className="text-gray-500 text-sm text-center">No featured playlists found.</div>
           )}
         </div>
       </motion.div>
 
-      <a
-        href="/"
-        className={`fixed bottom-0 left-0 w-full text-center text-sm font-medium text-white bg-black dark:bg-white dark:text-black py-2 transition-opacity duration-500 ${
-          showCTA ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        Create your own music profile with Sinatra →
-      </a>
+      <div className="fixed bottom-0 left-0 w-full sm:hidden z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 shadow-md">
+        <button
+          onClick={handleLogin}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-green-600 hover:bg-green-700 text-white text-base font-medium transition"
+        >
+          <img src={Spotify} alt="Spotify logo" className="w-5 h-5" />
+          Create Your Own →
+        </button>
+      </div>
+      <div className="h-20 sm:hidden" />
+      <Suspense fallback={null}>
+        {isAllModalOpen && (
+          <AllPlaylistsModal
+            isOpen={isAllModalOpen}
+            onClose={() => setAllModalOpen(false)}
+            user_id={user_id}
+            user={profile}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
