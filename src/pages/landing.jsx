@@ -20,7 +20,7 @@ function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white font-sans">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       {/* Header */}
       <div className="text-center mt-12 mb-8">
         <h1 className="text-6xl font-duckie bg-gradient-to-r from-pink-500 via-cyan-400 to-purple-400 bg-clip-text text-transparent animate-gradient mb-4">

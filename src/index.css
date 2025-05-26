@@ -1,3 +1,5 @@
+/* src/index.css */
+
 /* fonts */
 @font-face {
   font-family: "Duckie-regular";
@@ -37,7 +39,7 @@ body {
 
 @layer utilities {
   .font-duckie {
-    font-family: "Duckie-regular", cursive;
+    font-family: "Duckie-regular", "Duckie", cursive !important;
   }
 
   .font-damion {
