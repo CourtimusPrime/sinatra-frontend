@@ -32,7 +32,7 @@ function FeaturedPicker({ onboardData, setOnboardData, setCanProceed }) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">Select Your 3 Featured Playlists</h2>
+      <h2 className="text-2xl font-semibold">Of those, choose your top three:</h2>
       <p className="text-sm text-gray-600">These will appear on your profile. You can change them later.</p>
 
       <div className="flex gap-2">

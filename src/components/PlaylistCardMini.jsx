@@ -38,15 +38,15 @@ function PlaylistCardMini({
       <img
         src={image}
         alt={name}
-        className="w-14 h-14 object-cover rounded-md transition-shadow"
+        className="aspect-square w-14 object-cover rounded-md transition-shadow"
       />
       <div className="flex flex-col overflow-hidden">
-        <p className="font-bold leading-tight truncate">{name}</p>
+        <p className="font-bold leading-tight break-words line-clamp-2">{name}</p>
         {showTracks && (
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {typeof trackCount === "number"
               ? `${trackCount} song${trackCount === 1 ? "" : "s"}`
-              : "– songs"}
+              : "None"}
           </p>
         )}
       </div>

@@ -45,12 +45,13 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">Select Playlists to Import</h2>
+      <h2 className="text-2xl font-semibold">Choose which playlists you like:</h2>
+      <p className="text-sm text-gray-600">Dw, you can add/remove more later.</p>
 
       <div className="flex gap-2">
         <input
           className="flex-1 p-2 border rounded"
-          placeholder="Search playlists..."
+          placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -58,7 +59,7 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
         <button onClick={toggleAll}>{selectedIds.length === playlists.length ? "Deselect All" : "Select All"}</button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-4">
         {filtered.map((p, i) => (
           <PlaylistCardMini
             key={p.id}
