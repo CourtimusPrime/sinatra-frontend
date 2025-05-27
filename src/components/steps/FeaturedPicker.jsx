@@ -1,5 +1,6 @@
 // src/components/steps/FeaturedPicker.jsx
 import React, { useEffect, useState } from "react";
+import PlaylistCardMini from "../PlaylistCardMini";
 
 function FeaturedPicker({ onboardData, setOnboardData, setCanProceed }) {
   const imported = onboardData.selected_playlists || [];
@@ -43,18 +44,16 @@ function FeaturedPicker({ onboardData, setOnboardData, setCanProceed }) {
         />
         <button onClick={toggleSort}>Sort {sortDesc ? "↓" : "↑"}</button>
       </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {filtered.map(p => (
-          <div
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {filtered.map((p, i) => (
+          <PlaylistCardMini
             key={p.id}
+            playlist={p}
+            index={i}
+            selectable
+            isSelected={selected.includes(p.id)}
             onClick={() => toggleSelect(p.id)}
-            className={`border rounded p-2 cursor-pointer ${selected.includes(p.id) ? "border-green-600 bg-green-50" : ""}`}
-          >
-            <img src={p.image} alt={p.name} className="w-full h-32 object-cover rounded" />
-            <div className="mt-2 font-medium text-sm">{p.name}</div>
-            <div className="text-xs text-gray-500">{p.tracks} songs</div>
-          </div>
+          />
         ))}
       </div>
     </div>

@@ -10,7 +10,18 @@ function Landing() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user_id) navigate("/home");
+    if (user_id) {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/me?user_id=${user_id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.registered) {
+            navigate("/home");
+          }
+        })
+        .catch((err) => {
+          console.error("⛔ Landing redirect check failed:", err);
+        });
+    }
   }, [user_id]);
 
   const handleLogin = () => {

@@ -1,6 +1,7 @@
 // src/components/steps/PlaylistImporter.jsx
 import React, { useEffect, useState } from "react";
 import { apiGet } from "../../utils/api";
+import PlaylistCardMini from "../PlaylistCardMini";
 
 function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) {
   const [playlists, setPlaylists] = useState([]);
@@ -58,16 +59,15 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {filtered.map(p => (
-          <div
+        {filtered.map((p, i) => (
+          <PlaylistCardMini
             key={p.id}
+            playlist={p}
+            index={i}
+            selectable
+            isSelected={selectedIds.includes(p.id)}
             onClick={() => toggleSelect(p.id)}
-            className={`border rounded p-2 cursor-pointer ${selectedIds.includes(p.id) ? "border-blue-600 bg-blue-50" : ""}`}
-          >
-            <img src={p.image} alt={p.name} className="w-full h-32 object-cover rounded" />
-            <div className="mt-2 font-medium text-sm">{p.name}</div>
-            <div className="text-xs text-gray-500">{p.tracks} songs</div>
-          </div>
+          />
         ))}
       </div>
     </div>

@@ -21,7 +21,7 @@ function GenreIntro({ genres, setCanProceed }) {
 
   const topMetaGenres = Object.entries(highestObj)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
+    .slice(0, 5)
     .map(([genre]) => genre);
 
   const topSubGenres = Object.entries(subGenresObj)

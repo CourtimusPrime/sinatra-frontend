@@ -11,6 +11,14 @@ export const metaGenreGradients = {
   jazz: "linear-gradient(to right, #6b5b95, #8e78b0)",
   reggae: "linear-gradient(to right, #33cc99, #66ddb3)",
   blues: "linear-gradient(to right, #000080, #2e3cae)",
+  country: "linear-gradient(to right, #f4e2d8, #ba8b02)",
+  "new age": "linear-gradient(to right, #a1c4fd, #c2e9fb)",
+  classical: "linear-gradient(to right, #fbc2eb, #a6c1ee)",
+  "easy listening": "linear-gradient(to right, #fbd3e9, #bb377d)",
+  latin: "linear-gradient(to right, #ff9a9e, #fecfef)",
+  religious: "linear-gradient(to right, #c9d6ff, #e2e2e2)",
+  vocal: "linear-gradient(to right, #fbc7d4, #9796f0)",
+  indie: "linear-gradient(to right, #f6d365, #fda085)",
   other: "linear-gradient(to right, #000080, #2e3cae)",
 };
 
@@ -24,8 +32,16 @@ export const metaGenreEmojis = {
   folk: "🪕",
   jazz: "🎷",
   reggae: "🌴",
-  blues: "🌊",
-  other: "🃏",
+  blues: "🥁",
+  country: "🚜",
+  "new age": "🕊️",
+  classical: "🎻",
+  religious: "📿",
+  "easy listening": "🫖",
+  latin: "🌮",
+  vocal: "🗣️",
+  indie: "✌🏼",
+  other: "🃏"
 }
 
 

@@ -60,6 +60,25 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user_id) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    apiGet(`/me?user_id=${user_id}`)
+      .then((data) => {
+        if (!data?.registered) {
+          console.warn("You haven't registered yet, let's get you set up...");
+          navigate("/", { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.error("⛔ Error during user verification:", err);
+        navigate("/", { replace: true });
+      });
+  }, [user_id]);
+
+  useEffect(() => {
     if (!user_id || didInit.current) return;
     didInit.current = true;
 
@@ -75,6 +94,12 @@ function Home() {
   useEffect(() => {
     if (userState && playlists.length > 0) {
       setShowSkeleton(false);
+    }
+  }, [userState, playlists]);
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.debug("[dev] showSkeleton check:", { userState, playlists });
     }
   }, [userState, playlists]);
 
@@ -103,7 +128,8 @@ function Home() {
 
       const sortedFeatured = playlists.featured.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
       const sortedAll = playlists.all.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
-
+      console.log("🧠 Dashboard playlists", playlists);
+      console.log("🧠 Featured raw:", playlists.featured);
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
       localStorage.setItem("all_playlists", JSON.stringify(sortedAll));
@@ -125,6 +151,7 @@ function Home() {
       const now = new Date();
       localStorage.setItem("last_init_home", now.toISOString());
       setLastInit(now);
+      setShowSkeleton(false);
     } catch (err) {
       console.error("Failed to load dashboard:", err);
     }

@@ -1,7 +1,7 @@
 // src/utils/api.js
 const BASE_URL =
   import.meta.env.MODE === "development"
-    ? ""
+    ? "http://localhost:8000"
     : import.meta.env.VITE_API_BASE_URL;
 
 export async function apiGet(path, options = {}) {
