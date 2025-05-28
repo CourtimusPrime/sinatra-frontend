@@ -66,7 +66,7 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       className: "w-full px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-700 rounded text-left text-red-700 dark:text-red-300",
     },
     {
-      label: "🧹 Clear Genre Cache (buggy but stable)",
+      label: "🎶 Refresh Music History",
       onClick: handleClearGenreCache,
       className: "w-full px-4 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-700 rounded text-left",
     },

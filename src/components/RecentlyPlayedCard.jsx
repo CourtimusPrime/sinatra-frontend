@@ -62,7 +62,7 @@ function RecentlyPlayedCard({
 
       {/* 🎵 Main content */}
       <div className="relative z-10 p-4 flex flex-col gap-2 text-white dark:text-white">
-        <h2 className="text-sm sm:text-base font-semibold flex items-center gap-2">
+        <h2 className="text-lg sm:text-base font-semibold flex items-center gap-2">
           🎧 Recently Played
           {lastUpdated && (
             <span className="text-xs text-gray-300 font-normal">

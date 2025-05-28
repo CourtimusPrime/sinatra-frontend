@@ -38,12 +38,12 @@ function Landing() {
           Sinatra
         </h1>
         <p className="text-xl max-w-lg mx-auto font-light">
-          A public music profile for showcasing your music taste: your favorite tracks, genres, playlists, and more.
+          Create a public page for your music taste.
         </p>
       </div>
 
       {/* Call to Action */}
-      <div className="mt-6">
+      <div className="mt-6 flex justify-center">
         <button
           onClick={handleLogin}
           className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-green-600 hover:bg-green-700 text-white text-lg shadow-md transition"
