@@ -12,7 +12,8 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
   useEffect(() => {
     apiGet(`/playlists?user_id=${user.id}`)
       .then(res => {
-        const sorted = res.items.sort((a, b) => b.tracks - a.tracks);
+        const filtered = res.items.filter(p => p.tracks >= 3);
+        const sorted = filtered.sort((a, b) => b.tracks - a.tracks);
         setPlaylists(sorted);
       })
       .catch(err => console.error("Playlist fetch failed:", err));
@@ -46,7 +47,7 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Choose which playlists you like:</h2>
-      <p className="text-sm text-gray-600">Dw, you can add/remove more later.</p>
+      <p className="text-sm text-gray-600">Don't worry, you can add/remove more later.</p>
 
       <div className="flex gap-2">
         <input

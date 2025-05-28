@@ -3,6 +3,7 @@ import React, { lazy, Suspense, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Loader from "./components/Loader";
+import { applyRootThemeVars } from "./utils/theme";
 
 const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
@@ -13,21 +14,29 @@ const NotFound = lazy(() => import("./pages/404.jsx"));
 
 function App() {
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
+    const html = document.documentElement;
+    const applyTheme = (theme) => {
+      html.classList.toggle("dark", theme === "dark");
+      applyRootThemeVars(theme);
+    };
 
-    // Check for saved preference; otherwise fallback to system
-    if (saved === "dark") {
-      document.documentElement.classList.add("dark");
-    } else if (saved === "light") {
-      document.documentElement.classList.remove("dark");
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
     } else {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefersDark) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      applyTheme(prefersDark ? "dark" : "light");
     }
+
+    const systemListener = window.matchMedia("(prefers-color-scheme: dark)");
+    const systemThemeHandler = (e) => {
+      if (!localStorage.getItem("theme")) {
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    };
+
+    systemListener.addEventListener("change", systemThemeHandler);
+    return () => systemListener.removeEventListener("change", systemThemeHandler);
   }, []);
 
   return (

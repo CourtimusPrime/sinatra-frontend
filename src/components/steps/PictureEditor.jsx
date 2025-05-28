@@ -48,11 +48,6 @@ function PictureEditor({ user, onboardData, setOnboardData, setCanProceed }) {
           className="hidden"
           onChange={handleUpload}
         />
-        {image !== original && (
-          <button onClick={revertImage} className="text-red-600 block mt-2">
-            Go back
-          </button>
-        )}
       </div>
     </div>
   );

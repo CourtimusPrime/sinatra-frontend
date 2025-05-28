@@ -1,22 +1,40 @@
 /* src/styles/onboard.css */
-
+/* Container */
 .onboard-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--color-bg, #f9fafb);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: sans-serif;
 }
 
-.onboard-content {
-  flex: 1;
-  overflow-y: auto;
+/* Progress Bar */
+.sticky-progress {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: var(--color-bg, #fff);
   padding: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
 }
 
+.dark .sticky-progress {
+  background-color: #111827; /* Tailwind gray-900 */
+  box-shadow: 0 1px 5px rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollable Step Content */
+.onboard-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Step Wrapper */
 .onboard-wrapper {
   width: 100%;
   max-width: 700px;
@@ -24,13 +42,21 @@
   padding: 1rem;
 }
 
+/* Step Card */
 .onboard-step-content {
   background-color: white;
   padding: 1.5rem;
   border-radius: 1rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  color: var(--text);
 }
 
+.dark .onboard-step-content {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+/* Step Indicator Bar */
 .onboard-progress {
   display: flex;
   justify-content: space-between;
@@ -63,6 +89,12 @@
   transform: scale(1.05);
 }
 
+.dark .onboard-step.active {
+  background-color: #60a5fa;
+  color: black;
+}
+
+/* Footer */
 .onboard-footer {
   position: fixed;
   bottom: 0;
@@ -76,6 +108,12 @@
   z-index: 50;
 }
 
+.dark .onboard-footer {
+  background-color: #111827;
+  box-shadow: 0 -1px 5px rgba(255, 255, 255, 0.05);
+}
+
+/* Log Message (above footer) */
 .onboard-log {
   position: fixed;
   bottom: 3.5rem;
@@ -89,6 +127,7 @@
   z-index: 40;
 }
 
+/* Playlist Grid */
 .onboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -99,6 +138,7 @@
   .onboard-content {
     padding: 1.5rem;
   }
+
   .onboard-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -108,17 +148,25 @@
   .onboard-content {
     padding: 2rem;
   }
+
   .onboard-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
+/* Playlist Card */
 .playlist-card {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
+  background-color: var(--bg);
   padding: 0.5rem;
+  color: var(--text);
   cursor: pointer;
   transition: background 0.2s, border 0.2s, transform 0.15s;
+}
+
+.dark .playlist-card {
+  border-color: #374151;
 }
 
 .playlist-card:hover {
@@ -126,8 +174,13 @@
 }
 
 .playlist-card.selected {
-  border-color: #2563eb;
   background-color: #eff6ff;
+  border-color: #2563eb;
+}
+
+.dark .playlist-card.selected {
+  background-color: #1e40af;
+  border-color: #3b82f6;
 }
 
 .playlist-card img {
@@ -148,4 +201,9 @@
   font-size: 0.75rem;
   color: #6b7280;
   text-align: center;
+}
+
+/* Paragraph color override */
+.dark .onboard-container p {
+  color: #ffffff;
 }

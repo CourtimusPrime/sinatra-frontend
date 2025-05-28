@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "@motionone/react";
 import { apiPost } from "../../utils/api";
+import { applyRootThemeVars } from "../../utils/theme";
 
 // Components
 import EditFeaturedModal from "./EditFeatured";
@@ -17,9 +18,12 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
 
   const toggleTheme = () => {
     const html = document.documentElement;
+    const currentTheme = html.classList.contains("dark") ? "dark" : "light";
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
     html.classList.toggle("dark");
-    setIsDark(html.classList.contains("dark"));
-    localStorage.setItem("theme", html.classList.contains("dark") ? "dark" : "light");
+    localStorage.setItem("theme", newTheme);
+    setIsDark(newTheme === "dark");
+    applyRootThemeVars(newTheme);
   };
 
   const handleClearGenreCache = async () => {
@@ -56,16 +60,6 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       className: "w-full px-4 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-700 rounded text-left",
     },
     {
-      label: "🏃🏼‍♂️ Log out",
-      onClick: onLogout,
-      className: "w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left",
-    },
-    {
-      label: "🗑️ Delete account",
-      onClick: onDelete,
-      className: "w-full px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-700 rounded text-left text-red-700 dark:text-red-300",
-    },
-    {
       label: "🎶 Refresh Music History",
       onClick: handleClearGenreCache,
       className: "w-full px-4 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-700 rounded text-left",
@@ -74,6 +68,16 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       label: isDark ? "🌞 Switch to Light Mode" : "🌙 Switch to Dark Mode",
       onClick: toggleTheme,
       className: "w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-left",
+    },
+    {
+      label: "🏃🏼‍♂️ Log out",
+      onClick: onLogout,
+      className: "w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left",
+    },
+    {
+      label: "🗑️ Delete account",
+      onClick: onDelete,
+      className: "w-full px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-700 rounded text-left text-red-700 dark:text-red-300",
     },
     {
       label: "Back",
