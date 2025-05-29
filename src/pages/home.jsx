@@ -20,7 +20,7 @@ const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 function Home() {
   const loadStart = useRef(performance.now());
   const didInit = useRef(false);
-
+  
   const getCached = (key, fallback) => {
     try {
       const cached = localStorage.getItem(key);

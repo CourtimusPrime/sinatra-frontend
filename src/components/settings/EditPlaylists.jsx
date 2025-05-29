@@ -14,6 +14,8 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [sortDesc, setSortDesc] = useState(true);
   
   useEffect(() => {
     if (!isOpen) return;
@@ -24,13 +26,22 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
       setError(null);
 
       try {
-        const [spotifyRes, mongoRes] = await Promise.all([
-          apiGet("/playlists?user_id=" + user_id),
-          apiGet("/dashboard?user_id=" + user_id),
+        // First: sync all valid playlists via backend
+        await apiPost(`/admin/sync_playlists?user_id=${user_id}`, {});
+
+        // Then: pull filtered playlists from Mongo
+        const [userPlaylistsRes, mongoRes] = await Promise.all([
+          apiGet(`/user-playlists?user_id=${user_id}`),
+          apiGet(`/dashboard?user_id=${user_id}`),
         ]);
 
-        const spotifyPlaylistsRaw = Array.isArray(spotifyRes.items) ? spotifyRes.items : [];
-        const mongoPlaylistsRaw = Array.isArray(mongoRes.playlists?.all) ? mongoRes.playlists.all : [];
+        const spotifyPlaylistsRaw = Array.isArray(userPlaylistsRes.playlists)
+          ? userPlaylistsRes.playlists
+          : [];
+
+        const mongoPlaylistsRaw = Array.isArray(mongoRes.playlists?.all)
+          ? mongoRes.playlists.all
+          : [];
 
         const spotifyPlaylists = spotifyPlaylistsRaw.map(normalizePlaylist);
         const imported = mongoPlaylistsRaw.map(normalizePlaylist);
@@ -39,8 +50,12 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
 
         const importedIds = new Set(imported.map((p) => p.playlist_id));
         const unimported = spotifyPlaylists.filter(
-          (p) => !importedIds.has(p.playlist_id) && typeof p.image === "string" && p.image.trim() !== ""
+          (p) =>
+            !importedIds.has(p.playlist_id) &&
+            typeof p.image === "string" &&
+            p.image.trim() !== ""
         );
+
         setAllSpotifyPlaylists(unimported);
       } catch (err) {
         console.error("❌ Failed to load playlists", err);
@@ -105,7 +120,26 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
       >
-        <h2 className="text-lg font-bold mb-4">🔄 {tab === "add" ? "Add Playlists" : "Remove Playlists"}</h2>
+        <div className="mb-4 space-y-2">
+          <h2 className="text-lg font-bold">🔄 {tab === "add" ? "Add Playlists" : "Remove Playlists"}</h2>
+
+          {tab === "add" && (
+            <div className="flex gap-2">
+              <input
+                className="flex-1 p-2 border rounded dark:bg-gray-700 dark:text-white"
+                placeholder="Search playlists..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button
+                onClick={() => setSortDesc((prev) => !prev)}
+                className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-sm"
+              >
+                Sort {sortDesc ? "↓" : "↑"}
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="flex space-x-2 mb-4">
           <button
