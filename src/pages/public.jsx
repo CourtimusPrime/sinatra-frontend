@@ -8,12 +8,13 @@ import { apiGet } from "../utils/api";
 import Loader from "../components/Loader";
 import { motion } from "@motionone/react";
 import { Share } from "lucide-react";
-const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 import Spotify from "../assets/spotify.svg";
+import UserHeader from "../components/UserHeader";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
 const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
+const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 export default function PublicProfile() {
   const { user_id } = useParams();
@@ -89,47 +90,14 @@ export default function PublicProfile() {
         </button>
       </div>
 
-      {/* 👤 Profile picture + name */}
-      <motion.div
-        className="flex flex-col items-center my-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <motion.img
-          src={profile_picture || ""}
-          alt="Profile"
-          className="w-24 h-24 object-cover rounded-full mb-2"
-          loading="lazy"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        />
-
-        <motion.h1
-          className="text-2xl font-bold text-center"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          {display_name || "Unknown User"}
-        </motion.h1>
-
-        <motion.a
-          href={`https://open.spotify.com/user/${user_id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg text-gray-500 dark:text-gray-300 font-bold text-center block"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          @{user_id}
-        </motion.a>
-      </motion.div>
-
-      <Suspense fallback={null}>
-        {genres_data && <TopSubGenre genresData={genres_data} />}
-      </Suspense>
+      <UserHeader
+        userState={{
+          user_id,
+          display_name,
+          profile_picture,
+        }}
+        genresData={genres_data}
+      />
 
       {last_played_track && (
         <RecentlyPlayedCard track={last_played_track?.track || last_played_track} />

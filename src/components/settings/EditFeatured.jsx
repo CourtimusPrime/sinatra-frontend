@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { apiGet, apiPost } from "../../utils/api";
 import GlintBox from "../GlintBox";
 import PlaylistCardMini from "../PlaylistCardMini";
+import CloseButton from "../ui/CloseButton";
 
 function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   const [allPlaylists, setAllPlaylists] = useState([]);
@@ -99,18 +100,12 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
           </div>
         </div>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2 bg-white dark:bg-gray-800">
-          <button
-            aria-label="Close modal"
-            onClick={onClose}
-            className="text-sm underline text-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex gap-2 bg-white dark:bg-gray-800">
+          <CloseButton onClick={onClose} className="flex-1" />
           <button
             onClick={handleSave}
             disabled={selected.length !== 3}
-            className="px-4 py-2 bg-blue-600 text-white text-sm rounded disabled:opacity-50"
+            className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm rounded disabled:opacity-50"
           >
             Save
           </button>

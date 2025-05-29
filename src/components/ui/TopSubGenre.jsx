@@ -1,29 +1,36 @@
 // src/components/ui/TopSubGenre.jsx
 import React, { useEffect, useState } from "react";
-import { isMetaGenre } from "../../constants/metaGenres";
+import { getMetaGenreGradient } from "../../constants/metaGenres";
+import { apiGet } from "../../utils/api";
 
-
-function TopSubGenre({ genresData }) {
+function TopSubGenre({ user_id }) {
   const [topSub, setTopSub] = useState(null);
+  const [meta, setMeta] = useState("other");
 
   useEffect(() => {
-    const genreSource = genresData?.sub_genres || genresData?.frequency;
-    if (!genreSource) return;
+    if (!user_id) return;
 
-    const allSubGenres = Object.entries(genreSource)
-      .filter(([genre]) => !isMetaGenre(genre))
-      .sort((a, b) => b[1] - a[1]);
-
-    if (allSubGenres.length > 0) {
-      setTopSub(allSubGenres[0][0]);
-    }
-  }, [genresData]);
+    apiGet(`/top-subgenre?user_id=${user_id}`)
+      .then(({ top_subgenre, meta_genre }) => {
+        if (top_subgenre) {
+          setTopSub(top_subgenre);
+          setMeta(meta_genre || "other");
+        }
+      })
+      .catch((err) => console.error("Failed to fetch top subgenre:", err));
+  }, [user_id]);
 
   if (!topSub) return null;
 
   return (
     <div className="text-sm text-gray-500 text-center">
-      Current taste: <span className="font-semibold">{topSub}</span>
+      Current taste:{" "}
+      <span
+        className="font-semibold bg-clip-text text-transparent"
+        style={{ backgroundImage: getMetaGenreGradient(meta) }}
+      >
+        {topSub}
+      </span>
     </div>
   );
 }

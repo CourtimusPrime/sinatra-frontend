@@ -6,6 +6,7 @@ import "../../styles/loader.css";
 import GlintBox from "../GlintBox";
 import PlaylistCardMini from "../PlaylistCardMini";
 import { normalizePlaylist } from "../../utils/normalize";
+import CloseButton from "../ui/CloseButton";
 
 function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [tab, setTab] = useState("add");
@@ -208,14 +209,12 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
         )}
       </div>
 
-        <div className="sticky bottom-0 left-0 bg-white dark:bg-gray-800 border-t mt-4 pt-3 pb-4 px-6 flex justify-between z-10">
-          <button onClick={onClose} className="text-sm underline text-gray-500 dark:text-gray-300">
-            Cancel
-          </button>
+        <div className="sticky bottom-0 left-0 bg-white dark:bg-gray-800 border-t mt-4 pt-3 pb-4 px-6 flex gap-2 z-10">
+          <CloseButton onClick={onClose} className="flex-1" />
           <button
             onClick={handleSave}
             disabled={loading || selectedIds.length === 0}
-            className={`px-4 py-2 rounded text-white ${
+            className={`flex-1 px-4 py-2 rounded text-white ${
               tab === "add" ? "bg-green-500" : "bg-red-500"
             } ${loading ? "opacity-50 cursor-wait" : ""}`}
           >

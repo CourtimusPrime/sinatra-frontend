@@ -10,17 +10,17 @@ import { apiGet, apiDelete } from "../utils/api";
 import { Menu, Share } from "lucide-react";
 import { normalizePlaylist } from "../utils/normalize";
 import GlintBox from "../components/GlintBox";
+import UserHeader from "../components/UserHeader";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
-const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
 const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
 const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 function Home() {
   const loadStart = useRef(performance.now());
   const didInit = useRef(false);
-  
+
   const getCached = (key, fallback) => {
     try {
       const cached = localStorage.getItem(key);
@@ -42,7 +42,6 @@ function Home() {
   const rawFeatured = getCached("featured_playlists", []);
   const validFeatured = Array.isArray(rawFeatured) ? rawFeatured.map(normalizePlaylist) : [];
   const [playlists, setPlaylists] = useState(validFeatured);
-  const [allPlaylists, setAllPlaylists] = useState(() => getCached("all_playlists", []));
   const [genreMap, setGenreMap] = useState(() => getCached("genre_map", {}));
   const [lastInit, setLastInit] = useState(() => {
     const cached = localStorage.getItem("last_init_home");
@@ -271,46 +270,7 @@ function Home() {
           <Menu className="w-5 h-5" />
         </button>
       </div>
-      <motion.div
-        className="flex flex-col items-center my-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <motion.img
-          src={userState?.profile_picture || ""}
-          alt="Profile"
-          className="w-24 h-24 object-cover rounded-full mb-2"
-          loading="lazy"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        />
-
-        <motion.h1
-          className="text-2xl font-bold text-center"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          {userState?.display_name || "Sgt. Pepper"}
-        </motion.h1>
-
-        <motion.a
-          href={`https://open.spotify.com/user/${userState?.user_id || ""}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg text-gray-500 font-bold text-center block"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {userState?.user_id ? "@" + userState.user_id : ""}
-        </motion.a>
-      </motion.div>
-
-      <Suspense fallback={null}>
-        {genresData && <TopSubGenre genresData={genresData} />}
-      </Suspense>
+      <UserHeader userState={userState} genresData={genresData} />
 
       {track && (
         <div className={`transition-transform duration-300 scale-100 ${animateTrackChange ? "animate-scalein" : ""}`}>

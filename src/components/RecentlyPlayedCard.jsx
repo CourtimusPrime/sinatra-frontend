@@ -48,8 +48,8 @@ function RecentlyPlayedCard({
           : undefined,
         backgroundColor: !track.album_art_url
         ? window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "#111827" // Tailwind's dark:bg-gray-900
-          : "#ffffff" // Tailwind's bg-white
+          ? "#111827"
+          : "#ffffff"
         : undefined,
         backgroundSize: "cover",
         backgroundPosition: "center",
