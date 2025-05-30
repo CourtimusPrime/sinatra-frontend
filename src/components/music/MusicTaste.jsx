@@ -26,8 +26,17 @@ function MusicTaste({ genresData }) {
 
     return Object.entries(genresData.sub_genres)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, value]) => ({ name, value }));
+      .slice(0, 5) // or 5 if you want fewer
+      .map(([name, value]) => {
+        const parentMeta = Object.entries(genresData.meta_genres || {}).find(([meta]) =>
+          genresData.top_subgenre?.parent_genre === meta ||
+          name.toLowerCase().includes(meta)
+        );
+
+        const gradient = parentMeta?.[1]?.gradient || "linear-gradient(to right, #666, #999)";
+
+        return { name, value, gradient };
+      });
   }, [genresData]);
 
   const handlers = useSwipeable({

@@ -3,8 +3,6 @@ import React from "react";
 import { motion } from "@motionone/react";
 
 function SubGenreBarList({ data }) {
-  const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
-
   return (
     <motion.div
       className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300 space-y-3"
@@ -14,7 +12,7 @@ function SubGenreBarList({ data }) {
     >
       {data.map((genre, index) => {
         const { name, value, gradient } = genre;
-        const percent = ((value / total) * 100).toFixed(1);
+        const percent = value.toFixed(1);
         const barWidth = `${percent}%`;
         const barGradient = gradient || "linear-gradient(to right, #666, #999)";
 
