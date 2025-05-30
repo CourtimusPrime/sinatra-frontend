@@ -1,9 +1,8 @@
 // src/components/music/SubGenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
-import { getMetaGenreGradient } from "../../constants/metaGenres";
 
-function SubGenreBarList({ data, getColorForGenre, genreMap }) {
+function SubGenreBarList({ data }) {
   const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
 
   return (
@@ -13,12 +12,11 @@ function SubGenreBarList({ data, getColorForGenre, genreMap }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {data.map(({ name, value }, index) => {
-        const lower = name.toLowerCase();
-        const parentGenre = genreMap?.[lower] || "other";
+      {data.map((genre, index) => {
+        const { name, value, gradient } = genre;
         const percent = ((value / total) * 100).toFixed(1);
-        const barGradient = getMetaGenreGradient(parentGenre);
         const barWidth = `${percent}%`;
+        const barGradient = gradient || "linear-gradient(to right, #666, #999)";
 
         return (
           <motion.div

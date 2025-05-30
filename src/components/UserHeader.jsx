@@ -39,7 +39,7 @@ function UserHeader({ userState, genresData }) {
       </motion.a>
 
       <Suspense fallback={null}>
-        {userState?.user_id && <TopSubGenre user_id={userState.user_id} />}
+        {genresData && <TopSubGenre genreData={genresData} />}
       </Suspense>
     </div>
   );

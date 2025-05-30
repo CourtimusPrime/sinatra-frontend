@@ -3,49 +3,32 @@ import React, { useEffect, useState, useMemo } from "react";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
-import { isMetaGenre } from "../../constants/metaGenres";
 
-function MusicTaste({ genresData, genreMap }) {
+function MusicTaste({ genresData }) {
   const [step, setStep] = useState(0);
 
   const metaGenres = useMemo(() => {
-    if (!genresData?.highest) return [];
-
-    const highestEntries = Array.isArray(genresData.highest)
-      ? genresData.highest
-      : Object.entries(genresData.highest);
-
-    return highestEntries
+    if (!genresData?.meta_genres) return [];
+    return Object.entries(genresData.meta_genres)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
-      .map(([name, value]) => ({
+      .map(([name, data]) => ({
         name,
-        value: Math.round(value * 10) / 10,
+        value: Math.round(data.portion * 10) / 10,
+        gradient: data.gradient,
       }));
   }, [genresData]);
 
   
 
   const subGenres = useMemo(() => {
-    if (!genresData?.sub_genres || !genreMap) return [];
+    if (!genresData?.sub_genres) return [];
 
     return Object.entries(genresData.sub_genres)
-      .filter(([name]) => {
-        const lower = name.toLowerCase();
-        const parent = genreMap[lower];
-        const isExcluded =
-          !parent || parent === lower || isMetaGenre(lower);
-
-        if (isExcluded) {
-          console.log(`🚫 Excluded sub-genre: ${name} → parent: ${parent}`);
-        }
-
-        return !isExcluded;
-      })
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([name, value]) => ({ name, value }));
-  }, [genresData, genreMap]);
+  }, [genresData]);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => setStep((prev) => Math.min(prev + 1, 1)),
@@ -66,7 +49,7 @@ function MusicTaste({ genresData, genreMap }) {
       ) : step === 0 ? (
         <GenreBarList data={metaGenres} />
       ) : (
-        <SubGenreBarList data={subGenres} genreMap={genreMap} />
+        <SubGenreBarList data={subGenres} />
       )}
 
       <div className="flex justify-center gap-2 mt-4">

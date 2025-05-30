@@ -22,29 +22,6 @@ export const metaGenreGradients = {
   other: "linear-gradient(to right, #000080, #2e3cae)",
 };
 
-export const metaGenreEmojis = {
-  rock: "🎸",
-  pop: "🎤",
-  "r&b": "🪩",
-  electronic: "🎛️",
-  "hip-hop": "📻",
-  metal: "🔥",
-  folk: "🪕",
-  jazz: "🎷",
-  reggae: "🌴",
-  blues: "🥁",
-  country: "🚜",
-  "new age": "🕊️",
-  classical: "🎻",
-  religious: "📿",
-  "easy listening": "🫖",
-  latin: "🌮",
-  vocal: "🗣️",
-  indie: "✌🏼",
-  other: "🃏"
-}
-
-
 const metaGenres = Object.keys(metaGenreGradients);
 
 export function getMetaGenreGradient(name) {

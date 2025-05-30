@@ -1,7 +1,6 @@
 // src/components/music/GenreBarList.jsx
 import React from "react";
 import { motion } from "@motionone/react";
-import { getMetaGenreGradient } from "../../constants/metaGenres";
 
 function GenreBarList({ data }) {
   if (!Array.isArray(data) || data.length === 0) {
@@ -20,7 +19,8 @@ function GenreBarList({ data }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {data.map(({ name, value }, index) => {
+      {data.map((genre, index) => {
+        const { name, value, gradient } = genre;
         if (typeof value !== "number" || !isFinite(value)) return null;
 
         const rawPercent = (value / total) * 100;
@@ -45,7 +45,7 @@ function GenreBarList({ data }) {
                 transition={{ duration: 0.6, delay: index * 0.08 }}
                 className="h-full rounded-full"
                 style={{
-                  background: getMetaGenreGradient(name) || "#ccc",
+                  background: genre.gradient || "#ccc",
                 }}
               />
             </div>

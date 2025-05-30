@@ -42,7 +42,6 @@ function Home() {
   const rawFeatured = getCached("featured_playlists", []);
   const validFeatured = Array.isArray(rawFeatured) ? rawFeatured.map(normalizePlaylist) : [];
   const [playlists, setPlaylists] = useState(validFeatured);
-  const [genreMap, setGenreMap] = useState(() => getCached("genre_map", {}));
   const [lastInit, setLastInit] = useState(() => {
     const cached = localStorage.getItem("last_init_home");
     return cached ? new Date(cached) : null;
@@ -107,7 +106,7 @@ function Home() {
 
     try {
       const json = await apiGet(`/dashboard?user_id=${user_id}`);
-      const { user, playlists, played_track, genre_map } = json;
+      const { user, playlists, played_track } = json;
 
       const userData = {
         display_name: user.display_name,
@@ -132,12 +131,6 @@ function Home() {
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
       localStorage.setItem("all_playlists", JSON.stringify(sortedAll));
-
-      const normalized = Object.fromEntries(
-        Object.entries(genre_map || {}).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
-      );
-      setGenreMap(normalized);
-      localStorage.setItem("genre_map", JSON.stringify(normalized));
 
       const latestTrack = played_track?.track;
       if (latestTrack) {
@@ -285,12 +278,11 @@ function Home() {
       )}
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        {genresData && genreMap && (
+        {genresData && (
           <div className="mt-3">
             <MusicTaste
-              key={user_id + "_taste"} // force remount on user change
+              key={user_id + "_taste"}
               genresData={genresData}
-              genreMap={genreMap}
             />
           </div>
         )}

@@ -1,33 +1,18 @@
 // src/components/ui/TopSubGenre.jsx
-import React, { useEffect, useState } from "react";
-import { getMetaGenreGradient } from "../../constants/metaGenres";
-import { apiGet } from "../../utils/api";
+import React from "react";
 
-function TopSubGenre({ user_id }) {
-  const [topSub, setTopSub] = useState(null);
-  const [meta, setMeta] = useState("other");
+function TopSubGenre({ genreData }) {
+  if (!genreData?.top_subgenre?.sub_genre) return null;
 
-  useEffect(() => {
-    if (!user_id) return;
-
-    apiGet(`/top-subgenre?user_id=${user_id}`)
-      .then(({ top_subgenre, meta_genre }) => {
-        if (top_subgenre) {
-          setTopSub(top_subgenre);
-          setMeta(meta_genre || "other");
-        }
-      })
-      .catch((err) => console.error("Failed to fetch top subgenre:", err));
-  }, [user_id]);
-
-  if (!topSub) return null;
+  const topSub = genreData.top_subgenre.sub_genre;
+  const gradient = genreData.top_subgenre.gradient || "linear-gradient(to right, #666, #999)";
 
   return (
     <div className="text-sm text-gray-500 text-center">
       Current taste:{" "}
       <span
         className="font-semibold bg-clip-text text-transparent"
-        style={{ backgroundImage: getMetaGenreGradient(meta) }}
+        style={{ backgroundImage: gradient }}
       >
         {topSub}
       </span>
