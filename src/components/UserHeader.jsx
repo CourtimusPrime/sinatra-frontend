@@ -6,11 +6,11 @@ function UserHeader({ userState, genresData }) {
   if (!userState) return null;
 
   return (
-    <div className="flex flex-col items-center space-y-1 mb-4">
+    <div className="flex flex-col items-center space-y-0.5 mb-3">
       <motion.img
         src={userState.profile_picture || ""}
         alt="Profile"
-        className="w-24 h-24 object-cover rounded-full mb-2"
+        className="w-24 h-24 object-cover rounded-full"
         loading="lazy"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -24,11 +24,11 @@ function UserHeader({ userState, genresData }) {
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {userState.display_name || "Sgt. Pepper"}
-      </motion.h1>
+      </motion.h1> 
 
       <motion.a
         href={`https://open.spotify.com/user/${userState.user_id || ""}`}
-        target="_blank"
+        target="_blank" 
         rel="noopener noreferrer"
         className="text-lg text-gray-500 font-bold text-center block"
         initial={{ opacity: 0, scale: 0.95 }}

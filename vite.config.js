@@ -42,6 +42,7 @@ export default defineConfig({
       '/update-featured': 'http://localhost:8000',
       '/refresh_token': 'http://localhost:8000',
       '/top-tracks': 'http://localhost:8000',
+      '/top-subgenre': 'http://localhost:8000',
       '/analyze-genres': 'http://localhost:8000',
       '/genre-map': 'http://localhost:8000',
       '/users': 'http://localhost:8000',
