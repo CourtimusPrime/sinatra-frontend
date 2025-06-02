@@ -5,9 +5,9 @@ import NameEditor from "./steps/NameEditor";
 import PictureEditor from "./steps/PictureEditor";
 import PlaylistImporter from "./steps/PlaylistImporter";
 import FeaturedPicker from "./steps/FeaturedPicker";
-import FinalizeAccount from "./steps/FinalizeAccount";
+import Loader from "../components/Loader";
 
-const totalSteps = 6;
+const totalSteps = 4;
 
 function OnboardingSteps({ step, user, onboardData, setOnboardData, setCanProceed }) {
   const sharedProps = { user, onboardData, setOnboardData, setCanProceed };
@@ -23,7 +23,7 @@ function OnboardingSteps({ step, user, onboardData, setOnboardData, setCanProcee
       case 3:
         return <FeaturedPicker {...sharedProps} />;
       case 4:
-        return <FinalizeAccount {...sharedProps} />;
+        return <Loader />;
       default:
         return <div className="text-center text-red-600">Invalid step</div>;
     }

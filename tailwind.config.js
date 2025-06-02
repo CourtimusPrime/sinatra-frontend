@@ -15,7 +15,7 @@ export default {
       },
       keyframes: {
         shimmer: {
-          '0%': { backgroundPosition: '-100% 0' },
+          '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
       },

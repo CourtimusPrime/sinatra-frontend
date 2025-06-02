@@ -20,7 +20,7 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="p-4 text-red-600">
           <p>Something went wrong.</p>
-          <pre classname="text-xs text-grey-600 whitespace-pre-wrap">
+          <pre className="text-xs text-grey-600 whitespace-pre-wrap">
             {String(this.state.error)}
           </pre>
         </div>

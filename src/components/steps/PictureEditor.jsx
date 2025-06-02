@@ -40,7 +40,7 @@ function PictureEditor({ user, onboardData, setOnboardData, setCanProceed }) {
             className="text-blue-600 underline"
             onClick={() => document.getElementById("file-input").click()}
           >
-            Ugh, no I look awful!
+            Yeah let's change it 🤮
           </button>
           <input
             id="file-input"
