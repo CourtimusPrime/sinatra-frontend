@@ -87,7 +87,7 @@ body {
 
   .animate-gradient {
     background-size: 200% 200%;
-    animation: gradientShift 15s linear infinite;
+    animation: gradientShift 8s linear infinite;
   }
 }
 
