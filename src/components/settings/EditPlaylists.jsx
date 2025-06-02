@@ -187,7 +187,14 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
           </p>
         ) : (
           [...playlists]
-            .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
+            .filter((p) =>
+              p.name.toLowerCase().includes(search.toLowerCase())
+            )
+            .sort((a, b) =>
+              sortDesc
+                ? (b.tracks || 0) - (a.tracks || 0)
+                : (a.tracks || 0) - (b.tracks || 0)
+            )
             .map((p, i) => {
               const id = p.playlist_id || p.id;
               return (

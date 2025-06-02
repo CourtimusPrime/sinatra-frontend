@@ -282,11 +282,9 @@ function Home() {
       )}
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        {genresData && (
-          <div className="mt-3">
-            <MusicTaste genresData={userState?.genre_analysis} userId={userState?.user_id} />
-          </div>
-        )}
+        <div className="mt-3">
+          <MusicTaste genresData={userState?.genre_analysis} userId={userState?.user_id} />
+        </div>
       </Suspense>
 
       <motion.div

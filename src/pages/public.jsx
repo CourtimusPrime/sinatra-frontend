@@ -40,7 +40,11 @@ export default function PublicProfile() {
             : [],
         });
 
-        setTimeout(() => setShowCTA(true), 1500);
+        // ✅ Only show CTA if viewer is not logged in
+        const isLoggedIn = localStorage.getItem("user");
+        if (!isLoggedIn) {
+          setTimeout(() => setShowCTA(true), 1500);
+        }
       } catch (err) {
         console.error("❌ Failed to load public profile:", err);
       }
@@ -57,6 +61,10 @@ export default function PublicProfile() {
     last_played_track,
     featured_playlists,
   } = profile;
+
+  const lastUpdated = last_played_track?.played_at
+    ? new Date(last_played_track.played_at)
+    : null;
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
@@ -89,18 +97,20 @@ export default function PublicProfile() {
       />
 
       {last_played_track && (
-        <RecentlyPlayedCard track={last_played_track?.track || last_played_track} />
+        <RecentlyPlayedCard
+          track={last_played_track?.track || last_played_track}
+          lastUpdated={lastUpdated}
+        />
       )}
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        {genres_data && (
-          <div className="mt-3">
-            <MusicTaste
-              key={user_id + "_taste"}
-              genresData={genres_data}
-            />
-          </div>
-        )}
+        <div className="mt-3">
+          <MusicTaste
+            key={user_id + "_taste"}
+            genresData={genres_data}
+            userId={user_id}
+          />
+        </div>
       </Suspense>
 
       <motion.div
