@@ -10,7 +10,6 @@ function Onboard() {
   const navigate = useNavigate();
 
   const [spotifyUser, setSpotifyUser] = useState(null);
-  const [genreData, setGenreData] = useState(null);
   const [step, setStep] = useState(0);
   const [canProceed, setCanProceed] = useState(false);
   const [log, setLog] = useState("");
@@ -56,10 +55,8 @@ function Onboard() {
         if (!user_id) throw new Error("Missing user_id in URL");
 
         const spotifyRes = await apiGet(`/spotify-me?user_id=${user_id}`);
-        const genreRes = await apiGet(`/genres?user_id=${user_id}`);
 
         setSpotifyUser(spotifyRes);
-        setGenreData(genreRes);
         setOnboardData((prev) => ({
           ...prev,
           user_id,
@@ -74,22 +71,31 @@ function Onboard() {
     init();
   }, []);
 
+  useEffect(() => {
+    // Reset canProceed to false on every step change
+    setCanProceed(false);
+  }, [step]);
+
   const handleNext = () => {
-    if (!canProceed) return;
+    if (step > 0 && !canProceed) return;
 
     if (step < 4) {
       setStep(step + 1);
     } else {
-      setLog("Submitting account to MongoDB...");
       apiPost("/register", onboardData)
-        .then(() => {
-          setLog("Success. Redirecting to home...");
-          navigate("/home");
-        })
-        .catch((err) => {
-          setLog("Registration failed.");
-          console.error("Register POST failed:", err);
-        });
+      .then(async () => {
+        const dash = await apiGet(`/dashboard?user_id=${onboardData.user_id}`);
+        localStorage.setItem("user", JSON.stringify(dash.user));
+        localStorage.setItem("genres_data", JSON.stringify(dash.user.genre_analysis || {}));
+        localStorage.setItem("featured_playlists", JSON.stringify(dash.playlists.featured || []));
+        localStorage.setItem("all_playlists", JSON.stringify(dash.playlists.all || []));
+        if (dash.played_track?.track) {
+          localStorage.setItem("last_played_track", JSON.stringify(dash.played_track.track));
+          localStorage.setItem("last_played_updated_at", new Date().toISOString());
+        }
+        localStorage.setItem("last_init_home", new Date().toISOString());
+        navigate("/home");
+      });
     }
   };
 
@@ -116,7 +122,6 @@ function Onboard() {
           <OnboardingSteps
             step={step}
             user={spotifyUser}
-            genres={genreData}
             onboardData={onboardData}
             setOnboardData={setOnboardData}
             setCanProceed={setCanProceed}
@@ -138,9 +143,11 @@ function Onboard() {
         <button
           onClick={handleNext}
           className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${
-            canProceed ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
+            step === 0 || canProceed
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
           }`}
-          disabled={!canProceed}
+          disabled={step !== 0 && !canProceed}
         >
           {step < 4 ? "Next" : "Finish"}
         </button>

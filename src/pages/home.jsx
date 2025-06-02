@@ -23,8 +23,15 @@ function Home() {
 
   const getCached = (key, fallback) => {
     try {
-      const cached = localStorage.getItem(key);
-      return cached ? JSON.parse(cached) : fallback;
+      const cached = JSON.parse(localStorage.getItem(key));
+      if (!cached) return fallback;
+
+      // Example for playlist cache
+      if (key === "featured_playlists" && !Array.isArray(cached)) return fallback;
+      if (key === "user" && (!cached.user_id || !cached.display_name)) return fallback;
+      if (key === "genres_data" && (!cached || !cached.meta_genres)) return fallback;
+
+      return cached;
     } catch {
       return fallback;
     }
@@ -84,16 +91,21 @@ function Home() {
 
     runIdle(() => {
       const now = new Date();
-      const shouldUpdate = !lastInit || now - new Date(lastInit) > 60 * 60 * 1000;
+      const shouldUpdate =
+        !lastInit ||
+        now - new Date(lastInit) > 60 * 60 * 1000 ||
+        !userState ||
+        !Array.isArray(playlists) ||
+        playlists.length === 0;
       if (shouldUpdate) loadDashboard();
     });
   }, [user_id]);
 
   useEffect(() => {
-    if (userState && playlists.length > 0) {
+    if (userState) {
       setShowSkeleton(false);
     }
-  }, [userState, playlists]);
+  }, [userState]);
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -119,9 +131,25 @@ function Home() {
       setUserState(userData);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      if (user.genre_analysis) {
+      if (user.genre_analysis && Object.keys(user.genre_analysis).length > 0) {
         setGenresData(user.genre_analysis);
         localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
+      } else {
+        // 🔁 No genre data yet? Force a refresh
+        apiGet(`/genres?user_id=${user.user_id}`)
+          .then((genreData) => {
+            setGenresData(genreData);
+            localStorage.setItem("genres_data", JSON.stringify(genreData));
+
+            // Optional: also update userState so MusicTaste gets it
+            setUserState((prev) => ({
+              ...prev,
+              genre_analysis: genreData,
+            }));
+          })
+          .catch((err) => {
+            console.error("⛔ Failed to refresh genres:", err);
+          });
       }
 
       const sortedFeatured = playlists.featured.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);

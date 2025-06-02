@@ -4,7 +4,7 @@ import PlaylistCardMini from "../PlaylistCardMini";
 
 function FeaturedPicker({ onboardData, setOnboardData, setCanProceed }) {
   const imported = onboardData.selected_playlists || [];
-  const [selected, setSelected] = useState(onboardData.featured_playlists.map(p => p.playlist_id));
+  const [selected, setSelected] = useState(onboardData.featured_playlists.map(p => p.id));
   const [search, setSearch] = useState("");
   const [sortDesc, setSortDesc] = useState(true);
 

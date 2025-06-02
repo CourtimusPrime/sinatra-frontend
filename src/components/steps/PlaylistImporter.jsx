@@ -12,15 +12,27 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
   );
   const [sortDesc, setSortDesc] = useState(true);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     apiPost(`/admin/sync_playlists?user_id=${user.id}`, {})
       .then(() => apiGet(`/user-playlists?user_id=${user.id}`))
       .then(res => {
-        const sorted = res.playlists.sort((a, b) => b.tracks - a.tracks);
+        const seen = new Set();
+        const unique = res.playlists.filter(p => {
+          if (seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+        const sorted = unique.sort((a, b) => b.tracks - a.tracks);
         setPlaylists(sorted);
+        setLoading(false);
       })
-      .catch(err => console.error("Playlist sync failed:", err));
+      .catch(err => {
+        console.error("Playlist sync failed:", err);
+        setLoading(false);
+      });
   }, [user.id]);
 
   useEffect(() => {
@@ -54,6 +66,16 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 text-center">
+        <p className="text-lg text-gray-500 animate-pulse">
+          Loading your playlists...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Choose which playlists you like:</h2>
@@ -75,7 +97,7 @@ function PlaylistImporter({ user, onboardData, setOnboardData, setCanProceed }) 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-4">
         {filtered.map((p, i) => (
           <PlaylistCardMini
-            key={p.id}
+            key={`${p.id}-${i}`}
             playlist={p}
             index={i}
             selectable

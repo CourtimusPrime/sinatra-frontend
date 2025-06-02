@@ -3,29 +3,26 @@ import React, { useEffect } from "react";
 import { motion } from "@motionone/react";
 import NameEditor from "./steps/NameEditor";
 import PictureEditor from "./steps/PictureEditor";
-import GenreIntro from "./steps/GenreIntro";
 import PlaylistImporter from "./steps/PlaylistImporter";
 import FeaturedPicker from "./steps/FeaturedPicker";
 import FinalizeAccount from "./steps/FinalizeAccount";
 
 const totalSteps = 6;
 
-function OnboardingSteps({ step, user, genres, onboardData, setOnboardData, setCanProceed }) {
-  const sharedProps = { user, genres, onboardData, setOnboardData, setCanProceed };
+function OnboardingSteps({ step, user, onboardData, setOnboardData, setCanProceed }) {
+  const sharedProps = { user, onboardData, setOnboardData, setCanProceed };
 
   const renderStep = () => {
     switch (step) {
       case 0:
-        return <GenreIntro {...sharedProps} />;
-      case 1:
         return <NameEditor {...sharedProps} />;
-      case 2:
+      case 1:
         return <PictureEditor {...sharedProps} />;
-      case 3:
+      case 2:
         return <PlaylistImporter {...sharedProps} />;
-      case 4:
+      case 3:
         return <FeaturedPicker {...sharedProps} />;
-      case 5:
+      case 4:
         return <FinalizeAccount {...sharedProps} />;
       default:
         return <div className="text-center text-red-600">Invalid step</div>;
