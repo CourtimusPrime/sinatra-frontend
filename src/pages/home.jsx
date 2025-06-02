@@ -167,9 +167,13 @@ function Home() {
     setIsRefreshing(true);
     try {
       const data = await apiGet(`/playback?user_id=${user_id}`);
-      const latestTrack = data.playback?.track;
 
-      if (!latestTrack) return;
+      if (!data || !data.playback || !data.playback.track) {
+        console.warn("No valid playback data:", data);
+        return;
+      }
+
+      const latestTrack = data.playback.track;
 
       const isSameTrack = JSON.stringify(latestTrack) === JSON.stringify(track);
       if (!isSameTrack) {
@@ -280,10 +284,7 @@ function Home() {
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
         {genresData && (
           <div className="mt-3">
-            <MusicTaste
-              key={user_id + "_taste"}
-              genresData={genresData}
-            />
+            <MusicTaste genresData={userState?.genre_analysis} userId={userState?.user_id} />
           </div>
         )}
       </Suspense>

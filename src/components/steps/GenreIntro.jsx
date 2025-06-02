@@ -20,12 +20,20 @@ function GenreIntro({ genres, setCanProceed }) {
   const subGenresObj = genres?.sub_genres || {};
 
   const topMetaGenres = Object.entries(highestObj)
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => {
+      const aVal = typeof a[1] === "object" ? a[1].portion : a[1];
+      const bVal = typeof b[1] === "object" ? b[1].portion : b[1];
+      return bVal - aVal;
+    })
     .slice(0, 5)
     .map(([genre]) => genre);
 
   const topSubGenres = Object.entries(subGenresObj)
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => {
+      const aVal = typeof a[1] === "object" ? a[1].portion : a[1];
+      const bVal = typeof b[1] === "object" ? b[1].portion : b[1];
+      return bVal - aVal;
+    })
     .slice(0, 5)
     .map(([genre]) => genre);
 

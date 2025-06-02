@@ -13,31 +13,25 @@ import UserHeader from "../components/UserHeader";
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
-const TopSubGenre = lazy(() => import("../components/ui/TopSubGenre"));
 const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 export default function PublicProfile() {
   const { user_id } = useParams();
   const [profile, setProfile] = useState(null);
-  const [genreMap, setGenreMap] = useState({});
   const [showCTA, setShowCTA] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAllModalOpen, setAllModalOpen] = useState(false);
+
   const handleLogin = () => {
     const target = import.meta.env.VITE_API_BASE_URL + "/login";
-    console.log("🛩️ Redirecting to:", target);
     window.location.href = target;
   };
 
   useEffect(() => {
     async function load() {
       try {
-        const [userData, map] = await Promise.all([
-          apiGet(`/public-profile/${user_id}`),
-          apiGet(`/genre-map`),
-        ]);
-
-        console.log("🎯 Public profile loaded:", userData); // ADD THIS
+        const userData = await apiGet(`/public-profile/${user_id}`);
+        console.log("🎯 Public profile loaded:", userData);
 
         setProfile({
           ...userData,
@@ -45,14 +39,10 @@ export default function PublicProfile() {
             ? userData.featured_playlists.map(normalizePlaylist)
             : [],
         });
-        setGenreMap(
-          Object.fromEntries(
-            Object.entries(map).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()])
-          )
-        );
+
         setTimeout(() => setShowCTA(true), 1500);
       } catch (err) {
-        console.error("❌ Failed to load public profile or genre map:", err);
+        console.error("❌ Failed to load public profile:", err);
       }
     }
     load();
@@ -70,7 +60,6 @@ export default function PublicProfile() {
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      {/* 🔗 Top row - share button only */}
       <div className="flex justify-end mb-2">
         <button
           onClick={() => {
@@ -104,12 +93,13 @@ export default function PublicProfile() {
       )}
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        {genres_data && genreMap && (
-          <MusicTaste
-            key={user_id + "_taste"}
-            genresData={genres_data}
-            genreMap={genreMap}
-          />
+        {genres_data && (
+          <div className="mt-3">
+            <MusicTaste
+              key={user_id + "_taste"}
+              genresData={genres_data}
+            />
+          </div>
         )}
       </Suspense>
 
@@ -117,7 +107,7 @@ export default function PublicProfile() {
         initial="hidden"
         animate="visible"
         variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-6"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3"
       >
         <div className="flex justify-between items-center mb-2">
           <div className="font-semibold text-lg flex items-center gap-1">
@@ -134,15 +124,31 @@ export default function PublicProfile() {
 
         <div className="flex flex-col gap-3">
           {Array.isArray(featured_playlists) && featured_playlists.length > 0 ? (
-            featured_playlists.map((playlist, i) =>
-              playlist && typeof playlist === "object" ? (
-                <PlaylistCardMini key={playlist.id || i} playlist={playlist} index={i} showTracks />
-              ) : (
-                <div key={i} className="text-red-500 text-sm">
-                  ⚠️ Skipped invalid playlist
-                </div>
-              )
-            )
+            featured_playlists.map((playlist, i) => {
+              const isValid =
+                playlist &&
+                typeof playlist === "object" &&
+                typeof playlist.name === "string" &&
+                typeof playlist.tracks === "number";
+
+              if (!isValid) {
+                console.warn(`❌ Invalid playlist at index ${i}:`, playlist);
+                return (
+                  <div key={playlist?.id || i} className="text-red-500 text-sm">
+                    ⚠️ Skipped invalid playlist
+                  </div>
+                );
+              }
+
+              return (
+                <PlaylistCardMini
+                  key={playlist.id || i}
+                  playlist={playlist}
+                  index={i}
+                  showTracks
+                />
+              );
+            })
           ) : (
             <div className="text-gray-500 text-sm text-center">No featured playlists found.</div>
           )}

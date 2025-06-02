@@ -1,16 +1,34 @@
 // src/components/music/MusicTaste.jsx
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { apiGet } from "../../utils/api";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
 
-function MusicTaste({ genresData }) {
+function MusicTaste({ genresData: initialGenresData, userId }) {
+  const [genresData, setGenresData] = useState(initialGenresData || null);
+  const [loading, setLoading] = useState(!initialGenresData);
   const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (!genresData && userId) {
+      apiGet(`/genres?user_id=${userId}`)
+        .then((res) => {
+          setGenresData(res);
+          localStorage.setItem(`genreData:${userId}`, JSON.stringify(res));
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch genres:", err);
+          setLoading(false);
+        });
+    }
+  }, [userId, genresData]);
 
   const metaGenres = useMemo(() => {
     if (!genresData?.meta_genres) return [];
     return Object.entries(genresData.meta_genres)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].portion - a[1].portion)
       .slice(0, 5)
       .map(([name, data]) => ({
         name,
@@ -19,24 +37,16 @@ function MusicTaste({ genresData }) {
       }));
   }, [genresData]);
 
-  
-
   const subGenres = useMemo(() => {
     if (!genresData?.sub_genres) return [];
-
     return Object.entries(genresData.sub_genres)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5) // or 5 if you want fewer
-      .map(([name, value]) => {
-        const parentMeta = Object.entries(genresData.meta_genres || {}).find(([meta]) =>
-          genresData.top_subgenre?.parent_genre === meta ||
-          name.toLowerCase().includes(meta)
-        );
-
-        const gradient = parentMeta?.[1]?.gradient || "linear-gradient(to right, #666, #999)";
-
-        return { name, value, gradient };
-      });
+      .sort((a, b) => b[1].portion - a[1].portion)
+      .slice(0, 5)
+      .map(([name, data]) => ({
+        name,
+        value: data.portion,
+        gradient: data.gradient || "linear-gradient(to right, #666, #999)",
+      }));
   }, [genresData]);
 
   const handlers = useSwipeable({
@@ -52,15 +62,15 @@ function MusicTaste({ genresData }) {
   return (
     <div {...handlers} className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
-
-      {!currentData.length ? (
+      {loading ? (
         <div className="text-sm text-gray-400">Loading genre data...</div>
+      ) : !currentData.length ? (
+        <div className="text-sm text-gray-400">No genre data available.</div>
       ) : step === 0 ? (
         <GenreBarList data={metaGenres} />
       ) : (
         <SubGenreBarList data={subGenres} />
       )}
-
       <div className="flex justify-center gap-2 mt-4">
         {[0, 1].map((i) => (
           <button

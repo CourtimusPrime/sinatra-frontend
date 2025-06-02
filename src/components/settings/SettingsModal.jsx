@@ -30,7 +30,12 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
     console.log("Sending user_id:", user_id);
     try {
       await apiPost("/refresh_genres", { user_id });
-      alert("Your genre data is being refreshed!");
+
+      // 🧹 Clear cached genre data (if used)
+      localStorage.removeItem(`genreData:${user_id}`);
+
+      // ✅ Optional: trigger full dashboard re-fetch
+      window.location.reload(); // crude but ensures fresh state
     } catch (err) {
       console.error("Failed to clear genre cache:", err);
       alert("Something went wrong. Try again later.");
