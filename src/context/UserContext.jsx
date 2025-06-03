@@ -15,10 +15,13 @@ export function UserProvider({ children }) {
     const fromUrl = params.get("user_id");
     const fromStorage = localStorage.getItem("user_id");
 
-    const id = fromUrl || fromStorage;
-    if (id && id !== "null") {
-      localStorage.setItem("user_id", id);
-      return id;
+    if (fromUrl && fromUrl !== fromStorage) {
+      localStorage.setItem("user_id", fromUrl);
+      return fromUrl;
+    }
+
+    if (fromStorage && fromStorage !== "null") {
+      return fromStorage;
     }
 
     return null;
