@@ -75,14 +75,6 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       className: "w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-left",
     },
     {
-      label: "🔁 Switch Spotify Account",
-      onClick: () => {
-        localStorage.clear();
-        window.location.href = "/";
-      },
-      className: "w-full px-4 py-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-700 rounded text-left",
-    },
-    {
       label: "🏃🏼‍♂️ Log out",
       onClick: onLogout,
       className: "w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left",
