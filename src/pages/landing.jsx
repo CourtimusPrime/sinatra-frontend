@@ -26,7 +26,7 @@ function Landing() {
   const handleLogin = () => {
     const state = crypto.randomUUID();
     document.cookie = `spotify_state=${state}; path=/; SameSite=Lax`;
-    window.location.href = `${VITE_API_BASE_URL}/login?state=${state}`;
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}`;
   };
 
   return (
