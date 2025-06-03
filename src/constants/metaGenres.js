@@ -6,6 +6,7 @@ export const metaGenreGradients = {
   "r&b": "linear-gradient(to right, #88b04b, #a6c96a)",
   electronic: "linear-gradient(to right, #009688, #33bbaa)",
   "hip-hop": "linear-gradient(to right, #f7cac9, #fadcdc)",
+  "hip hop": "linear-gradient(to right, #f7cac9, #fadcdc)",
   metal: "linear-gradient(to right, #505050, #6e6e6e)",
   folk: "linear-gradient(to right, #8d5524, #b5773d)",
   jazz: "linear-gradient(to right, #6b5b95, #8e78b0)",

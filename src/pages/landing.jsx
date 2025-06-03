@@ -24,9 +24,18 @@ function Landing() {
   }, [user_id]);
 
   const handleLogin = () => {
+    console.log("🧪 VITE_PRO_CALLBACK:", import.meta.env.VITE_PRO_CALLBACK);
+    console.log("🧪 VITE_DEV_CALLBACK:", import.meta.env.VITE_DEV_CALLBACK);
     const state = crypto.randomUUID();
     document.cookie = `spotify_state=${state}; path=/; SameSite=Lax`;
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}`;
+
+    const isLocal = window.location.hostname === "localhost";
+    const redirectUri = isLocal
+      ? import.meta.env.VITE_DEV_CALLBACK
+      : import.meta.env.VITE_PRO_CALLBACK;
+
+    const loginUrl = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    window.location.href = loginUrl;
   };
 
   return (

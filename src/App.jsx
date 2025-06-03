@@ -4,12 +4,13 @@ import { Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Loader from "./components/Loader";
 import { applyRootThemeVars } from "./utils/theme";
+import { ArrowUpRightFromCircleIcon } from "lucide-react";
 
 const Home = lazy(() => import("./pages/home.jsx"));
 const Onboard = lazy(() => import("./pages/onboard.jsx"));
 const Landing = lazy(() => import("./pages/landing.jsx"));
 const PublicProfile = lazy(() => import("./pages/public.jsx"));
-const Callback = lazy(() => import("./pages/Callback.jsx"));
+const Auth = lazy(() => import("./pages/Auth.jsx"));
 const NotFound = lazy(() => import("./pages/404.jsx"));
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<Home />} />
             <Route path="/onboard" element={<Onboard />} />
-            <Route path="/callback" element={<Callback />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/u/:user_id" element={<PublicProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
