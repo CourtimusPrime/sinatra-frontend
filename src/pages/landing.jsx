@@ -24,13 +24,9 @@ function Landing() {
   }, [user_id]);
 
   const handleLogin = () => {
-    const state = crypto.randomUUID(); // ✅ Strong unique token
-    localStorage.setItem("spotify_state", state); // For frontend verification if needed
-    document.cookie = `spotify_state=${state}; path=/; max-age=300; SameSite=Lax`; // For backend validation
-
-    const target = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}`;
-    console.log("🛩️ Redirecting to:", target);
-    window.location.href = target;
+    const state = crypto.randomUUID();
+    document.cookie = `spotify_state=${state}; path=/; SameSite=Lax`;
+    window.location.href = `${VITE_API_BASE_URL}/login?state=${state}`;
   };
 
   return (
