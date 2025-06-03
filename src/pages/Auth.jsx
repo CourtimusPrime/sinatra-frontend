@@ -1,18 +1,29 @@
 // src/pages/Auth.jsx
 import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { apiGet } from "../utils/api";
 
 function Auth() {
-  const [params] = useSearchParams();
-  const userId = params.get("user_id");
+  const { setUser } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (userId) {
-      localStorage.setItem("user_id", userId);
-      navigate("/home");
-    }
-  }, [userId]);
+    // 🔄 Use cookie to get current user
+    apiGet("/me", { withCredentials: true })
+      .then((data) => {
+        if (data?.user_id) {
+          setUser(data.user_id);
+          navigate("/home");
+        } else {
+          navigate("/"); // fallback
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Auth error:", err);
+        navigate("/");
+      });
+  }, []);
 
   return (
     <div className="text-center mt-10 text-sm text-gray-600">

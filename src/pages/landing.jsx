@@ -10,7 +10,9 @@ function Landing() {
 
   useEffect(() => {
     if (user_id) {
-      fetch(`${import.meta.env.VITE_API_BASE_URL}/me?user_id=${user_id}`)
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
+        credentials: "include",
+      })
         .then((res) => res.json())
         .then((data) => {
           if (data?.registered) {

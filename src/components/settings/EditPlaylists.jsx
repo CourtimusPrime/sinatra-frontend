@@ -7,8 +7,10 @@ import GlintBox from "../GlintBox";
 import PlaylistCardMini from "../PlaylistCardMini";
 import { normalizePlaylist } from "../../utils/normalize";
 import CloseButton from "../ui/CloseButton";
+import { useUser } from "../../context/UserContext";
 
-function EditPlaylistsModal({ isOpen, onClose, user_id }) {
+function EditPlaylistsModal({ isOpen, onClose }) {
+  const { user_id } = useUser();
   const [tab, setTab] = useState("add");
   const [allSpotifyPlaylists, setAllSpotifyPlaylists] = useState([]);
   const [importedPlaylists, setImportedPlaylists] = useState([]);
@@ -17,7 +19,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [sortDesc, setSortDesc] = useState(true);
-  
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -27,13 +29,11 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
       setError(null);
 
       try {
-        // First: sync all valid playlists via backend
-        await apiPost(`/admin/sync_playlists?user_id=${user_id}`, {});
+        await apiPost(`/admin/sync_playlists`, {});
 
-        // Then: pull filtered playlists from Mongo
         const [userPlaylistsRes, mongoRes] = await Promise.all([
-          apiGet(`/user-playlists?user_id=${user_id}`),
-          apiGet(`/dashboard?user_id=${user_id}`),
+          apiGet(`/user-playlists`),
+          apiGet(`/dashboard`),
         ]);
 
         const spotifyPlaylistsRaw = Array.isArray(userPlaylistsRes.playlists)

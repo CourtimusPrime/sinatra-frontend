@@ -16,7 +16,7 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
 
     setLoading(true);
 
-    apiGet(`/dashboard?user_id=${user_id}`)
+    apiGet(`/dashboard`)
       .then((data) => {
         setAllPlaylists(data.playlists.all);
         setSelected(data.playlists.featured.map((p) => p.id || p.playlist_id));

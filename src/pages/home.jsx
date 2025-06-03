@@ -1,4 +1,4 @@
-// src/pages/home.jsx
+// ✅ CLEANED: src/pages/home.jsx
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -18,9 +18,7 @@ const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 function Home() {
   const navigate = useNavigate();
-  const { user_id, setUser } = useUser();
-
-  const [userState, setUserState] = useState(null);
+  const { user, user_id, loading, setUser } = useUser();
   const [genresData, setGenresData] = useState(null);
   const [track, setTrack] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -33,75 +31,60 @@ function Home() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!user_id) {
-      navigate("/");
+    if (loading) return;
+    if (!user) {
+      navigate("/", { replace: true });
     }
-  }, [user_id]);
-
-  useEffect(() => {
-    apiGet(`/me?user_id=${user_id}`)
-      .then((data) => {
-        if (!data?.registered) {
-          navigate("/", { replace: true });
-        }
-      })
-      .catch(() => navigate("/", { replace: true }));
-  }, [user_id]);
+  }, [loading, user]);
 
   useEffect(() => {
     const cachedUser = localStorage.getItem("user");
     if (!navigator.onLine && cachedUser) {
       try {
         const parsed = JSON.parse(cachedUser);
-        if (parsed.user_id === user_id) {
-          setUserState(parsed);
-          setGenresData(JSON.parse(localStorage.getItem("genres_data") || "{}"));
-          setTrack(JSON.parse(localStorage.getItem("last_played_track") || "null"));
-          setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
-          const raw = JSON.parse(localStorage.getItem("featured_playlists") || "[]");
-          setPlaylists(Array.isArray(raw) ? raw.map(normalizePlaylist) : []);
-          setShowSkeleton(false);
-          return;
-        }
+        setUser(parsed);
+        setGenresData(JSON.parse(localStorage.getItem("genres_data") || "{}"));
+        setTrack(JSON.parse(localStorage.getItem("last_played_track") || "null"));
+        setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
+        const raw = JSON.parse(localStorage.getItem("featured_playlists") || "[]");
+        setPlaylists(Array.isArray(raw) ? raw.map(normalizePlaylist) : []);
+        setShowSkeleton(false);
+        return;
       } catch (e) {
         console.warn("Failed to load offline cache:", e);
       }
     }
-
-    loadDashboard();
-  }, [user_id]);
+    if (!user) loadDashboard();
+  }, []);
 
   async function loadDashboard() {
     try {
-      const { user, playlists, played_track } = await apiGet(`/dashboard?user_id=${user_id}`);
-
-      if (user.user_id !== user_id) localStorage.clear();
+      const data = await apiGet(`/dashboard`);
 
       const userData = {
-        display_name: user.display_name,
-        profile_picture: user.profile_picture,
-        genre_analysis: user.genre_analysis,
-        user_id: user.user_id,
+        display_name: data.display_name,
+        profile_picture: data.profile_picture,
+        genre_analysis: data.genres,
+        user_id: data.id,
       };
 
       setUser(userData);
-      setUserState(userData);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      if (user.genre_analysis) {
-        setGenresData(user.genre_analysis);
-        localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
+      if (data.genres) {
+        setGenresData(data.genres);
+        localStorage.setItem("genres_data", JSON.stringify(data.genres));
       }
 
-      const sortedFeatured = playlists.featured.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
+      const sortedFeatured = data.playlists?.featured?.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks) || [];
       setPlaylists(sortedFeatured.slice(0, 3));
       localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-      localStorage.setItem("all_playlists", JSON.stringify(playlists.all.map(normalizePlaylist)));
+      localStorage.setItem("all_playlists", JSON.stringify(data.playlists?.all?.map(normalizePlaylist) || []));
 
-      if (played_track?.track) {
-        setTrack(played_track.track);
+      if (data.last_played?.track) {
+        setTrack(data.last_played.track);
         setLastUpdated(new Date());
-        localStorage.setItem("last_played_track", JSON.stringify(played_track.track));
+        localStorage.setItem("last_played_track", JSON.stringify(data.last_played.track));
         localStorage.setItem("last_played_updated_at", new Date().toISOString());
       }
 
@@ -112,19 +95,18 @@ function Home() {
   }
 
   useEffect(() => {
-    if (!user_id) return;
     const nowPlayingInterval = setInterval(loadNowPlaying, 30000);
     const refreshSessionInterval = setInterval(refreshSession, 5 * 60 * 1000);
     return () => {
       clearInterval(nowPlayingInterval);
       clearInterval(refreshSessionInterval);
     };
-  }, [user_id]);
+  }, []);
 
   async function loadNowPlaying() {
     setIsRefreshing(true);
     try {
-      const data = await apiGet(`/playback?user_id=${user_id}`);
+      const data = await apiGet(`/playback`);
       const latestTrack = data?.playback?.track;
       if (!latestTrack) return;
 
@@ -146,7 +128,7 @@ function Home() {
 
   async function refreshSession() {
     try {
-      await apiGet(`/refresh-session?user_id=${user_id}`);
+      await apiGet(`/refresh-session`);
     } catch {
       localStorage.clear();
       window.location.href = "/";
@@ -161,7 +143,7 @@ function Home() {
   async function deleteAccount() {
     if (!window.confirm("You sure you wanna delete your account?")) return;
     try {
-      await apiDelete(`/delete-user?user_id=${user_id}`);
+      await apiDelete(`/delete-user`);
       logout();
     } catch (err) {
       console.error("Delete failed:", err);
@@ -169,15 +151,15 @@ function Home() {
   }
 
   if (showSkeleton) {
-    return <div className="max-w-md w-full mx-auto p-4 space-y-6">{/* your GlintBox skeleton code here */}</div>;
+    return <div className="max-w-md w-full mx-auto p-4 space-y-6"></div>;
   }
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
       <div className="flex justify-between mb-2">
-        {userState?.user_id && (
+        {user?.user_id && (
           <button onClick={() => {
-            navigator.clipboard.writeText(`https://sinatra.live/u/${userState.user_id}`);
+            navigator.clipboard.writeText(`https://sinatra.live/u/${user.user_id}`);
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
           }}>
@@ -187,7 +169,7 @@ function Home() {
         <button onClick={() => setSettingsOpen(true)}><Menu className="w-5 h-5" /></button>
       </div>
 
-      <UserHeader userState={userState} genresData={genresData} />
+      <UserHeader user={user} genresData={genresData} />
       {track && (
         <div className={`transition-transform duration-300 scale-100 ${animateTrackChange ? "animate-scalein" : ""}`}>
           <RecentlyPlayedCard
@@ -201,7 +183,7 @@ function Home() {
       )}
 
       <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        <MusicTaste genresData={userState?.genre_analysis} userId={userState?.user_id} />
+        <MusicTaste genresData={user?.genre_analysis} userId={user?.user_id} />
       </Suspense>
 
       <motion.div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3">
@@ -219,8 +201,8 @@ function Home() {
       </motion.div>
 
       <Suspense fallback={null}>
-        {isAllModalOpen && <AllPlaylistsModal isOpen={true} onClose={() => setAllModalOpen(false)} user_id={user_id} user={userState} />}
-        {isSettingsOpen && <SettingsModal isOpen={true} onClose={() => setSettingsOpen(false)} onLogout={logout} onDelete={deleteAccount} user_id={user_id} onSave={loadDashboard} />}
+        {isAllModalOpen && <AllPlaylistsModal isOpen={true} onClose={() => setAllModalOpen(false)} user={user} />}
+        {isSettingsOpen && <SettingsModal isOpen={true} onClose={() => setSettingsOpen(false)} onLogout={logout} onDelete={deleteAccount} onSave={loadDashboard} user={user} />}
       </Suspense>
     </div>
   );

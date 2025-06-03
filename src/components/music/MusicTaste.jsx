@@ -12,7 +12,7 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
 
   useEffect(() => {
     if (!genresData && userId) {
-      apiGet(`/genres?user_id=${userId}`)
+      apiGet(`/genres`)
         .then((res) => {
           setGenresData(res);
           localStorage.setItem(`genreData:${userId}`, JSON.stringify(res));

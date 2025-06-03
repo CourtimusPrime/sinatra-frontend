@@ -26,7 +26,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
   const fetchPlaylists = async () => {
     setLoading(true);
     try {
-      const res = await apiGet(`/dashboard?user_id=${user_id}`);
+      const res = await apiGet(`/dashboard`);
       const raw = res?.playlists?.all || [];
       setAllPlaylists(raw.map(normalizePlaylist));
     } catch (err) {
