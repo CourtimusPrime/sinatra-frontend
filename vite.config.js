@@ -23,6 +23,7 @@ export default defineConfig({
       '/impersonate': 'http://localhost:8000',
       '/playlists': 'http://localhost:8000',
       '/recently-played': 'http://localhost:8000',
+      '/synced-playlists': 'http://localhost:8000',
       '/dashboard': 'http://localhost:8000',
       '/user-playlists': 'http://localhost:8000',
       '/complete-onboarding': 'http://localhost:8000',

@@ -67,7 +67,7 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
       ) : !currentData.length ? (
         <div className="text-sm text-gray-400">No genre data available.</div>
       ) : step === 0 ? (
-        <GenreBarList data={metaGenres} />
+        <GenreBarList data={metaGenres} baseDelay={0.4} />
       ) : (
         <SubGenreBarList data={subGenres} />
       )}

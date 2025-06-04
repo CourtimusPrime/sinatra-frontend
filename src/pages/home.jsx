@@ -108,7 +108,13 @@ function Home() {
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      <div className="flex justify-between mb-2">
+      {/* Share + Settings */}
+      <motion.div
+        className="flex justify-between mb-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         {user?.user_id && (
           <button onClick={() => {
             navigator.clipboard.writeText(`https://sinatra.live/u/${user.user_id}`);
@@ -118,12 +124,27 @@ function Home() {
             {copied ? <span className="text-xs font-semibold">✅</span> : <Share className="w-5 h-5" />}
           </button>
         )}
-        <button onClick={() => setSettingsOpen(true)}><Menu className="w-5 h-5" /></button>
-      </div>
+        <button onClick={() => setSettingsOpen(true)}>
+          <Menu className="w-5 h-5" />
+        </button>
+      </motion.div>
 
-      <UserHeader userState={user} genresData={genresData} />
+      {/* User Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <UserHeader userState={user} genresData={genresData} />
+      </motion.div>
+
+      {/* Recently Played */}
       {track && (
-        <div className={`transition-transform duration-300 scale-100 ${animateTrackChange ? "animate-scalein" : ""}`}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+        >
           <RecentlyPlayedCard
             track={track}
             lastUpdated={lastUpdated}
@@ -131,21 +152,50 @@ function Home() {
             animateChange={animateTrackChange}
             isRefreshing={isRefreshing}
           />
-        </div>
+        </motion.div>
       )}
 
-      <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        <MusicTaste genresData={user?.genre_analysis} userId={user?.user_id} />
-      </Suspense>
+      {/* Music Taste */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
+          <MusicTaste genresData={user?.genre_analysis} userId={user?.user_id} />
+        </Suspense>
+      </motion.div>
 
-      <FeaturedPlaylists
-        playlists={featuredPlaylists}
-        onSeeAll={() => setAllModalOpen(true)}
-      />
+      {/* Featured Playlists */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <FeaturedPlaylists
+          playlists={featuredPlaylists}
+          onSeeAll={() => setAllModalOpen(true)}
+        />
+      </motion.div>
 
+      {/* Modals */}
       <Suspense fallback={null}>
-        {isAllModalOpen && <AllPlaylistsModal isOpen={true} onClose={() => setAllModalOpen(false)} user={user} />}
-        {isSettingsOpen && <SettingsModal isOpen={true} onClose={() => setSettingsOpen(false)} onLogout={logout} onDelete={deleteAccount} user={user} />}
+        {isAllModalOpen && (
+          <AllPlaylistsModal
+            isOpen={true}
+            onClose={() => setAllModalOpen(false)}
+            user={user}
+          />
+        )}
+        {isSettingsOpen && (
+          <SettingsModal
+            isOpen={true}
+            onClose={() => setSettingsOpen(false)}
+            onLogout={logout}
+            onDelete={deleteAccount}
+            user={user}
+          />
+        )}
       </Suspense>
     </div>
   );
