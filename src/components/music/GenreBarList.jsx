@@ -2,11 +2,15 @@
 import React, { useRef, useEffect } from "react";
 import { motion } from "@motionone/react";
 
-function GenreBarList({ data, baseDelay = 0 }) {
+function GenreBarList({ data, baseDelay = 0.4 }) {
   const hasAnimated = useRef(false);
 
   useEffect(() => {
-    hasAnimated.current = true;
+    // Once the component has mounted the first time, disable base delay
+    const timer = setTimeout(() => {
+      hasAnimated.current = true;
+    }, 500); // enough to finish initial animation
+    return () => clearTimeout(timer);
   }, []);
 
   if (!Array.isArray(data) || data.length === 0) {
@@ -29,16 +33,13 @@ function GenreBarList({ data, baseDelay = 0 }) {
         const portion = (value / total) * 100;
         const displayPercent = portion.toFixed(1);
         const barWidth = `${portion}%`;
-        const delay = baseDelay + index * 0.1;
+
+        const delay = (hasAnimated.current ? 0 : baseDelay) + index * 0.1;
 
         return (
           <motion.div
             key={`genre-${name}`}
-            initial={
-              hasAnimated.current
-                ? undefined
-                : { opacity: 0, y: 10, scale: 0.95 }
-            }
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, delay, ease: "easeOut" }}
           >
@@ -48,7 +49,6 @@ function GenreBarList({ data, baseDelay = 0 }) {
                 {displayPercent}%
               </span>
             </div>
-
             <div className="h-3 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}

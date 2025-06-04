@@ -1,14 +1,17 @@
 // src/components/music/MusicTaste.jsx
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { apiGet } from "../../utils/api";
 import GenreBarList from "./GenreBarList";
 import SubGenreBarList from "./SubGenreBarList";
 import { useSwipeable } from "react-swipeable";
 
+
 function MusicTaste({ genresData: initialGenresData, userId }) {
   const [genresData, setGenresData] = useState(initialGenresData || null);
   const [loading, setLoading] = useState(!initialGenresData);
   const [step, setStep] = useState(0);
+  const hasShownGenresOnce = useRef(false);
+
 
   useEffect(() => {
     if (!genresData && userId) {
@@ -36,6 +39,11 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
         gradient: data.gradient,
       }));
   }, [genresData]);
+
+  const shouldDelayGenres = !hasShownGenresOnce.current && step === 0;
+  useEffect(() => {
+    if (step === 0) hasShownGenresOnce.current = true;
+  }, [step]);
 
   const subGenres = useMemo(() => {
     if (!genresData?.sub_genres) return [];
@@ -67,7 +75,7 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
       ) : !currentData.length ? (
         <div className="text-sm text-gray-400">No genre data available.</div>
       ) : step === 0 ? (
-        <GenreBarList data={metaGenres} baseDelay={0.4} />
+        <GenreBarList data={metaGenres} baseDelay={shouldDelayGenres ? 0.4 : 0} />
       ) : (
         <SubGenreBarList data={subGenres} />
       )}
