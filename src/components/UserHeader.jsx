@@ -23,7 +23,7 @@ function UserHeader({ userState, genresData }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {userState.display_name || "Sgt. Pepper"}
+        {userState.display_name || "John Doe"}
       </motion.h1>
 
       {userState.user_id && (

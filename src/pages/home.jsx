@@ -1,4 +1,4 @@
-// ✅ CLEANED: src/pages/home.jsx
+// src/pages/home.jsx
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import "../styles/loader.css";
 import { motion } from "@motionone/react";
 import FeaturedPlaylists from "../components/FeaturedPlaylists";
+import { useMemo } from "react";
 
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
 const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
@@ -30,6 +31,9 @@ function Home() {
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [copied, setCopied] = useState(false);
+  const featuredPlaylists = useMemo(() => {
+    return (user?.playlists?.featured || []).slice(0, 3);
+  }, [user?.playlists?.featured]);
 
   useEffect(() => {
     if (loading) return;
@@ -44,7 +48,6 @@ function Home() {
     setGenresData(user.genre_analysis || {});
     setTrack(user.last_played_track?.track || null);
     setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
-    setPlaylists(user.playlists?.featured || []);
     setShowSkeleton(false);
   }, [user, loading]);
 
@@ -141,7 +144,7 @@ function Home() {
       </Suspense>
 
       <FeaturedPlaylists
-        playlists={playlists}
+        playlists={featuredPlaylists}
         onSeeAll={() => setAllModalOpen(true)}
       />
 

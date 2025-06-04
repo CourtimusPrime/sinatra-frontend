@@ -1,17 +1,17 @@
 // src/components/FeaturedPlaylists.jsx
-import React from "react";
+import React, { useMemo } from "react";
 import { motion } from "@motionone/react";
 import PlaylistCardMini from "./PlaylistCardMini";
 import { normalizePlaylist } from "../utils/normalize";
 
 function FeaturedPlaylists({ playlists = [], onSeeAll }) {
-  const validPlaylists = playlists
-    .filter((p) => p && (p.id || p.playlist_id))
-    .map(normalizePlaylist)
-    .sort((a, b) => b.tracks - a.tracks)
-    .slice(0, 3);
-  
-  console.debug("🎧 Featured playlists:", validPlaylists);
+  const validPlaylists = useMemo(() => {
+    return playlists
+      .filter((p) => p && (p.id || p.playlist_id))
+      .map(normalizePlaylist)
+      .sort((a, b) => b.tracks - a.tracks)
+      .slice(0, 3);
+  }, [playlists]);
 
   if (validPlaylists.length === 0) {
     return (
