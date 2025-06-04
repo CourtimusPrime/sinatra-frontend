@@ -1,4 +1,6 @@
-/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* fonts */
 @font-face {
@@ -14,10 +16,6 @@
   font-style: normal;
   font-display: swap;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   --bg: #ffffff;

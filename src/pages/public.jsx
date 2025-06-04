@@ -41,7 +41,6 @@ export default function PublicProfile() {
         });
 
         // ✅ Only show CTA if viewer is not logged in
-        const isLoggedIn = localStorage.getItem("user");
         if (!isLoggedIn) {
           setTimeout(() => setShowCTA(true), 1500);
         }

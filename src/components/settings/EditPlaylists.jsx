@@ -7,8 +7,10 @@ import GlintBox from "../GlintBox";
 import PlaylistCardMini from "../PlaylistCardMini";
 import { normalizePlaylist } from "../../utils/normalize";
 import CloseButton from "../ui/CloseButton";
+import { useUser } from "../../context/UserContext";
 
-function EditPlaylistsModal({ isOpen, onClose, user_id }) {
+function EditPlaylistsModal({ isOpen, onClose }) {
+  const { user_id } = useUser();
   const [tab, setTab] = useState("add");
   const [allSpotifyPlaylists, setAllSpotifyPlaylists] = useState([]);
   const [importedPlaylists, setImportedPlaylists] = useState([]);
@@ -17,7 +19,48 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [sortDesc, setSortDesc] = useState(true);
-  
+
+  const handleRefresh = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        await apiPost("/admin/sync_playlists", {}); // triggers backend sync
+        const [syncedRes, dashboardRes] = await Promise.all([
+          apiGet("/synced-playlists"),
+          apiGet("/dashboard"),
+        ]);
+
+        const syncedPlaylistsRaw = Array.isArray(syncedRes.playlists)
+          ? syncedRes.playlists
+          : [];
+
+        const mongoPlaylistsRaw = Array.isArray(dashboardRes.playlists?.all)
+          ? dashboardRes.playlists.all
+          : [];
+
+        const imported = mongoPlaylistsRaw.map(normalizePlaylist);
+        setImportedPlaylists(imported);
+
+        const importedIds = new Set(imported.map((p) => p.playlist_id));
+        const all = syncedPlaylistsRaw.map(normalizePlaylist);
+
+        const unimported = all.filter(
+          (p) =>
+            !importedIds.has(p.playlist_id) &&
+            typeof p.image === "string" &&
+            p.image.trim() !== ""
+        );
+
+        setAllSpotifyPlaylists(unimported);
+      } catch (err) {
+        console.error("❌ Refresh failed", err);
+        setError("Failed to refresh playlists.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -27,30 +70,26 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
       setError(null);
 
       try {
-        // First: sync all valid playlists via backend
-        await apiPost(`/admin/sync_playlists?user_id=${user_id}`, {});
-
-        // Then: pull filtered playlists from Mongo
-        const [userPlaylistsRes, mongoRes] = await Promise.all([
-          apiGet(`/user-playlists?user_id=${user_id}`),
-          apiGet(`/dashboard?user_id=${user_id}`),
+        const [syncedRes, dashboardRes] = await Promise.all([
+          apiGet("/synced-playlists"),
+          apiGet("/dashboard"),
         ]);
 
-        const spotifyPlaylistsRaw = Array.isArray(userPlaylistsRes.playlists)
-          ? userPlaylistsRes.playlists
+        const syncedPlaylistsRaw = Array.isArray(syncedRes.playlists)
+          ? syncedRes.playlists
           : [];
 
-        const mongoPlaylistsRaw = Array.isArray(mongoRes.playlists?.all)
-          ? mongoRes.playlists.all
+        const mongoPlaylistsRaw = Array.isArray(dashboardRes.playlists?.all)
+          ? dashboardRes.playlists.all
           : [];
 
-        const spotifyPlaylists = spotifyPlaylistsRaw.map(normalizePlaylist);
         const imported = mongoPlaylistsRaw.map(normalizePlaylist);
-
         setImportedPlaylists(imported);
 
         const importedIds = new Set(imported.map((p) => p.playlist_id));
-        const unimported = spotifyPlaylists.filter(
+        const all = syncedPlaylistsRaw.map(normalizePlaylist);
+
+        const unimported = all.filter(
           (p) =>
             !importedIds.has(p.playlist_id) &&
             typeof p.image === "string" &&
@@ -78,23 +117,25 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
     try {
       if (tab === "add") {
         const selectedPlaylists = allSpotifyPlaylists
-          .filter((p) => selectedIds.includes(p.playlist_id))
+          .filter((p) => {
+            const id = p.playlist_id || p.id;
+            return selectedIds.includes(id);
+          })
           .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
-          .map((p) => ({
-            id: p.playlist_id,
-            name: p.name,
-            image: p.image,
-            tracks: p.tracks,
-          }));
+          .map((p) => {
+            const id = p.playlist_id || p.id;
+            return { id };
+          });
 
+        console.log("Sending to /add-playlists:", selectedPlaylists);
         await apiPost("/add-playlists", {
           user_id,
           playlists: selectedPlaylists,
         });
       } else {
-        const selectedPlaylists = importedPlaylists.filter((p) =>
-          selectedIds.includes(p.playlist_id)
-        );
+        const selectedPlaylists = allSpotifyPlaylists
+          .filter((p) => selectedIds.includes(p.playlist_id))
+          .map((p) => ({ id: p.playlist_id }));
         await apiPost("/delete-playlists", {
           user_id,
           playlists: selectedPlaylists,
@@ -111,7 +152,7 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
 
   if (!isOpen) return null;
 
-  const playlists = tab === "add" ? allSpotifyPlaylists : importedPlaylists;
+  const playlists = tab === "add" ? importedPlaylists : allSpotifyPlaylists;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -137,6 +178,13 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
                 className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-sm"
               >
                 Sort {sortDesc ? "↓" : "↑"}
+              </button>
+              <button
+                onClick={handleRefresh}
+                disabled={loading}
+                className="px-3 py-2 rounded bg-blue-100 dark:bg-blue-700 text-sm text-blue-800 dark:text-white"
+              >
+                🔄 Refresh from Spotify
               </button>
             </div>
           )}
@@ -186,33 +234,41 @@ function EditPlaylistsModal({ isOpen, onClose, user_id }) {
             {tab === "add" ? "No new playlists to add." : "No imported playlists to remove."}
           </p>
         ) : (
-          [...playlists]
-            .filter((p) =>
-              p.name.toLowerCase().includes(search.toLowerCase())
-            )
-            .sort((a, b) =>
-              sortDesc
-                ? (b.tracks || 0) - (a.tracks || 0)
-                : (a.tracks || 0) - (b.tracks || 0)
-            )
-            .map((p, i) => {
-              const id = p.playlist_id || p.id;
-              return (
-                <PlaylistCardMini
-                  key={id}
-                  playlist={p}
-                  index={i}
-                  onClick={() =>
-                    setSelectedIds((prev) =>
-                      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-                    )
-                  }
-                  isSelected={selectedIds.includes(id)}
-                  selectable
-                  showTracks
-                />
-              );
-            })
+          (() => {
+            const seen = new Set();
+            return [...playlists]
+              .filter((p) => {
+                const id = p.playlist_id || p.id;
+                if (!id || seen.has(id)) return false;
+                seen.add(id);
+                return p.name.toLowerCase().includes(search.toLowerCase());
+              })
+              .sort((a, b) =>
+                sortDesc
+                  ? (b.tracks || 0) - (a.tracks || 0)
+                  : (a.tracks || 0) - (b.tracks || 0)
+              )
+              .map((p, i) => {
+                const id = p.playlist_id || p.id;
+                return (
+                  <PlaylistCardMini
+                    key={id}
+                    playlist={p}
+                    index={i}
+                    onClick={() =>
+                      setSelectedIds((prev) =>
+                        prev.includes(id)
+                          ? prev.filter((i) => i !== id)
+                          : [...prev, id]
+                      )
+                    }
+                    isSelected={selectedIds.includes(id)}
+                    selectable
+                    showTracks
+                  />
+                );
+              });
+          })()
         )}
       </div>
 

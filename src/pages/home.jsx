@@ -3,14 +3,13 @@ import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { apiGet, apiDelete } from "../utils/api";
-import { normalizePlaylist } from "../utils/normalize";
 import { Menu, Share } from "lucide-react";
-import GlintBox from "../components/GlintBox";
 import UserHeader from "../components/UserHeader";
-import PlaylistCardMini from "../components/PlaylistCardMini";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import "../styles/loader.css";
 import { motion } from "@motionone/react";
+import FeaturedPlaylists from "../components/FeaturedPlaylists";
+import { useMemo } from "react";
 
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
 const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
@@ -18,9 +17,7 @@ const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
 
 function Home() {
   const navigate = useNavigate();
-  const { user_id, setUser } = useUser();
-
-  const [userState, setUserState] = useState(null);
+  const { user, user_id, loading, setUser } = useUser();
   const [genresData, setGenresData] = useState(null);
   const [track, setTrack] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -31,100 +28,37 @@ function Home() {
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [copied, setCopied] = useState(false);
+  const featuredPlaylists = useMemo(() => {
+    return (user?.playlists?.featured || []).slice(0, 3);
+  }, [user?.playlists?.featured]);
 
   useEffect(() => {
-    if (!user_id) {
-      navigate("/");
-    }
-  }, [user_id]);
+    if (!loading && !user) return null;
+  }, [loading, user]);
 
   useEffect(() => {
-    apiGet(`/me?user_id=${user_id}`)
-      .then((data) => {
-        if (!data?.registered) {
-          navigate("/", { replace: true });
-        }
-      })
-      .catch(() => navigate("/", { replace: true }));
-  }, [user_id]);
+    if (!user || loading) return;
+
+    setGenresData(user.genre_analysis || {});
+    setTrack(user.last_played_track?.track || null);
+    const last = localStorage.getItem("last_played_updated_at");
+    if (last) setLastUpdated(new Date(last));
+    setShowSkeleton(false);
+  }, [user, loading]);
 
   useEffect(() => {
-    const cachedUser = localStorage.getItem("user");
-    if (!navigator.onLine && cachedUser) {
-      try {
-        const parsed = JSON.parse(cachedUser);
-        if (parsed.user_id === user_id) {
-          setUserState(parsed);
-          setGenresData(JSON.parse(localStorage.getItem("genres_data") || "{}"));
-          setTrack(JSON.parse(localStorage.getItem("last_played_track") || "null"));
-          setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
-          const raw = JSON.parse(localStorage.getItem("featured_playlists") || "[]");
-          setPlaylists(Array.isArray(raw) ? raw.map(normalizePlaylist) : []);
-          setShowSkeleton(false);
-          return;
-        }
-      } catch (e) {
-        console.warn("Failed to load offline cache:", e);
-      }
-    }
-
-    loadDashboard();
-  }, [user_id]);
-
-  async function loadDashboard() {
-    try {
-      const { user, playlists, played_track } = await apiGet(`/dashboard?user_id=${user_id}`);
-
-      if (user.user_id !== user_id) localStorage.clear();
-
-      const userData = {
-        display_name: user.display_name,
-        profile_picture: user.profile_picture,
-        genre_analysis: user.genre_analysis,
-        user_id: user.user_id,
-      };
-
-      setUser(userData);
-      setUserState(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      if (user.genre_analysis) {
-        setGenresData(user.genre_analysis);
-        localStorage.setItem("genres_data", JSON.stringify(user.genre_analysis));
-      }
-
-      const sortedFeatured = playlists.featured.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks);
-      setPlaylists(sortedFeatured.slice(0, 3));
-      localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-      localStorage.setItem("all_playlists", JSON.stringify(playlists.all.map(normalizePlaylist)));
-
-      if (played_track?.track) {
-        setTrack(played_track.track);
-        setLastUpdated(new Date());
-        localStorage.setItem("last_played_track", JSON.stringify(played_track.track));
-        localStorage.setItem("last_played_updated_at", new Date().toISOString());
-      }
-
-      setShowSkeleton(false);
-    } catch (err) {
-      console.error("Dashboard load failed:", err);
-    }
-  }
-
-  useEffect(() => {
-    if (!user_id) return;
     const nowPlayingInterval = setInterval(loadNowPlaying, 30000);
     const refreshSessionInterval = setInterval(refreshSession, 5 * 60 * 1000);
     return () => {
       clearInterval(nowPlayingInterval);
       clearInterval(refreshSessionInterval);
     };
-  }, [user_id]);
+  }, []);
 
   async function loadNowPlaying() {
     setIsRefreshing(true);
     try {
-      const data = await apiGet(`/playback?user_id=${user_id}`);
+      const data = await apiGet(`/playback`);
       const latestTrack = data?.playback?.track;
       if (!latestTrack) return;
 
@@ -146,7 +80,7 @@ function Home() {
 
   async function refreshSession() {
     try {
-      await apiGet(`/refresh-session?user_id=${user_id}`);
+      await apiGet(`/refresh-session`);
     } catch {
       localStorage.clear();
       window.location.href = "/";
@@ -169,27 +103,48 @@ function Home() {
   }
 
   if (showSkeleton) {
-    return <div className="max-w-md w-full mx-auto p-4 space-y-6">{/* your GlintBox skeleton code here */}</div>;
+    return <div className="max-w-md w-full mx-auto p-4 space-y-6"></div>;
   }
 
   return (
     <div className="max-w-md w-full mx-auto p-4">
-      <div className="flex justify-between mb-2">
-        {userState?.user_id && (
+      {/* Share + Settings */}
+      <motion.div
+        className="flex justify-between mb-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {user?.user_id && (
           <button onClick={() => {
-            navigator.clipboard.writeText(`https://sinatra.live/u/${userState.user_id}`);
+            navigator.clipboard.writeText(`https://sinatra.live/u/${user.user_id}`);
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
           }}>
             {copied ? <span className="text-xs font-semibold">✅</span> : <Share className="w-5 h-5" />}
           </button>
         )}
-        <button onClick={() => setSettingsOpen(true)}><Menu className="w-5 h-5" /></button>
-      </div>
+        <button onClick={() => setSettingsOpen(true)}>
+          <Menu className="w-5 h-5" />
+        </button>
+      </motion.div>
 
-      <UserHeader userState={userState} genresData={genresData} />
+      {/* User Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <UserHeader userState={user} genresData={genresData} />
+      </motion.div>
+
+      {/* Recently Played */}
       {track && (
-        <div className={`transition-transform duration-300 scale-100 ${animateTrackChange ? "animate-scalein" : ""}`}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+        >
           <RecentlyPlayedCard
             track={track}
             lastUpdated={lastUpdated}
@@ -197,30 +152,50 @@ function Home() {
             animateChange={animateTrackChange}
             isRefreshing={isRefreshing}
           />
-        </div>
+        </motion.div>
       )}
 
-      <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
-        <MusicTaste genresData={userState?.genre_analysis} userId={userState?.user_id} />
-      </Suspense>
-
-      <motion.div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3">
-        <div className="flex justify-between items-center mb-2">
-          <div className="font-semibold text-lg flex items-center gap-1">
-            <span>🌟</span> Featured Playlists
-          </div>
-          <button onClick={() => setAllModalOpen(true)} className="underline">See All →</button>
-        </div>
-        <div className="flex flex-col gap-3">
-          {playlists.map((playlist, i) => (
-            <PlaylistCardMini key={playlist.id || i} playlist={playlist} index={i} showTracks />
-          ))}
-        </div>
+      {/* Music Taste */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
+          <MusicTaste genresData={user?.genre_analysis} userId={user?.user_id} />
+        </Suspense>
       </motion.div>
 
+      {/* Featured Playlists */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <FeaturedPlaylists
+          playlists={featuredPlaylists}
+          onSeeAll={() => setAllModalOpen(true)}
+        />
+      </motion.div>
+
+      {/* Modals */}
       <Suspense fallback={null}>
-        {isAllModalOpen && <AllPlaylistsModal isOpen={true} onClose={() => setAllModalOpen(false)} user_id={user_id} user={userState} />}
-        {isSettingsOpen && <SettingsModal isOpen={true} onClose={() => setSettingsOpen(false)} onLogout={logout} onDelete={deleteAccount} user_id={user_id} onSave={loadDashboard} />}
+        {isAllModalOpen && (
+          <AllPlaylistsModal
+            isOpen={true}
+            onClose={() => setAllModalOpen(false)}
+            user={user}
+          />
+        )}
+        {isSettingsOpen && (
+          <SettingsModal
+            isOpen={true}
+            onClose={() => setSettingsOpen(false)}
+            onLogout={logout}
+            onDelete={deleteAccount}
+            user={user}
+          />
+        )}
       </Suspense>
     </div>
   );

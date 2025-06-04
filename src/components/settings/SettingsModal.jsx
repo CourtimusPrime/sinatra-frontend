@@ -1,7 +1,7 @@
 // src/components/settings/SettingsModal.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "@motionone/react";
-import { apiPost } from "../../utils/api";
+import { apiPost, apiGet } from "../../utils/api";
 import { applyRootThemeVars } from "../../utils/theme";
 
 // Components
@@ -15,6 +15,17 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark")
   );
+
+  const impersonate = async () => {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/impersonate?user_id=amborn02`, {
+      credentials: "include",
+    });
+    if (res.ok) {
+      window.location.href = "/home";
+    } else {
+      alert("Impersonation failed");
+    }
+  };
 
   const toggleTheme = () => {
     const html = document.documentElement;
@@ -79,6 +90,23 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       onClick: onLogout,
       className: "w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left",
     },
+    ...(import.meta.env.DEV
+  ? [
+      {
+        label: "🛡️ Toggle User (dev)",
+        onClick: async () => {
+          try {
+            window.location.href = `${import.meta.env.VITE_API_BASE_URL}/impersonate`;
+          } catch (err) {
+            console.error("Toggle failed:", err);
+            alert("Toggle failed");
+          }
+        },
+        className:
+          "w-full px-4 py-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-700 rounded text-left text-purple-800 dark:text-purple-300",
+      },
+    ]
+  : []),
     {
       label: "🗑️ Delete account",
       onClick: onDelete,

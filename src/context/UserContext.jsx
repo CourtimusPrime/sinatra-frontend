@@ -1,63 +1,51 @@
 // src/context/UserContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
+import { apiGet } from "../utils/api";
 
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [user, _setUser] = useState({});
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const pathname = window.location.pathname;
   const isPublicProfile = pathname.startsWith("/@");
 
-  const [user_id, setUserId] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get("user_id");
-    const fromStorage = localStorage.getItem("user_id");
-
-    if (fromUrl && fromUrl !== fromStorage) {
-      localStorage.setItem("user_id", fromUrl);
-      return fromUrl;
-    }
-
-    if (fromStorage && fromStorage !== "null") {
-      return fromStorage;
-    }
-
-    return null;
-  });
-
-  const setUser = (updates) => {
-    _setUser((prev) => ({
-      ...prev,
-      ...updates,
-    }));
-  };
-
   useEffect(() => {
-    if (!user_id || user_id === "null" || isPublicProfile) {
+    if (isPublicProfile) {
       setLoading(false);
       return;
     }
 
-    fetch(`/me?user_id=${user_id}`)
-      .then((res) => (res.ok ? res.json() : null))
+    apiGet("/me")
       .then((data) => {
-        if (data) {
-          setUser({ ...data });
+        if (data?.user_id) {
+          setUser(data);
+        } else {
+          setUser(null);
         }
         setLoading(false);
       })
-      .catch(() => {
-        setUser({});
+      .catch((err) => {
+        console.error("❌ /me failed:", err);
+        setUser(null);
         setLoading(false);
       });
-  }, [user_id]);
+  }, []);
 
+  const user_id = user?.user_id;
   const importantPlaylists = user?.important_playlists || [];
 
   return (
-    <UserContext.Provider value={{ user, setUser, user_id, loading, importantPlaylists }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        user_id,
+        loading,
+        importantPlaylists,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

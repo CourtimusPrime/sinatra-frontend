@@ -1,5 +1,7 @@
+// src/pages/onboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 import OnboardingSteps from "../components/OnboardingSteps";
 import { apiGet, apiPost } from "../utils/api";
 import { motion } from "@motionone/react";
@@ -9,6 +11,7 @@ import Loader from "../components/Loader";
 
 function Onboard() {
   const navigate = useNavigate();
+  const { user } = useUser(); // ✅ Use context for user_id
 
   const [spotifyUser, setSpotifyUser] = useState(null);
   const [step, setStep] = useState(0);
@@ -54,14 +57,11 @@ function Onboard() {
   useEffect(() => {
     const init = async () => {
       try {
-        const user_id = new URLSearchParams(window.location.search).get("user_id");
-        if (!user_id) throw new Error("Missing user_id in URL");
-
-        const spotifyRes = await apiGet(`/spotify-me?user_id=${user_id}`);
+        const spotifyRes = await apiGet(`/spotify-me`);
         setSpotifyUser(spotifyRes);
         setOnboardData((prev) => ({
           ...prev,
-          user_id,
+          user_id: user?.user_id || "", // ✅ Inject user_id from context
           display_name: spotifyRes.display_name,
           profile_picture: spotifyRes.images?.[0]?.url || "",
         }));
@@ -71,7 +71,7 @@ function Onboard() {
       }
     };
     init();
-  }, []);
+  }, [user?.user_id]);
 
   // Reset canProceed when step changes
   useEffect(() => {
@@ -85,7 +85,7 @@ function Onboard() {
       const finalize = async () => {
         try {
           await apiPost("/register", onboardData);
-          const dash = await apiGet(`/dashboard?user_id=${onboardData.user_id}`);
+          const dash = await apiGet("/dashboard");
 
           localStorage.setItem("user", JSON.stringify(dash.user));
           localStorage.setItem("genres_data", JSON.stringify(dash.user.genre_analysis || {}));
@@ -116,7 +116,6 @@ function Onboard() {
     if (step > 0) setStep((prev) => prev - 1);
   };
 
-  // Show loader if finalizing
   if (isFinalizing) {
     return <Loader />;
   }

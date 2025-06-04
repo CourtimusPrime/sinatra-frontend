@@ -26,8 +26,14 @@ function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
   const fetchPlaylists = async () => {
     setLoading(true);
     try {
-      const res = await apiGet(`/dashboard?user_id=${user_id}`);
-      const raw = res?.playlists?.all || [];
+      let res;
+      if (user_id) {
+        res = await apiGet(`/user-playlists?user_id=${user_id}`);
+      } else {
+        res = await apiGet(`/dashboard`);
+      }
+
+      const raw = res?.playlists || [];
       setAllPlaylists(raw.map(normalizePlaylist));
     } catch (err) {
       console.error("❌ Failed to fetch all playlists", err);
@@ -64,7 +70,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
                 </div>
               ))
             ) : allPlaylists.length === 0 ? (
-              <p className="text-center text-gray-500 text-sm">No playlists found.</p>
+              <p className="text-center text-gray-500 text-sm">Update playlists from Settings to create your collection!</p>
             ) : (
               [...allPlaylists]
                 .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
