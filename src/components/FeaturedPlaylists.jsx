@@ -16,7 +16,7 @@ function FeaturedPlaylists({ playlists = [], onSeeAll }) {
   if (validPlaylists.length === 0) {
     return (
       <motion.div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-        No featured playlists available.
+        ⚠️ None selected!
       </motion.div>
     );
   }

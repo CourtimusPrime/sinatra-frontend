@@ -3,11 +3,8 @@ import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { apiGet, apiDelete } from "../utils/api";
-import { normalizePlaylist } from "../utils/normalize";
 import { Menu, Share } from "lucide-react";
-import GlintBox from "../components/GlintBox";
 import UserHeader from "../components/UserHeader";
-import PlaylistCardMini from "../components/PlaylistCardMini";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import "../styles/loader.css";
 import { motion } from "@motionone/react";
@@ -36,10 +33,7 @@ function Home() {
   }, [user?.playlists?.featured]);
 
   useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      navigate("/", { replace: true });
-    }
+    if (!loading && !user) return null;
   }, [loading, user]);
 
   useEffect(() => {
@@ -47,7 +41,8 @@ function Home() {
 
     setGenresData(user.genre_analysis || {});
     setTrack(user.last_played_track?.track || null);
-    setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
+    const last = localStorage.getItem("last_played_updated_at");
+    if (last) setLastUpdated(new Date(last));
     setShowSkeleton(false);
   }, [user, loading]);
 
@@ -100,7 +95,7 @@ function Home() {
   async function deleteAccount() {
     if (!window.confirm("You sure you wanna delete your account?")) return;
     try {
-      await apiDelete(`/delete-user`);
+      await apiDelete(`/delete-user?user_id=${user_id}`);
       logout();
     } catch (err) {
       console.error("Delete failed:", err);

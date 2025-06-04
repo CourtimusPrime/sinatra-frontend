@@ -15,7 +15,7 @@ function Landing() {
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data?.registered) {
+          if (data?.user_id) {
             navigate("/home");
           }
         })

@@ -3,26 +3,26 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { apiGet } from "../utils/api";
+const [loading, setLoading] = useState(true);
+
 
 function Auth() {
   const { setUser } = useUser();
   const navigate = useNavigate();
 
+  
   useEffect(() => {
-    // 🔄 Use cookie to get current user
-    apiGet("/me", { withCredentials: true })
+    apiGet("/me")
       .then((data) => {
         if (data?.user_id) {
-          setUser(data.user_id);
+          setUser(data);
           navigate("/home");
         } else {
-          navigate("/"); // fallback
+          navigate("/");
         }
       })
-      .catch((err) => {
-        console.error("❌ Auth error:", err);
-        navigate("/");
-      });
+      .catch(() => navigate("/"))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
