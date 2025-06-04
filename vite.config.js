@@ -20,6 +20,7 @@ export default defineConfig({
       '/login': 'http://localhost:8000',
       '/me': 'http://localhost:8000',
       '/genres': 'http://localhost:8000',
+      '/impersonate': 'http://localhost:8000',
       '/playlists': 'http://localhost:8000',
       '/recently-played': 'http://localhost:8000',
       '/dashboard': 'http://localhost:8000',
