@@ -11,6 +11,7 @@ import PlaylistCardMini from "../components/PlaylistCardMini";
 import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
 import "../styles/loader.css";
 import { motion } from "@motionone/react";
+import FeaturedPlaylists from "../components/FeaturedPlaylists";
 
 const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
 const SettingsModal = lazy(() => import("../components/settings/SettingsModal"));
@@ -38,61 +39,14 @@ function Home() {
   }, [loading, user]);
 
   useEffect(() => {
-    const cachedUser = localStorage.getItem("user");
-    if (!navigator.onLine && cachedUser) {
-      try {
-        const parsed = JSON.parse(cachedUser);
-        setUser(parsed);
-        setGenresData(JSON.parse(localStorage.getItem("genres_data") || "{}"));
-        setTrack(JSON.parse(localStorage.getItem("last_played_track") || "null"));
-        setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
-        const raw = JSON.parse(localStorage.getItem("featured_playlists") || "[]");
-        setPlaylists(Array.isArray(raw) ? raw.map(normalizePlaylist) : []);
-        setShowSkeleton(false);
-        return;
-      } catch (e) {
-        console.warn("Failed to load offline cache:", e);
-      }
-    }
-    if (!user) loadDashboard();
-  }, []);
+    if (!user || loading) return;
 
-  async function loadDashboard() {
-    try {
-      const data = await apiGet(`/dashboard`);
-
-      const userData = {
-        display_name: data.display_name,
-        profile_picture: data.profile_picture,
-        genre_analysis: data.genres,
-        user_id: data.id,
-      };
-
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      if (data.genres) {
-        setGenresData(data.genres);
-        localStorage.setItem("genres_data", JSON.stringify(data.genres));
-      }
-
-      const sortedFeatured = data.playlists?.featured?.map(normalizePlaylist).sort((a, b) => b.tracks - a.tracks) || [];
-      setPlaylists(sortedFeatured.slice(0, 3));
-      localStorage.setItem("featured_playlists", JSON.stringify(sortedFeatured.slice(0, 3)));
-      localStorage.setItem("all_playlists", JSON.stringify(data.playlists?.all?.map(normalizePlaylist) || []));
-
-      if (data.last_played?.track) {
-        setTrack(data.last_played.track);
-        setLastUpdated(new Date());
-        localStorage.setItem("last_played_track", JSON.stringify(data.last_played.track));
-        localStorage.setItem("last_played_updated_at", new Date().toISOString());
-      }
-
-      setShowSkeleton(false);
-    } catch (err) {
-      console.error("Dashboard load failed:", err);
-    }
-  }
+    setGenresData(user.genre_analysis || {});
+    setTrack(user.last_played_track?.track || null);
+    setLastUpdated(new Date(localStorage.getItem("last_played_updated_at")));
+    setPlaylists(user.playlists?.featured || []);
+    setShowSkeleton(false);
+  }, [user, loading]);
 
   useEffect(() => {
     const nowPlayingInterval = setInterval(loadNowPlaying, 30000);
@@ -169,7 +123,7 @@ function Home() {
         <button onClick={() => setSettingsOpen(true)}><Menu className="w-5 h-5" /></button>
       </div>
 
-      <UserHeader user={user} genresData={genresData} />
+      <UserHeader userState={user} genresData={genresData} />
       {track && (
         <div className={`transition-transform duration-300 scale-100 ${animateTrackChange ? "animate-scalein" : ""}`}>
           <RecentlyPlayedCard
@@ -186,23 +140,14 @@ function Home() {
         <MusicTaste genresData={user?.genre_analysis} userId={user?.user_id} />
       </Suspense>
 
-      <motion.div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3">
-        <div className="flex justify-between items-center mb-2">
-          <div className="font-semibold text-lg flex items-center gap-1">
-            <span>🌟</span> Featured Playlists
-          </div>
-          <button onClick={() => setAllModalOpen(true)} className="underline">See All →</button>
-        </div>
-        <div className="flex flex-col gap-3">
-          {playlists.map((playlist, i) => (
-            <PlaylistCardMini key={playlist.id || i} playlist={playlist} index={i} showTracks />
-          ))}
-        </div>
-      </motion.div>
+      <FeaturedPlaylists
+        playlists={playlists}
+        onSeeAll={() => setAllModalOpen(true)}
+      />
 
       <Suspense fallback={null}>
         {isAllModalOpen && <AllPlaylistsModal isOpen={true} onClose={() => setAllModalOpen(false)} user={user} />}
-        {isSettingsOpen && <SettingsModal isOpen={true} onClose={() => setSettingsOpen(false)} onLogout={logout} onDelete={deleteAccount} onSave={loadDashboard} user={user} />}
+        {isSettingsOpen && <SettingsModal isOpen={true} onClose={() => setSettingsOpen(false)} onLogout={logout} onDelete={deleteAccount} user={user} />}
       </Suspense>
     </div>
   );

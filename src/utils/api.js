@@ -1,18 +1,29 @@
 // src/utils/api.js
-const BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:8000"
-    : import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("MODE:", import.meta.env.MODE);
+console.log("BASE_URL:", BASE_URL);
 
-export async function apiGet(path, options = {}) {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "GET",
-    credentials: "include",
-    ...options,
-  });
+if (!BASE_URL) {
+  console.error("❌ Missing VITE_API_BASE_URL");
+}
 
-  if (!res.ok) throw new Error(`GET ${path} failed`);
-  return await res.json();
+export async function apiGet(path, options = {}, retries = 3) {
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: "GET",
+      credentials: "include",
+      ...options,
+    });
+
+    if (!res.ok) throw new Error(`GET ${path} failed`);
+    return await res.json();
+  } catch (err) {
+    if (retries > 0) {
+      await new Promise((r) => setTimeout(r, 500));
+      return apiGet(path, options, retries - 1);
+    }
+    throw err;
+  }
 }
 
 export async function apiPost(path, body, options = {}) {

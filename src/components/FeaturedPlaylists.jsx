@@ -1,17 +1,30 @@
 // src/components/FeaturedPlaylists.jsx
 import React from "react";
+import { motion } from "@motionone/react";
 import PlaylistCardMini from "./PlaylistCardMini";
 import { normalizePlaylist } from "../utils/normalize";
 
 function FeaturedPlaylists({ playlists = [], onSeeAll }) {
-  if (!Array.isArray(playlists) || playlists.length === 0) {
-    return <p className="text-sm text-gray-500 text-center">No featured playlists available.</p>;
+  const validPlaylists = playlists
+    .filter((p) => p && (p.id || p.playlist_id))
+    .map(normalizePlaylist)
+    .sort((a, b) => b.tracks - a.tracks)
+    .slice(0, 3);
+  
+  console.debug("🎧 Featured playlists:", validPlaylists);
+
+  if (validPlaylists.length === 0) {
+    return (
+      <motion.div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+        No featured playlists available.
+      </motion.div>
+    );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4">
+    <motion.div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3">
       <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-1 font-semibold text-lg leading-none">
+        <div className="font-semibold text-lg flex items-center gap-1">
           <span className="text-base leading-none">🌟</span>
           <span className="leading-none">Featured Playlists</span>
         </div>
@@ -26,16 +39,16 @@ function FeaturedPlaylists({ playlists = [], onSeeAll }) {
       </div>
 
       <div className="flex flex-col gap-3">
-        {playlists.map((playlist, i) => (
+        {validPlaylists.map((playlist, i) => (
           <PlaylistCardMini
             key={playlist.id || playlist.playlist_id}
-            playlist={normalizePlaylist(playlist)}
+            playlist={playlist}
             index={i}
             showTracks
           />
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
