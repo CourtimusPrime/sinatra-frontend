@@ -21,10 +21,14 @@ export default function getCroppedImg(imageSrc, crop) {
         crop.height
       );
 
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        resolve(url);
-      }, 'image/webp', 0.9);
+      canvas.toBlob(
+        (blob) => {
+          const url = URL.createObjectURL(blob);
+          resolve(url);
+        },
+        'image/webp',
+        0.9
+      );
     };
   });
 }

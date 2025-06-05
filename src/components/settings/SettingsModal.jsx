@@ -1,46 +1,56 @@
 // src/components/settings/SettingsModal.jsx
-import React, { useState, useEffect } from "react";
-import { motion } from "@motionone/react";
-import { apiPost, apiGet } from "../../utils/api";
-import { applyRootThemeVars } from "../../utils/theme";
+import React, { useState, useEffect } from 'react';
+import { motion } from '@motionone/react';
+import { apiPost, apiGet } from '../../utils/api';
+import { applyRootThemeVars } from '../../utils/theme';
 
 // Components
-import EditFeaturedModal from "./EditFeatured";
-import EditPlaylistsModal from "./EditPlaylists";
+import EditFeaturedModal from './EditFeatured';
+import EditPlaylistsModal from './EditPlaylists';
 
-function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave }) {
+function SettingsModal({
+  isOpen,
+  onClose,
+  onLogout,
+  onDelete,
+  user_id,
+  onSave,
+}) {
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPlaylistEditorOpen, setPlaylistEditorOpen] = useState(false);
   const [visible, setVisible] = useState(isOpen);
   const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
+    document.documentElement.classList.contains('dark')
   );
 
   const impersonate = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/impersonate?user_id=amborn02`, {
-      credentials: "include",
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/impersonate?user_id=amborn02`,
+      {
+        credentials: 'include',
+      }
+    );
     if (res.ok) {
-      window.location.href = "/home";
+      window.location.href = '/home';
     } else {
-      alert("Impersonation failed");
+      alert('Impersonation failed');
     }
   };
 
   const toggleTheme = () => {
     const html = document.documentElement;
-    const currentTheme = html.classList.contains("dark") ? "dark" : "light";
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    html.classList.toggle("dark");
-    localStorage.setItem("theme", newTheme);
-    setIsDark(newTheme === "dark");
+    const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.classList.toggle('dark');
+    localStorage.setItem('theme', newTheme);
+    setIsDark(newTheme === 'dark');
     applyRootThemeVars(newTheme);
   };
 
   const handleClearGenreCache = async () => {
-    console.log("Sending user_id:", user_id);
+    console.log('Sending user_id:', user_id);
     try {
-      await apiPost("/refresh_genres", { user_id });
+      await apiPost('/refresh_genres', { user_id });
 
       // 🧹 Clear cached genre data (if used)
       localStorage.removeItem(`genreData:${user_id}`);
@@ -48,8 +58,8 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
       // ✅ Optional: trigger full dashboard re-fetch
       window.location.reload(); // crude but ensures fresh state
     } catch (err) {
-      console.error("Failed to clear genre cache:", err);
-      alert("Something went wrong. Try again later.");
+      console.error('Failed to clear genre cache:', err);
+      alert('Something went wrong. Try again later.');
     }
   };
 
@@ -66,56 +76,63 @@ function SettingsModal({ isOpen, onClose, onLogout, onDelete, user_id, onSave })
 
   const buttons = [
     {
-      label: "✏️ Edit Featured Playlists",
+      label: '✏️ Edit Featured Playlists',
       onClick: () => setEditOpen(true),
-      className: "w-full px-4 py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-700 rounded text-left",
+      className:
+        'w-full px-4 py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-700 rounded text-left',
     },
     {
-      label: "🔄 Update Playlists",
+      label: '🔄 Update Playlists',
       onClick: () => setPlaylistEditorOpen(true),
-      className: "w-full px-4 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-700 rounded text-left",
+      className:
+        'w-full px-4 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-700 rounded text-left',
     },
     {
-      label: "🎶 Refresh Music History",
+      label: '🎶 Refresh Music History',
       onClick: handleClearGenreCache,
-      className: "w-full px-4 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-700 rounded text-left",
+      className:
+        'w-full px-4 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-700 rounded text-left',
     },
     {
-      label: isDark ? "🌞 Switch to Light Mode" : "🌙 Switch to Dark Mode",
+      label: isDark ? '🌞 Switch to Light Mode' : '🌙 Switch to Dark Mode',
       onClick: toggleTheme,
-      className: "w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-left",
+      className:
+        'w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-left',
     },
     {
-      label: "🏃🏼‍♂️ Log out",
+      label: '🏃🏼‍♂️ Log out',
       onClick: onLogout,
-      className: "w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left",
+      className:
+        'w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 rounded text-left',
     },
     ...(import.meta.env.DEV
-  ? [
-      {
-        label: "🛡️ Toggle User (dev)",
-        onClick: async () => {
-          try {
-            window.location.href = `${import.meta.env.VITE_API_BASE_URL}/impersonate`;
-          } catch (err) {
-            console.error("Toggle failed:", err);
-            alert("Toggle failed");
-          }
-        },
-        className:
-          "w-full px-4 py-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-700 rounded text-left text-purple-800 dark:text-purple-300",
-      },
-    ]
-  : []),
+      ? [
+          {
+            label: '🛡️ Toggle User (dev)',
+            onClick: async () => {
+              try {
+                window.location.href = `${import.meta.env.VITE_API_BASE_URL}/impersonate`;
+              } catch (err) {
+                console.error('Toggle failed:', err);
+                alert('Toggle failed');
+              }
+            },
+            className:
+              'w-full px-4 py-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-700 rounded text-left text-purple-800 dark:text-purple-300',
+          },
+        ]
+      : []),
     {
-      label: "🗑️ Delete account",
+      label: '🗑️ Delete account',
       onClick: onDelete,
-      className: "w-full px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-700 rounded text-left text-red-700 dark:text-red-300",
+      className:
+        'w-full px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-700 rounded text-left text-red-700 dark:text-red-300',
     },
     {
-      label: "Back",
+      label: 'Back',
       onClick: onClose,
-      className: "w-full mt-4 text-sm text-gray-600 dark:text-gray-300 underline text-left",
+      className:
+        'w-full mt-4 text-sm text-gray-600 dark:text-gray-300 underline text-left',
     },
   ];
 

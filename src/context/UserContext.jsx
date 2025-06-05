@@ -1,6 +1,6 @@
 // src/context/UserContext.jsx
-import { createContext, useContext, useState, useEffect } from "react";
-import { apiGet } from "../utils/api";
+import { createContext, useContext, useState, useEffect } from 'react';
+import { apiGet } from '../utils/api';
 
 const UserContext = createContext();
 
@@ -9,7 +9,7 @@ export function UserProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const pathname = window.location.pathname;
-  const isPublicProfile = pathname.startsWith("/@");
+  const isPublicProfile = pathname.startsWith('/@');
 
   useEffect(() => {
     if (isPublicProfile) {
@@ -17,7 +17,7 @@ export function UserProvider({ children }) {
       return;
     }
 
-    apiGet("/me")
+    apiGet('/me')
       .then((data) => {
         if (data?.user_id) {
           setUser(data);
@@ -27,7 +27,7 @@ export function UserProvider({ children }) {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("❌ /me failed:", err);
+        console.error('❌ /me failed:', err);
         setUser(null);
         setLoading(false);
       });

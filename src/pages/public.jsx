@@ -1,19 +1,19 @@
 // src/pages/public.jsx
-import React, { useEffect, useState, lazy, Suspense } from "react";
-import { useParams } from "react-router-dom";
-import RecentlyPlayedCard from "../components/RecentlyPlayedCard";
-import PlaylistCardMini from "../components/PlaylistCardMini";
-import { normalizePlaylist } from "../utils/normalize";
-import { apiGet } from "../utils/api";
-import Loader from "../components/Loader";
-import { motion } from "@motionone/react";
-import { Share } from "lucide-react";
-import Spotify from "../assets/spotify.svg";
-import UserHeader from "../components/UserHeader";
+import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { useParams } from 'react-router-dom';
+import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
+import PlaylistCardMini from '../components/PlaylistCardMini';
+import { normalizePlaylist } from '../utils/normalize';
+import { apiGet } from '../utils/api';
+import Loader from '../components/Loader';
+import { motion } from '@motionone/react';
+import { Share } from 'lucide-react';
+import Spotify from '../assets/spotify.svg';
+import UserHeader from '../components/UserHeader';
 
 // Lazy-loaded components
-const MusicTaste = lazy(() => import("../components/music/MusicTaste"));
-const AllPlaylistsModal = lazy(() => import("../components/AllPlaylistsModal"));
+const MusicTaste = lazy(() => import('../components/music/MusicTaste'));
+const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 
 export default function PublicProfile() {
   const { user_id } = useParams();
@@ -23,7 +23,7 @@ export default function PublicProfile() {
   const [isAllModalOpen, setAllModalOpen] = useState(false);
 
   const handleLogin = () => {
-    const target = import.meta.env.VITE_API_BASE_URL + "/login";
+    const target = import.meta.env.VITE_API_BASE_URL + '/login';
     window.location.href = target;
   };
 
@@ -31,7 +31,7 @@ export default function PublicProfile() {
     async function load() {
       try {
         const userData = await apiGet(`/public-profile/${user_id}`);
-        console.log("🎯 Public profile loaded:", userData);
+        console.log('🎯 Public profile loaded:', userData);
 
         setProfile({
           ...userData,
@@ -45,7 +45,7 @@ export default function PublicProfile() {
           setTimeout(() => setShowCTA(true), 1500);
         }
       } catch (err) {
-        console.error("❌ Failed to load public profile:", err);
+        console.error('❌ Failed to load public profile:', err);
       }
     }
     load();
@@ -102,10 +102,16 @@ export default function PublicProfile() {
         />
       )}
 
-      <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
+      <Suspense
+        fallback={
+          <div className="text-center text-sm text-gray-400">
+            Loading music taste...
+          </div>
+        }
+      >
         <div className="mt-3">
           <MusicTaste
-            key={user_id + "_taste"}
+            key={user_id + '_taste'}
             genresData={genres_data}
             userId={user_id}
           />
@@ -115,7 +121,10 @@ export default function PublicProfile() {
       <motion.div
         initial="hidden"
         animate="visible"
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.08 } },
+        }}
         className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-3"
       >
         <div className="flex justify-between items-center mb-2">
@@ -132,13 +141,14 @@ export default function PublicProfile() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {Array.isArray(featured_playlists) && featured_playlists.length > 0 ? (
+          {Array.isArray(featured_playlists) &&
+          featured_playlists.length > 0 ? (
             featured_playlists.map((playlist, i) => {
               const isValid =
                 playlist &&
-                typeof playlist === "object" &&
-                typeof playlist.name === "string" &&
-                typeof playlist.tracks === "number";
+                typeof playlist === 'object' &&
+                typeof playlist.name === 'string' &&
+                typeof playlist.tracks === 'number';
 
               if (!isValid) {
                 console.warn(`❌ Invalid playlist at index ${i}:`, playlist);
@@ -159,7 +169,9 @@ export default function PublicProfile() {
               );
             })
           ) : (
-            <div className="text-gray-500 text-sm text-center">No featured playlists found.</div>
+            <div className="text-gray-500 text-sm text-center">
+              No featured playlists found.
+            </div>
           )}
         </div>
       </motion.div>

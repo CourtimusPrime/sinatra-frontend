@@ -1,4 +1,3 @@
-
 /* src/styles/loader.css */
 
 /* HTML: <div class="loader"></div> */
@@ -7,9 +6,14 @@
   aspect-ratio: 1;
   border-radius: 50%;
   padding: 3px;
-  background: 
+  background:
     radial-gradient(farthest-side, #bf77f6 95%, #0000) 50% 0/12px 12px no-repeat,
-    radial-gradient(farthest-side, #0000 calc(100% - 5px), #bf77f6 calc(100% - 4px)) content-box;
+    radial-gradient(
+        farthest-side,
+        #0000 calc(100% - 5px),
+        #bf77f6 calc(100% - 4px)
+      )
+      content-box;
   animation: l6 2s infinite;
 }
 
@@ -24,7 +28,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh; /* center vertically */
-  width: 100vw;  /* center horizontally */
+  width: 100vw; /* center horizontally */
 }
 
 /* styles/loader.css */

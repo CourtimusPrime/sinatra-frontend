@@ -2,7 +2,12 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImageHelper';
 
-function ProfileImageEditor({ initialImage, onSave, onCancel, presetAvatars = [] }) {
+function ProfileImageEditor({
+  initialImage,
+  onSave,
+  onCancel,
+  presetAvatars = [],
+}) {
   const [image, setImage] = useState(initialImage || '');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -42,8 +47,15 @@ function ProfileImageEditor({ initialImage, onSave, onCancel, presetAvatars = []
       <div className="flex flex-col gap-2">
         <input type="file" accept="image/*" onChange={handleFileChange} />
         <div className="flex gap-2">
-          <button onClick={handleSave} className="bg-blue-600 text-white px-3 py-1 rounded">Save</button>
-          <button onClick={onCancel} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
+          <button
+            onClick={handleSave}
+            className="bg-blue-600 text-white px-3 py-1 rounded"
+          >
+            Save
+          </button>
+          <button onClick={onCancel} className="bg-gray-300 px-3 py-1 rounded">
+            Cancel
+          </button>
         </div>
       </div>
 

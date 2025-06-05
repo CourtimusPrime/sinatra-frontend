@@ -1,8 +1,8 @@
 // src/pages/Landing.jsx
-import React, { useEffect } from "react";
-import { useUser } from "../context/UserContext";
-import { useNavigate } from "react-router-dom";
-import Spotify from "../assets/spotify.svg";
+import React, { useEffect, useState } from 'react';
+import { useUser } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
+import Spotify from '../assets/spotify.svg';
 
 function Landing() {
   const { user_id } = useUser();
@@ -11,27 +11,27 @@ function Landing() {
   useEffect(() => {
     if (user_id) {
       fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
-        credentials: "include",
+        credentials: 'include',
       })
         .then((res) => res.json())
         .then((data) => {
           if (data?.user_id) {
-            navigate("/home");
+            navigate('/home');
           }
         })
         .catch((err) => {
-          console.error("⛔ Landing redirect check failed:", err);
+          console.error('⛔ Landing redirect check failed:', err);
         });
     }
   }, [user_id]);
 
   const handleLogin = () => {
-    console.log("🧪 VITE_PRO_CALLBACK:", import.meta.env.VITE_PRO_CALLBACK);
-    console.log("🧪 VITE_DEV_CALLBACK:", import.meta.env.VITE_DEV_CALLBACK);
+    console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);
+    console.log('🧪 VITE_DEV_CALLBACK:', import.meta.env.VITE_DEV_CALLBACK);
     const state = crypto.randomUUID();
     document.cookie = `spotify_state=${state}; path=/; SameSite=Lax`;
 
-    const isLocal = window.location.hostname === "localhost";
+    const isLocal = window.location.hostname === 'localhost';
     const redirectUri = isLocal
       ? import.meta.env.VITE_DEV_CALLBACK
       : import.meta.env.VITE_PRO_CALLBACK;

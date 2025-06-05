@@ -1,13 +1,13 @@
 // src/pages/onboard.jsx
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
-import OnboardingSteps from "../components/OnboardingSteps";
-import { apiGet, apiPost } from "../utils/api";
-import { motion } from "@motionone/react";
-import "../styles/onboard.css";
-import { applyRootThemeVars } from "../utils/theme";
-import Loader from "../components/Loader";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import OnboardingSteps from '../components/OnboardingSteps';
+import { apiGet, apiPost } from '../utils/api';
+import { motion } from '@motionone/react';
+import '../styles/onboard.css';
+import { applyRootThemeVars } from '../utils/theme';
+import Loader from '../components/Loader';
 
 function Onboard() {
   const navigate = useNavigate();
@@ -16,12 +16,12 @@ function Onboard() {
   const [spotifyUser, setSpotifyUser] = useState(null);
   const [step, setStep] = useState(0);
   const [canProceed, setCanProceed] = useState(false);
-  const [log, setLog] = useState("");
+  const [log, setLog] = useState('');
   const [isFinalizing, setIsFinalizing] = useState(false);
 
   const [onboardData, setOnboardData] = useState({
-    display_name: "",
-    profile_picture: "",
+    display_name: '',
+    profile_picture: '',
     selected_playlists: [],
     featured_playlists: [],
   });
@@ -30,27 +30,30 @@ function Onboard() {
   useEffect(() => {
     const html = document.documentElement;
     const applyTheme = (theme) => {
-      html.classList.toggle("dark", theme === "dark");
+      html.classList.toggle('dark', theme === 'dark');
       applyRootThemeVars(theme);
     };
 
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark" || saved === "light") {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') {
       applyTheme(saved);
     } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      applyTheme(prefersDark ? "dark" : "light");
+      const prefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+      ).matches;
+      applyTheme(prefersDark ? 'dark' : 'light');
     }
 
-    const systemListener = window.matchMedia("(prefers-color-scheme: dark)");
+    const systemListener = window.matchMedia('(prefers-color-scheme: dark)');
     const systemThemeHandler = (e) => {
-      if (!localStorage.getItem("theme")) {
-        applyTheme(e.matches ? "dark" : "light");
+      if (!localStorage.getItem('theme')) {
+        applyTheme(e.matches ? 'dark' : 'light');
       }
     };
 
-    systemListener.addEventListener("change", systemThemeHandler);
-    return () => systemListener.removeEventListener("change", systemThemeHandler);
+    systemListener.addEventListener('change', systemThemeHandler);
+    return () =>
+      systemListener.removeEventListener('change', systemThemeHandler);
   }, []);
 
   // Load user + genre data
@@ -61,13 +64,13 @@ function Onboard() {
         setSpotifyUser(spotifyRes);
         setOnboardData((prev) => ({
           ...prev,
-          user_id: user?.user_id || "", // ✅ Inject user_id from context
+          user_id: user?.user_id || '', // ✅ Inject user_id from context
           display_name: spotifyRes.display_name,
-          profile_picture: spotifyRes.images?.[0]?.url || "",
+          profile_picture: spotifyRes.images?.[0]?.url || '',
         }));
       } catch (err) {
-        setLog("Error during onboarding init.");
-        console.error("Onboarding init error:", err);
+        setLog('Error during onboarding init.');
+        console.error('Onboarding init error:', err);
       }
     };
     init();
@@ -84,22 +87,37 @@ function Onboard() {
       setIsFinalizing(true);
       const finalize = async () => {
         try {
-          await apiPost("/register", onboardData);
-          const dash = await apiGet("/dashboard");
+          await apiPost('/register', onboardData);
+          const dash = await apiGet('/dashboard');
 
-          localStorage.setItem("user", JSON.stringify(dash.user));
-          localStorage.setItem("genres_data", JSON.stringify(dash.user.genre_analysis || {}));
-          localStorage.setItem("featured_playlists", JSON.stringify(dash.playlists.featured || []));
-          localStorage.setItem("all_playlists", JSON.stringify(dash.playlists.all || []));
+          localStorage.setItem('user', JSON.stringify(dash.user));
+          localStorage.setItem(
+            'genres_data',
+            JSON.stringify(dash.user.genre_analysis || {})
+          );
+          localStorage.setItem(
+            'featured_playlists',
+            JSON.stringify(dash.playlists.featured || [])
+          );
+          localStorage.setItem(
+            'all_playlists',
+            JSON.stringify(dash.playlists.all || [])
+          );
           if (dash.played_track?.track) {
-            localStorage.setItem("last_played_track", JSON.stringify(dash.played_track.track));
-            localStorage.setItem("last_played_updated_at", new Date().toISOString());
+            localStorage.setItem(
+              'last_played_track',
+              JSON.stringify(dash.played_track.track)
+            );
+            localStorage.setItem(
+              'last_played_updated_at',
+              new Date().toISOString()
+            );
           }
-          localStorage.setItem("last_init_home", new Date().toISOString());
-          navigate("/home");
+          localStorage.setItem('last_init_home', new Date().toISOString());
+          navigate('/home');
         } catch (err) {
-          console.error("Error finalizing account:", err);
-          setLog("Finalization error. Try again.");
+          console.error('Error finalizing account:', err);
+          setLog('Finalization error. Try again.');
           setIsFinalizing(false);
         }
       };
@@ -146,7 +164,9 @@ function Onboard() {
           <button
             onClick={handleBack}
             className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${
-              step === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+              step === 0
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-red-600 hover:bg-red-700'
             }`}
             disabled={step === 0}
           >
@@ -156,12 +176,12 @@ function Onboard() {
             onClick={handleNext}
             className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${
               step === 0 || canProceed
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "bg-gray-400 cursor-not-allowed"
+                ? 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-gray-400 cursor-not-allowed'
             }`}
             disabled={step !== 0 && !canProceed}
           >
-            {step < 3 ? "Next" : "Finish"}
+            {step < 3 ? 'Next' : 'Finish'}
           </button>
         </div>
       )}

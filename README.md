@@ -24,10 +24,10 @@ Sinatra is a modern, React-based web application for sharing your music taste wi
 - **Build Tool:** Vite
 - **State Management:** React Context API
 - **API:** Communicates with a backend (default: `http://localhost:8000`)
-- **Other Libraries:**  
-  - `react-easy-crop` for profile image cropping  
-  - `lucide-react` for icons  
-  - `d3` for data visualization  
+- **Other Libraries:**
+  - `react-easy-crop` for profile image cropping
+  - `lucide-react` for icons
+  - `d3` for data visualization
   - `react-swipeable` for mobile gestures
 
 ---
@@ -67,12 +67,14 @@ sinatra-frontend/
 ### Installation
 
 1. **Clone the repository:**
+
    ```sh
    git clone https://github.com/yourusername/sinatra-frontend.git
    cd sinatra-frontend
    ```
 
 2. **Install dependencies:**
+
    ```sh
    npm install
    # or
@@ -80,9 +82,11 @@ sinatra-frontend/
    ```
 
 3. **Configure environment variables:**
+
    - Create a `.env` file (if needed) and set `VITE_API_BASE_URL` to your backend API URL (default is `http://localhost:8000`).
 
 4. **Run the development server:**
+
    ```sh
    npm run dev
    # or
@@ -110,12 +114,12 @@ sinatra-frontend/
 
 ## 📝 Scripts
 
-| Command         | Description                  |
-|-----------------|-----------------------------|
-| `npm run dev`   | Start local dev server      |
-| `npm run build` | Build for production        |
-| `npm run preview` | Preview production build  |
-| `npm run lint`  | Run ESLint                  |
+| Command           | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start local dev server   |
+| `npm run build`   | Build for production     |
+| `npm run preview` | Preview production build |
+| `npm run lint`    | Run ESLint               |
 
 ---
 
@@ -143,7 +147,7 @@ sinatra-frontend/
 
 ## 🛡️ License
 
-This is a commercial application, and may not be copied or replicated in any way. All rights are reserved by the owner, @CourtimusPrime. 
+This is a commercial application, and may not be copied or replicated in any way. All rights are reserved by the owner, @CourtimusPrime.
 
 ---
 
@@ -172,4 +176,5 @@ Open an issue or reach out at [sinatra.live](https://sinatra.live).
 Open an issue or reach out at [sinatra.live](https://sinatra.live).
 
 ---
->>>>>>> ce6e23462d273775e5259a133f9f4d014e1acb91
+
+> > > > > > > ce6e23462d273775e5259a133f9f4d014e1acb91

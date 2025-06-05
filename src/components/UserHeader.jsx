@@ -1,7 +1,7 @@
 // src/components/UserHeader.jsx
-import React, { Suspense } from "react";
-import { motion } from "@motionone/react";
-import TopSubGenre from "./ui/TopSubGenre";
+import React, { Suspense } from 'react';
+import { motion } from '@motionone/react';
+import TopSubGenre from './ui/TopSubGenre';
 
 function UserHeader({ userState, genresData }) {
   if (!userState) return null;
@@ -9,7 +9,7 @@ function UserHeader({ userState, genresData }) {
   return (
     <div className="flex flex-col items-center text-center mb-3 space-y-0.5">
       <motion.img
-        src={userState.profile_picture || ""}
+        src={userState.profile_picture || ''}
         className="w-24 h-24 object-cover rounded-full shadow-md"
         loading="lazy"
         initial={{ opacity: 0, scale: 0.9 }}
@@ -23,7 +23,7 @@ function UserHeader({ userState, genresData }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {userState.display_name || "John Doe"}
+        {userState.display_name || 'John Doe'}
       </motion.h1>
 
       {userState.user_id && (
