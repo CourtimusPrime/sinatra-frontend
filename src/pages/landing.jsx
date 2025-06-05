@@ -9,6 +9,27 @@ function Landing() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("user_id");
+
+    if (userId) {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/set-cookie`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ user_id: userId }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to set cookie");
+          window.location.replace("/home");
+        })
+        .catch((err) => {
+          console.error("❌ Failed to set cookie:", err);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
     if (user_id) {
       fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
         credentials: 'include',
