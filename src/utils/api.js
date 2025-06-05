@@ -1,17 +1,17 @@
 // src/utils/api.js
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-console.log("MODE:", import.meta.env.MODE);
-console.log("BASE_URL:", BASE_URL);
+console.log('MODE:', import.meta.env.MODE);
+console.log('BASE_URL:', BASE_URL);
 
 if (!BASE_URL) {
-  console.error("❌ Missing VITE_API_BASE_URL");
+  console.error('❌ Missing VITE_API_BASE_URL');
 }
 
 export async function apiGet(path, options = {}, retries = 3) {
   try {
     const res = await fetch(`${BASE_URL}${path}`, {
-      method: "GET",
-      credentials: "include",
+      method: 'GET',
+      credentials: 'include',
       ...options,
     });
 
@@ -28,9 +28,9 @@ export async function apiGet(path, options = {}, retries = 3) {
 
 export async function apiPost(path, body, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
     ...options,
   });
@@ -45,8 +45,8 @@ export async function apiPost(path, body, options = {}) {
 
 export async function apiDelete(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
-    method: "DELETE",
-    credentials: "include",
+    method: 'DELETE',
+    credentials: 'include',
     ...options,
   });
 

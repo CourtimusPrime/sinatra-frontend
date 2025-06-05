@@ -1,11 +1,11 @@
 // src/components/GlintBox.jsx
-import React from "react";
+import React from 'react';
 
 export default function GlintBox({
-  width = "w-full",
-  height = "h-6",
-  rounded = "rounded-md",
-  className = "",
+  width = 'w-full',
+  height = 'h-6',
+  rounded = 'rounded-md',
+  className = '',
 }) {
   return (
     <div

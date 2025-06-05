@@ -8,7 +8,8 @@ export default {
         shimmer: 'shimmer 1.5s infinite linear',
       },
       backgroundImage: {
-        shimmer: 'linear-gradient(90deg, #e0e0e0 0%, #f8f8f8 50%, #e0e0e0 100%)',
+        shimmer:
+          'linear-gradient(90deg, #e0e0e0 0%, #f8f8f8 50%, #e0e0e0 100%)',
       },
       backgroundSize: {
         shimmer: '200% 100%',

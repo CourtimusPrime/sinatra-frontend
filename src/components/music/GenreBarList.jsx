@@ -1,6 +1,6 @@
 // src/components/music/GenreBarList.jsx
-import React, { useRef, useEffect } from "react";
-import { motion } from "@motionone/react";
+import React, { useRef, useEffect } from 'react';
+import { motion } from '@motionone/react';
 
 function GenreBarList({ data, baseDelay = 0.4 }) {
   const hasAnimated = useRef(false);
@@ -14,10 +14,13 @@ function GenreBarList({ data, baseDelay = 0.4 }) {
   }, []);
 
   if (!Array.isArray(data) || data.length === 0) {
-    return <div className="text-sm text-gray-400">No genre data available.</div>;
+    return (
+      <div className="text-sm text-gray-400">No genre data available.</div>
+    );
   }
 
-  const total = data.reduce((sum, d) => (isFinite(d.value) ? sum + d.value : sum), 0) || 1;
+  const total =
+    data.reduce((sum, d) => (isFinite(d.value) ? sum + d.value : sum), 0) || 1;
 
   return (
     <motion.div
@@ -41,7 +44,7 @@ function GenreBarList({ data, baseDelay = 0.4 }) {
             key={`genre-${name}`}
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, delay, ease: "easeOut" }}
+            transition={{ duration: 0.5, delay, ease: 'easeOut' }}
           >
             <div className="flex justify-between text-sm font-medium mb-1">
               <span>{name}</span>
@@ -55,7 +58,7 @@ function GenreBarList({ data, baseDelay = 0.4 }) {
                 animate={{ width: barWidth }}
                 transition={{ duration: 0.6, delay }}
                 className="h-full rounded-full"
-                style={{ background: gradient || "#ccc" }}
+                style={{ background: gradient || '#ccc' }}
               />
             </div>
           </motion.div>

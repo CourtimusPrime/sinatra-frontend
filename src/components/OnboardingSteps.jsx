@@ -1,15 +1,21 @@
 // src/components/OnboardingSteps.jsx
-import React, { useEffect } from "react";
-import { motion } from "@motionone/react";
-import NameEditor from "./steps/NameEditor";
-import PictureEditor from "./steps/PictureEditor";
-import PlaylistImporter from "./steps/PlaylistImporter";
-import FeaturedPicker from "./steps/FeaturedPicker";
-import Loader from "../components/Loader";
+import React, { useEffect } from 'react';
+import { motion } from '@motionone/react';
+import NameEditor from './steps/NameEditor';
+import PictureEditor from './steps/PictureEditor';
+import PlaylistImporter from './steps/PlaylistImporter';
+import FeaturedPicker from './steps/FeaturedPicker';
+import Loader from '../components/Loader';
 
 const totalSteps = 4;
 
-function OnboardingSteps({ step, user, onboardData, setOnboardData, setCanProceed }) {
+function OnboardingSteps({
+  step,
+  user,
+  onboardData,
+  setOnboardData,
+  setCanProceed,
+}) {
   const sharedProps = { user, onboardData, setOnboardData, setCanProceed };
 
   const renderStep = () => {
@@ -41,9 +47,7 @@ function OnboardingSteps({ step, user, onboardData, setOnboardData, setCanProcee
           transition={{ duration: 0.3 }}
         />
       </div>
-      <div className="onboard-step-content">
-        {renderStep()}
-      </div>
+      <div className="onboard-step-content">{renderStep()}</div>
     </div>
   );
 }

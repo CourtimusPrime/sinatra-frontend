@@ -1,18 +1,18 @@
 // frontend/src/components/RecentlyPlayedCard.jsx
-import { RefreshCcw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { motion } from "@motionone/react";
+import { RefreshCcw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion } from '@motionone/react';
 
 function cleanTrackName(name) {
   return name
-    .replace(/\s*[-–]\s*\d{4}\s*Remaster(ed)?/i, "")
-    .replace(/\s*[-–]\s*Remaster(ed)?( Version)?/i, "")
-    .replace(/\s*\(\s*\d{4}\s*Remaster\s*\)/i, "")
-    .replace(/\s*\(\s*Remaster(ed)?\s*\)/i, "")
-    .replace(/\s*\[\s*\d{4}\s*Remaster\s*\]/i, "")
-    .replace(/\s*[-–]\s*Single( Version| Edit)?/i, "")
-    .replace(/\s*\(\s*Single( Version| Edit)?\s*\)/i, "")
-    .replace(/\s*[-–]\s*Single;\s*\d{4}\s*Remaster/i, "")
+    .replace(/\s*[-–]\s*\d{4}\s*Remaster(ed)?/i, '')
+    .replace(/\s*[-–]\s*Remaster(ed)?( Version)?/i, '')
+    .replace(/\s*\(\s*\d{4}\s*Remaster\s*\)/i, '')
+    .replace(/\s*\(\s*Remaster(ed)?\s*\)/i, '')
+    .replace(/\s*\[\s*\d{4}\s*Remaster\s*\]/i, '')
+    .replace(/\s*[-–]\s*Single( Version| Edit)?/i, '')
+    .replace(/\s*\(\s*Single( Version| Edit)?\s*\)/i, '')
+    .replace(/\s*[-–]\s*Single;\s*\d{4}\s*Remaster/i, '')
     .trim();
 }
 
@@ -29,8 +29,8 @@ function RecentlyPlayedCard({
     const diffMs = now - new Date(date);
     const diffMin = Math.floor(diffMs / 60000);
 
-    if (diffMin < 1) return "just now";
-    if (diffMin === 1) return "1m ago";
+    if (diffMin < 1) return 'just now';
+    if (diffMin === 1) return '1m ago';
     return `${diffMin}m ago`;
   };
 
@@ -38,23 +38,23 @@ function RecentlyPlayedCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
       className={`relative rounded-2xl overflow-hidden text-white shadow-md w-full mt-6 transition-colors duration-300 ${
-        animateChange ? "animate-bgfade" : ""
+        animateChange ? 'animate-bgfade' : ''
       }`}
       style={{
         backgroundImage: track.album_art_url
           ? `url(${track.album_art_url})`
           : undefined,
         backgroundColor: !track.album_art_url
-        ? window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "#111827"
-          : "#ffffff"
-        : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        minHeight: "140px",
-        willChange: "opacity, transform",
+          ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? '#111827'
+            : '#ffffff'
+          : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '140px',
+        willChange: 'opacity, transform',
       }}
     >
       {/* 🔲 Blur overlay */}
@@ -74,7 +74,7 @@ function RecentlyPlayedCard({
         <div className="mt-2">
           <p
             className={`text-xl font-bold leading-tight ${
-              animateChange ? "animate-fadein-fast" : ""
+              animateChange ? 'animate-fadein-fast' : ''
             }`}
             title={track.name}
           >
@@ -82,7 +82,7 @@ function RecentlyPlayedCard({
           </p>
           <p
             className={`text-sm text-gray-200 ${
-              animateChange ? "animate-fadein-slow" : ""
+              animateChange ? 'animate-fadein-slow' : ''
             }`}
           >
             {track.artist}
@@ -95,7 +95,7 @@ function RecentlyPlayedCard({
         <button
           onClick={onRefresh}
           className={`text-white hover:text-gray-300 transition-colors ${
-            isRefreshing ? "animate-spin-once" : ""
+            isRefreshing ? 'animate-spin-once' : ''
           }`}
           aria-label="Refresh"
         >

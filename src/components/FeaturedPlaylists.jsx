@@ -1,8 +1,8 @@
 // src/components/FeaturedPlaylists.jsx
-import React, { useMemo } from "react";
-import { motion } from "@motionone/react";
-import PlaylistCardMini from "./PlaylistCardMini";
-import { normalizePlaylist } from "../utils/normalize";
+import React, { useMemo } from 'react';
+import { motion } from '@motionone/react';
+import PlaylistCardMini from './PlaylistCardMini';
+import { normalizePlaylist } from '../utils/normalize';
 
 function FeaturedPlaylists({ playlists = [], onSeeAll }) {
   const validPlaylists = useMemo(() => {

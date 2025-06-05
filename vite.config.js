@@ -9,8 +9,8 @@ export default defineConfig({
     compression({
       algorithm: 'brotliCompress',
       ext: '.br',
-      deleteOriginFile: false
-    })
+      deleteOriginFile: false,
+    }),
   ],
   publicDir: 'public',
   base: '/',

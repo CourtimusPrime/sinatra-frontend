@@ -1,14 +1,14 @@
 // src/components/settings/EditFeatured.jsx
-import { useState, useEffect } from "react";
-import { apiGet, apiPost } from "../../utils/api";
-import GlintBox from "../GlintBox";
-import PlaylistCardMini from "../PlaylistCardMini";
-import CloseButton from "../ui/CloseButton";
+import { useState, useEffect } from 'react';
+import { apiGet, apiPost } from '../../utils/api';
+import GlintBox from '../GlintBox';
+import PlaylistCardMini from '../PlaylistCardMini';
+import CloseButton from '../ui/CloseButton';
 
 function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   const [allPlaylists, setAllPlaylists] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
         setSelected(data.playlists.featured.map((p) => p.id || p.playlist_id));
       })
       .catch((err) => {
-        console.error("🔥 EditFeatured fetch failed:", err);
+        console.error('🔥 EditFeatured fetch failed:', err);
         setAllPlaylists([]);
       })
       .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   };
 
   const handleSave = () => {
-    apiPost("/update-featured", {
+    apiPost('/update-featured', {
       user_id,
       playlist_ids: selected,
     })
@@ -46,7 +46,7 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
         onClose();
       })
       .catch((err) => {
-        console.error("❌ Failed to update featured playlists:", err);
+        console.error('❌ Failed to update featured playlists:', err);
       });
   };
 
@@ -70,33 +70,33 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
 
         <div className="p-4 overflow-y-auto flex-1 relative min-h-[200px]">
           <div className="grid grid-cols-2 gap-2">
-            {loading ? (
-              [...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 bg-white dark:bg-gray-900 p-2 rounded-md border animate-pulse"
-                >
-                  <GlintBox width="w-14" height="h-14" rounded="rounded-md" />
-                  <div className="flex flex-col gap-2 flex-1">
-                    <GlintBox width="w-3/4" height="h-4" />
-                    <GlintBox width="w-1/2" height="h-3" />
+            {loading
+              ? [...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 bg-white dark:bg-gray-900 p-2 rounded-md border animate-pulse"
+                  >
+                    <GlintBox width="w-14" height="h-14" rounded="rounded-md" />
+                    <div className="flex flex-col gap-2 flex-1">
+                      <GlintBox width="w-3/4" height="h-4" />
+                      <GlintBox width="w-1/2" height="h-3" />
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              allPlaylists
-                .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-                .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
-                .map((p) => (
-                  <PlaylistCardMini
-                    key={p.id}
-                    playlist={p}
-                    onClick={() => handleToggle(p.id)}
-                    isSelected={selected.includes(p.id)}
-                    selectable
-                  />
                 ))
-            )}
+              : allPlaylists
+                  .filter((p) =>
+                    p.name.toLowerCase().includes(search.toLowerCase())
+                  )
+                  .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
+                  .map((p) => (
+                    <PlaylistCardMini
+                      key={p.id}
+                      playlist={p}
+                      onClick={() => handleToggle(p.id)}
+                      isSelected={selected.includes(p.id)}
+                      selectable
+                    />
+                  ))}
           </div>
         </div>
 

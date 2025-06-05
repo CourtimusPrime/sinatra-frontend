@@ -1,17 +1,15 @@
 // src/components/music/MusicTaste.jsx
-import { useEffect, useState, useMemo, useRef } from "react";
-import { apiGet } from "../../utils/api";
-import GenreBarList from "./GenreBarList";
-import SubGenreBarList from "./SubGenreBarList";
-import { useSwipeable } from "react-swipeable";
-
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { apiGet } from '../../utils/api';
+import GenreBarList from './GenreBarList';
+import SubGenreBarList from './SubGenreBarList';
+import { useSwipeable } from 'react-swipeable';
 
 function MusicTaste({ genresData: initialGenresData, userId }) {
   const [genresData, setGenresData] = useState(initialGenresData || null);
   const [loading, setLoading] = useState(!initialGenresData);
   const [step, setStep] = useState(0);
   const hasShownGenresOnce = useRef(false);
-
 
   useEffect(() => {
     if (!genresData && userId) {
@@ -22,7 +20,7 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
           setLoading(false);
         })
         .catch((err) => {
-          console.error("Failed to fetch genres:", err);
+          console.error('Failed to fetch genres:', err);
           setLoading(false);
         });
     }
@@ -53,7 +51,7 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
       .map(([name, data]) => ({
         name,
         value: data.portion,
-        gradient: data.gradient || "linear-gradient(to right, #666, #999)",
+        gradient: data.gradient || 'linear-gradient(to right, #666, #999)',
       }));
   }, [genresData]);
 
@@ -65,17 +63,23 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
   });
 
   const currentData = step === 0 ? metaGenres : subGenres;
-  const title = step === 0 ? "🎸 Top Genres" : "🧩 Top Sub-genres";
+  const title = step === 0 ? '🎸 Top Genres' : '🧩 Top Sub-genres';
 
   return (
-    <div {...handlers} className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300">
+    <div
+      {...handlers}
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 transition-colors duration-300"
+    >
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       {loading ? (
         <div className="text-sm text-gray-400">Loading genre data...</div>
       ) : !currentData.length ? (
         <div className="text-sm text-gray-400">No genre data available.</div>
       ) : step === 0 ? (
-        <GenreBarList data={metaGenres} baseDelay={shouldDelayGenres ? 0.4 : 0} />
+        <GenreBarList
+          data={metaGenres}
+          baseDelay={shouldDelayGenres ? 0.4 : 0}
+        />
       ) : (
         <SubGenreBarList data={subGenres} />
       )}
@@ -86,8 +90,8 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
             onClick={() => setStep(i)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               i === step
-                ? "bg-gray-800 dark:bg-white scale-110"
-                : "bg-gray-300 dark:bg-gray-600 scale-90"
+                ? 'bg-gray-800 dark:bg-white scale-110'
+                : 'bg-gray-300 dark:bg-gray-600 scale-90'
             }`}
           />
         ))}

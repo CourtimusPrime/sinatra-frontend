@@ -1,9 +1,11 @@
 // src/components/steps/NameEditor.jsx
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 function NameEditor({ user, onboardData, setOnboardData }) {
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(onboardData.display_name || user?.display_name || "");
+  const [name, setName] = useState(
+    onboardData.display_name || user?.display_name || ''
+  );
 
   const handleChange = (e) => {
     const newName = e.target.value;

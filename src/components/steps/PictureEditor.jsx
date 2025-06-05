@@ -1,9 +1,11 @@
 // src/components/steps/PictureEditor.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 function PictureEditor({ user, onboardData, setOnboardData, setCanProceed }) {
-  const [image, setImage] = useState(onboardData.profile_picture || user?.images?.[1]?.url || "");
-  const [original, setOriginal] = useState(user?.images?.[1]?.url || "");
+  const [image, setImage] = useState(
+    onboardData.profile_picture || user?.images?.[1]?.url || ''
+  );
+  const [original, setOriginal] = useState(user?.images?.[1]?.url || '');
 
   useEffect(() => {
     setCanProceed(true);
@@ -38,7 +40,7 @@ function PictureEditor({ user, onboardData, setOnboardData, setCanProceed }) {
         <div className="space-y-2">
           <button
             className="text-blue-600 underline"
-            onClick={() => document.getElementById("file-input").click()}
+            onClick={() => document.getElementById('file-input').click()}
           >
             Yeah let's change it 🤮
           </button>

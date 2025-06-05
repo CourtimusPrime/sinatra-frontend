@@ -162,7 +162,10 @@
   padding: 0.5rem;
   color: var(--text);
   cursor: pointer;
-  transition: background 0.2s, border 0.2s, transform 0.15s;
+  transition:
+    background 0.2s,
+    border 0.2s,
+    transform 0.15s;
 }
 
 .dark .playlist-card {
