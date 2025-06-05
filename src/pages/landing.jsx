@@ -43,9 +43,7 @@ function Landing() {
     document.cookie = `spotify_state=${state}; path=/; SameSite=None; Secure`;
 
     const isLocal = window.location.hostname === 'localhost';
-    const redirectUri = isLocal
-      ? import.meta.env.VITE_DEV_CALLBACK
-      : import.meta.env.VITE_PRO_CALLBACK;
+    const redirectUri = "https://api.sinatra.live/callback";
 
     const loginUrl = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}&redirect_uri=${encodeURIComponent(redirectUri)}`;
     window.location.href = loginUrl;
