@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier '**/*.{js,jsx,ts,tsx,json,css,md}' --write"
+    "format": "./format-all.sh"
   },
   "dependencies": {
     "@motionone/react": "^10.16.4",
