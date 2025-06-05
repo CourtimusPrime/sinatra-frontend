@@ -2,7 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/callback", "destination": "/" },
+    { "source": "/callback", "destination": "https://api.sinatra.live/callback" },
     { "source": "/@:user_id", "destination": "/" },
     { "source": "/u/:user_id", "destination": "/" },
     { "source": "/home", "destination": "/" },
