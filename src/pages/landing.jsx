@@ -9,42 +9,32 @@ function Landing() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get("user_id");
+    const cookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("sinatra_user_id="));
 
-    if (userId) {
-      fetch(`${import.meta.env.VITE_API_BASE_URL}/set-cookie`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ user_id: userId }),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to set cookie");
-          window.location.replace("/home");
-        })
-        .catch((err) => {
-          console.error("❌ Failed to set cookie:", err);
-        });
+    if (!cookie) {
+      console.log("🍪 sinatra_user_id cookie not found yet");
+      return;
     }
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("GET /me failed");
+        return res.json();
+      })
+      .then((data) => {
+        if (data?.user_id) {
+          console.log("✅ Authenticated as:", data.user_id);
+          navigate("/home");
+        }
+      })
+      .catch((err) => {
+        console.error("❌ /me failed:", err);
+      });
   }, []);
-
-  useEffect(() => {
-    if (user_id) {
-      fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
-        credentials: 'include',
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.user_id) {
-            navigate('/home');
-          }
-        })
-        .catch((err) => {
-          console.error('⛔ Landing redirect check failed:', err);
-        });
-    }
-  }, [user_id]);
 
   const handleLogin = () => {
     console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);
