@@ -29,7 +29,7 @@ function Landing() {
     console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);
     console.log('🧪 VITE_DEV_CALLBACK:', import.meta.env.VITE_DEV_CALLBACK);
     const state = crypto.randomUUID();
-    document.cookie = `spotify_state=${state}; path=/; SameSite=Lax`;
+    document.cookie = `spotify_state=${state}; path=/; SameSite=None`;
 
     const isLocal = window.location.hostname === 'localhost';
     const redirectUri = isLocal
