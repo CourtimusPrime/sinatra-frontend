@@ -3,6 +3,7 @@ import { RefreshCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from '@motionone/react';
 import { apiGet, apiPost } from '../utils/api';
+import { getMetaGenre, getMetaGradients } from '../utils/genreUtils';
 
 function cleanTrackName(name) {
   return name
@@ -22,6 +23,7 @@ function RecentlyPlayedCard() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [animateChange, setAnimateChange] = useState(false);
+  const [gradients, setGradients] = useState(null);
 
   const updateTrack = (newTrack) => {
     setAnimateChange(true);
@@ -82,6 +84,10 @@ function RecentlyPlayedCard() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    getMetaGradients().then(setGradients);
+  }, []);
+
   if (!track) return <div className="text-gray-400">No track data</div>;
 
   const getFreshnessLabel = (date) => {
@@ -138,13 +144,20 @@ function RecentlyPlayedCard() {
           >
             {cleanTrackName(track.name)}
           </p>
-          <p
-            className={`text-sm text-gray-200 ${
-              animateChange ? 'animate-fadein-slow' : ''
-            }`}
-          >
+          <p className={`text-sm text-gray-200 ${animateChange ? 'animate-fadein-slow' : ''}`}>
             {track.artist}
           </p>
+
+          {track.genres?.length > 0 && gradients && (
+            <span
+              className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full text-white shadow mt-1"
+              style={{
+                background: gradients[getMetaGenre(track.genres[0])],
+              }}
+            >
+              {track.genres[0]}
+            </span>
+          )}
         </div>
       </div>
 
