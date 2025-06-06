@@ -15,13 +15,14 @@ export async function apiGet(path, options = {}, retries = 3) {
       ...options,
     });
 
-    if (!res.ok) throw new Error(`GET ${path} failed`);
-    return await res.json();
+    const text = await res.text();
+    console.log(`[apiGet] Raw response for ${path}:`, text);
+
+    if (!res.ok) throw new Error(`GET ${path} failed (${res.status})`);
+
+    return JSON.parse(text);
   } catch (err) {
-    if (retries > 0) {
-      await new Promise((r) => setTimeout(r, 500));
-      return apiGet(path, options, retries - 1);
-    }
+    console.error(`Playback error: ${err}`);
     throw err;
   }
 }

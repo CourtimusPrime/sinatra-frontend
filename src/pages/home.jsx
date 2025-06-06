@@ -60,8 +60,8 @@ function Home() {
   async function loadNowPlaying() {
     setIsRefreshing(true);
     try {
-      const data = await apiGet(`/playback`);
-      const latestTrack = data?.playback?.track;
+      const data = await apiGet(`/recently-played`);
+      const latestTrack = data?.track;
       if (!latestTrack) return;
 
       const isSameTrack = JSON.stringify(latestTrack) === JSON.stringify(track);
@@ -77,7 +77,7 @@ function Home() {
         setTimeout(() => setAnimateTrackChange(false), 500);
       }
     } catch (err) {
-      console.error('Playback error:', err);
+      console.error('Recently played error:', err);
     } finally {
       setTimeout(() => setIsRefreshing(false), 600);
     }
