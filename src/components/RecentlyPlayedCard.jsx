@@ -1,7 +1,8 @@
 // frontend/src/components/RecentlyPlayedCard.jsx
 import { RefreshCcw } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from '@motionone/react';
+import { apiGet, apiPost } from '../utils/api';
 
 function cleanTrackName(name) {
   return name
@@ -16,19 +17,78 @@ function cleanTrackName(name) {
     .trim();
 }
 
-function RecentlyPlayedCard({
-  track,
-  lastUpdated,
-  onRefresh,
-  animateChange,
-  isRefreshing,
-}) {
+function RecentlyPlayedCard() {
+  const [track, setTrack] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [animateChange, setAnimateChange] = useState(false);
+
+  const updateTrack = (newTrack) => {
+    setAnimateChange(true);
+    setTrack(newTrack);
+    setLastUpdated(new Date().toISOString());
+    setTimeout(() => setAnimateChange(false), 1000);
+  };
+
+  const fetchInitial = async () => {
+    try {
+      const me = await apiGet('/me');
+      if (me.last_played_track) {
+        updateTrack(me.last_played_track);
+        return;
+      }
+
+      const now = await apiGet('/now-playing');
+      if (now.track) {
+        updateTrack(now.track);
+        await apiPost('/update-playing');
+        return;
+      }
+
+      const recent = await apiGet('/recently-played');
+      if (recent.track) updateTrack(recent.track);
+    } catch (err) {
+      console.error('🎵 Init error:', err);
+    }
+  };
+
+  const refresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const now = await apiGet('/now-playing');
+      if (!now.track) return;
+
+      const recent = await apiGet('/check-recent');
+      const recentTrack = recent.track?.track || recent.track;
+      const nowTrack = now.track;
+
+      if (!recentTrack || nowTrack.id !== recentTrack.id) {
+        // Update DB in the background, but show nowTrack immediately
+        updateTrack(nowTrack);
+        apiPost('/update-playing').catch((err) =>
+          console.error('❌ Failed to update track in DB:', err)
+        );
+      }
+    } catch (err) {
+      console.error('🎵 Refresh error:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitial();
+    const interval = setInterval(refresh, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!track) return <div className="text-gray-400">No track data</div>;
+
   const getFreshnessLabel = (date) => {
     if (!date) return null;
     const now = new Date();
     const diffMs = now - new Date(date);
     const diffMin = Math.floor(diffMs / 60000);
-
     if (diffMin < 1) return 'just now';
     if (diffMin === 1) return '1m ago';
     return `${diffMin}m ago`;
@@ -57,10 +117,8 @@ function RecentlyPlayedCard({
         willChange: 'opacity, transform',
       }}
     >
-      {/* 🔲 Blur overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-sm" />
 
-      {/* 🎵 Main content */}
       <div className="relative z-10 p-4 flex flex-col gap-2 text-white dark:text-white">
         <h2 className="text-lg sm:text-base font-semibold flex items-center gap-2">
           🎧 Recently Played
@@ -90,10 +148,9 @@ function RecentlyPlayedCard({
         </div>
       </div>
 
-      {/* 🔁 Refresh button in bottom-right corner */}
       <div className="absolute bottom-2 right-2 z-20">
         <button
-          onClick={onRefresh}
+          onClick={refresh}
           className={`text-white hover:text-gray-300 transition-colors ${
             isRefreshing ? 'animate-spin-once' : ''
           }`}

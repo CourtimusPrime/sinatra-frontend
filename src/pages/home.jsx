@@ -48,15 +48,6 @@ function Home() {
     setShowSkeleton(false);
   }, [user, loading]);
 
-  useEffect(() => {
-    const nowPlayingInterval = setInterval(loadNowPlaying, 30000);
-    const refreshSessionInterval = setInterval(refreshSession, 5 * 60 * 1000);
-    return () => {
-      clearInterval(nowPlayingInterval);
-      clearInterval(refreshSessionInterval);
-    };
-  }, []);
-
   async function loadNowPlaying() {
     setIsRefreshing(true);
     try {
@@ -152,21 +143,13 @@ function Home() {
       </motion.div>
 
       {/* Recently Played */}
-      {track && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
-        >
-          <RecentlyPlayedCard
-            track={track}
-            lastUpdated={lastUpdated}
-            onRefresh={loadNowPlaying}
-            animateChange={animateTrackChange}
-            isRefreshing={isRefreshing}
-          />
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+      >
+        <RecentlyPlayedCard />
+      </motion.div>
 
       {/* Music Taste */}
       <motion.div
