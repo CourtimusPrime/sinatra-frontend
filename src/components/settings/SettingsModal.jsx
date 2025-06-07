@@ -15,6 +15,7 @@ function SettingsModal({
   onDelete,
   user_id,
   onSave,
+  setUser,
 }) {
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPlaylistEditorOpen, setPlaylistEditorOpen] = useState(false);
@@ -177,6 +178,8 @@ function SettingsModal({
         isOpen={isPlaylistEditorOpen}
         onClose={() => setPlaylistEditorOpen(false)}
         user_id={user_id}
+        onSave={onSave}
+        setUser={setUser}
       />
     </>
   );

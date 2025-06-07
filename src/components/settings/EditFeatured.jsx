@@ -5,7 +5,7 @@ import GlintBox from '../GlintBox';
 import PlaylistCardMini from '../PlaylistCardMini';
 import CloseButton from '../ui/CloseButton';
 
-function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
+function EditFeaturedModal({ isOpen, onClose, user_id, onSave, setUser }) {
   const [allPlaylists, setAllPlaylists] = useState([]);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState('');
@@ -37,11 +37,24 @@ function EditFeaturedModal({ isOpen, onClose, user_id, onSave }) {
   };
 
   const handleSave = () => {
+    if (!user_id) {
+      console.error('❌ Cannot update featured: user_id is missing');
+      return;
+    }
+
     apiPost('/update-featured', {
       user_id,
       playlist_ids: selected,
     })
       .then(() => {
+        setUser((prev) => ({
+          ...prev,
+          playlists: {
+            ...prev.playlists,
+            featured: allPlaylists.filter((p) => selected.includes(p.id)),
+          },
+        }));
+
         onSave();
         onClose();
       })

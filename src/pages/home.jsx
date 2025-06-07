@@ -1,78 +1,85 @@
 // src/pages/home.jsx
-import React, { useEffect, useState, useRef, lazy, Suspense } from 'react';
-import { useUser } from '../context/UserContext';
+import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import { apiGet, apiDelete } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
+import { motion } from '@motionone/react';
+
 import UserHeader from '../components/UserHeader';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
-import '../styles/loader.css';
-import { motion } from '@motionone/react';
 import FeaturedPlaylists from '../components/FeaturedPlaylists';
-import { useMemo } from 'react';
+import '../styles/loader.css';
 
 const MusicTaste = lazy(() => import('../components/music/MusicTaste'));
-const SettingsModal = lazy(
-  () => import('../components/settings/SettingsModal')
-);
+const SettingsModal = lazy(() => import('../components/settings/SettingsModal'));
 const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 
 function Home() {
   const navigate = useNavigate();
   const { user, user_id, loading, setUser } = useUser();
+
   const [track, setTrack] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [playlists, setPlaylists] = useState([]);
+  const [genresData, setGenresData] = useState(null);
+  const [copied, setCopied] = useState(false);
+
   const [isAllModalOpen, setAllModalOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
-  const [genresData, setGenresData] = useState(null);
-  const [showSkeleton, setShowSkeleton] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const featuredPlaylists = useMemo(() => {
-    return (user?.playlists?.featured || []).slice(0, 3);
-  }, [user?.playlists?.featured]);
 
+  const featuredPlaylists = useMemo(
+    () => (user?.playlists?.featured || []).slice(0, 3),
+    [user?.playlists?.featured]
+  );
+
+  // 🧠 Fetch genre data
   useEffect(() => {
     apiGet("/genres")
-      .then((res) => {
-        setGenresData(res);
-      })
-      .catch((err) => {
-        console.error("Failed to load genres:", err);
-      });
+      .then(setGenresData)
+      .catch((err) => console.error("Failed to load genres:", err));
   }, []);
 
-  useEffect(() => {
-    if (!loading && !user) return null;
-  }, [loading, user]);
-
+  // 🎵 Load last played track
   useEffect(() => {
     if (!user || loading) return;
     setTrack(user.last_played_track?.track || null);
     const last = localStorage.getItem('last_played_updated_at');
     if (last) setLastUpdated(new Date(last));
-    setShowSkeleton(false);
   }, [user, loading]);
+
+  // 📦 Load playlists only from /dashboard
+  useEffect(() => {
+    if (!user_id) return;
+
+    apiGet('/dashboard')
+      .then((res) => {
+        setUser(prev => ({
+          ...prev,
+          playlists: res.playlists,
+          genres: res.genres,
+          last_played: res.last_played,
+        }));
+      })
+      .catch((err) => {
+        console.error('Failed to fetch /dashboard:', err);
+      });
+  }, [user_id]);
 
   async function loadNowPlaying() {
     setIsRefreshing(true);
     try {
-      const data = await apiGet(`/recently-played`);
-      const latestTrack = data?.track;
+      const { track: latestTrack } = await apiGet(`/recently-played`);
       if (!latestTrack) return;
 
-      const isSameTrack = JSON.stringify(latestTrack) === JSON.stringify(track);
-      if (!isSameTrack) {
+      const isSame = JSON.stringify(latestTrack) === JSON.stringify(track);
+      if (!isSame) {
         setAnimateTrackChange(true);
         setTrack(latestTrack);
         setLastUpdated(new Date());
         localStorage.setItem('last_played_track', JSON.stringify(latestTrack));
-        localStorage.setItem(
-          'last_played_updated_at',
-          new Date().toISOString()
-        );
+        localStorage.setItem('last_played_updated_at', new Date().toISOString());
         setTimeout(() => setAnimateTrackChange(false), 500);
       }
     } catch (err) {
@@ -106,15 +113,20 @@ function Home() {
     }
   }
 
-  if (showSkeleton) {
-    return <div className="max-w-md w-full mx-auto p-4 space-y-6"></div>;
+  const isReady = user && genresData && !loading;
+  if (!isReady) {
+    return (
+      <div className="loader-container">
+        <div className="loader" />
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-md w-full mx-auto p-4">
-      {/* Share + Settings */}
+    <div className="max-w-md w-full mx-auto p-4 space-y-4">
+      {/* 🔗 Share + ⚙️ Settings */}
       <motion.div
-        className="flex justify-between mb-2"
+        className="flex justify-between"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -122,18 +134,12 @@ function Home() {
         {user?.user_id && (
           <button
             onClick={() => {
-              navigator.clipboard.writeText(
-                `https://sinatra.live/u/${user.user_id}`
-              );
+              navigator.clipboard.writeText(`https://sinatra.live/u/${user.user_id}`);
               setCopied(true);
               setTimeout(() => setCopied(false), 1500);
             }}
           >
-            {copied ? (
-              <span className="text-xs font-semibold">✅</span>
-            ) : (
-              <Share className="w-5 h-5" />
-            )}
+            {copied ? <span className="text-xs font-semibold">✅</span> : <Share className="w-5 h-5" />}
           </button>
         )}
         <button onClick={() => setSettingsOpen(true)}>
@@ -141,7 +147,7 @@ function Home() {
         </button>
       </motion.div>
 
-      {/* User Header */}
+      {/* 🧑‍🎤 User Header */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -150,63 +156,60 @@ function Home() {
         <UserHeader userState={user} genresData={genresData} />
       </motion.div>
 
-      {/* Recently Played */}
+      {/* 🎧 Recently Played */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+        transition={{ delay: 0.3 }}
       >
-        <RecentlyPlayedCard />
+        <RecentlyPlayedCard
+          track={track}
+          lastUpdated={lastUpdated}
+          isRefreshing={isRefreshing}
+          animateTrackChange={animateTrackChange}
+          onRefresh={loadNowPlaying}
+        />
       </motion.div>
 
-      {/* Music Taste */}
+      {/* 🎼 Music Taste */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Suspense
-          fallback={
-            <div className="text-center text-sm text-gray-400">
-              Loading music taste...
-            </div>
-          }
-        >
-          <MusicTaste
-            genresData={user?.genre_analysis}
-            userId={user?.user_id}
-          />
+        <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
+          <MusicTaste genresData={genresData} userId={user?.user_id} />
         </Suspense>
       </motion.div>
 
-      {/* Featured Playlists */}
+      {/* 📻 Featured Playlists */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <FeaturedPlaylists
-          playlists={featuredPlaylists}
-          onSeeAll={() => setAllModalOpen(true)}
-        />
+        <FeaturedPlaylists playlists={featuredPlaylists} onSeeAll={() => setAllModalOpen(true)} />
       </motion.div>
 
-      {/* Modals */}
+      {/* ⚙️ Modals */}
       <Suspense fallback={null}>
         {isAllModalOpen && (
           <AllPlaylistsModal
-            isOpen={true}
+            isOpen
             onClose={() => setAllModalOpen(false)}
+            playlists={user?.playlists?.all || []}
             user={user}
           />
         )}
         {isSettingsOpen && (
           <SettingsModal
-            isOpen={true}
+            isOpen
             onClose={() => setSettingsOpen(false)}
             onLogout={logout}
             onDelete={deleteAccount}
             user={user}
+            user_id={user?.user_id}
+            setUser={setUser}
           />
         )}
       </Suspense>

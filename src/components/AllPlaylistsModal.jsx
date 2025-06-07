@@ -7,42 +7,20 @@ import PlaylistCardMini from './PlaylistCardMini';
 import { normalizePlaylist } from '../utils/normalize';
 import CloseButton from './ui/CloseButton';
 
-function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
+function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
   const [isVisible, setIsVisible] = useState(isOpen);
-  const [allPlaylists, setAllPlaylists] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     let timer;
     if (isOpen) {
       setIsVisible(true);
-      fetchPlaylists();
     } else {
       timer = setTimeout(() => setIsVisible(false), 250);
     }
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  const fetchPlaylists = async () => {
-    setLoading(true);
-    try {
-      let res;
-      if (user_id) {
-        res = await apiGet(`/user-playlists?user_id=${user_id}`);
-      } else {
-        res = await apiGet(`/dashboard`);
-      }
-
-      const raw = res?.playlists || [];
-      setAllPlaylists(raw.map(normalizePlaylist));
-    } catch (err) {
-      console.error('❌ Failed to fetch all playlists', err);
-      setAllPlaylists([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const allPlaylists = playlists.map(normalizePlaylist);
+  
   if (!isVisible) return null;
 
   return (
@@ -61,20 +39,7 @@ function AllPlaylistsModal({ isOpen, onClose, user_id, user }) {
           </h2>
 
           <div className="flex flex-col gap-3">
-            {loading ? (
-              [...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 p-2 rounded animate-pulse"
-                >
-                  <GlintBox width="w-14" height="h-14" rounded="rounded" />
-                  <div className="flex flex-col gap-2 flex-1">
-                    <GlintBox width="w-3/4" height="h-4" />
-                    <GlintBox width="w-1/2" height="h-3" />
-                  </div>
-                </div>
-              ))
-            ) : allPlaylists.length === 0 ? (
+            {allPlaylists.length === 0 ? (
               <p className="text-center text-gray-500 text-sm">
                 Update playlists from Settings to create your collection!
               </p>

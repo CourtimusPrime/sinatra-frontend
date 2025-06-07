@@ -26,10 +26,23 @@ function EditPlaylistsModal({ isOpen, onClose }) {
     setLoading(true);
     setError(null);
     try {
-      await apiPost('/admin/sync_playlists', {});
+      // Call sync to fetch new playlists from Spotify
+      await apiPost(`/admin/sync_playlists?user_id=${user_id}`, {});
+
+      // Reset playlist state
       setAllSpotifyPlaylists([]);
       setPaginatedOffset(0);
-      loadMorePlaylists();
+
+      // Refetch the updated synced playlists from MongoDB
+      const res = await apiGet(
+        `/synced-playlists/paginated?user_id=${user_id}&offset=0&limit=50`
+      );
+      const newPlaylists = Array.isArray(res.playlists)
+        ? res.playlists.map(normalizePlaylist)
+        : [];
+      setAllSpotifyPlaylists(newPlaylists);
+      setTotalAvailable(res.total);
+      setPaginatedOffset(50);
     } catch (err) {
       console.error('❌ Refresh failed', err);
       setError('Failed to refresh playlists.');
@@ -103,8 +116,12 @@ function EditPlaylistsModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const importedIds = new Set(importedPlaylists.map((p) => p.playlist_id || p.id));
+
   const displayedPlaylists =
-    tab === 'add' ? allSpotifyPlaylists : importedPlaylists;
+    tab === 'add'
+      ? allSpotifyPlaylists.filter((p) => !importedIds.has(p.playlist_id || p.id))
+      : importedPlaylists;
 
   const filteredPlaylists = displayedPlaylists
     .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
@@ -121,9 +138,28 @@ function EditPlaylistsModal({ isOpen, onClose }) {
         transition={{ duration: 0.25 }}
       >
         <div className="mb-4 space-y-2">
-          <h2 className="text-lg font-bold">
-            🔄 {tab === 'add' ? 'Add Playlists' : 'Remove Playlists'}
-          </h2>
+          <div className="flex gap-2 mb-2">
+            <button
+              onClick={() => setTab('add')}
+              className={`flex-1 py-2 rounded font-bold text-sm ${
+                tab === 'add'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white'
+              }`}
+            >
+              ➕ Add Playlists
+            </button>
+            <button
+              onClick={() => setTab('remove')}
+              className={`flex-1 py-2 rounded font-bold text-sm ${
+                tab === 'remove'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white'
+              }`}
+            >
+              🗑️ Remove Playlists
+            </button>
+          </div>
 
           {tab === 'add' && (
             <div className="flex gap-2">
@@ -192,7 +228,7 @@ function EditPlaylistsModal({ isOpen, onClose }) {
           )}
         </div>
 
-        {!search && allSpotifyPlaylists.length < totalAvailable && (
+        {tab === 'add' && !search && allSpotifyPlaylists.length < totalAvailable && (
           <button
             onClick={loadMorePlaylists}
             className="mt-4 w-full px-4 py-2 text-sm rounded bg-gray-100 dark:bg-gray-700"
