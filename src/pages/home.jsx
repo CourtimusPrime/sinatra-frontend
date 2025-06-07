@@ -20,7 +20,6 @@ const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 function Home() {
   const navigate = useNavigate();
   const { user, user_id, loading, setUser } = useUser();
-  const [genresData, setGenresData] = useState(null);
   const [track, setTrack] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [playlists, setPlaylists] = useState([]);
@@ -28,6 +27,7 @@ function Home() {
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [animateTrackChange, setAnimateTrackChange] = useState(false);
+  const [genresData, setGenresData] = useState(null);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [copied, setCopied] = useState(false);
   const featuredPlaylists = useMemo(() => {
@@ -35,13 +35,21 @@ function Home() {
   }, [user?.playlists?.featured]);
 
   useEffect(() => {
+    apiGet("/genres")
+      .then((res) => {
+        setGenresData(res);
+      })
+      .catch((err) => {
+        console.error("Failed to load genres:", err);
+      });
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user) return null;
   }, [loading, user]);
 
   useEffect(() => {
     if (!user || loading) return;
-
-    setGenresData(user.genre_analysis || {});
     setTrack(user.last_played_track?.track || null);
     const last = localStorage.getItem('last_played_updated_at');
     if (last) setLastUpdated(new Date(last));

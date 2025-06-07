@@ -19,40 +19,17 @@ function EditPlaylistsModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [sortDesc, setSortDesc] = useState(true);
+  const [paginatedOffset, setPaginatedOffset] = useState(0);
+  const [totalAvailable, setTotalAvailable] = useState(null);
 
   const handleRefresh = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      await apiPost('/admin/sync_playlists', {}); // triggers backend sync
-      const [syncedRes, dashboardRes] = await Promise.all([
-        apiGet('/synced-playlists'),
-        apiGet('/dashboard'),
-      ]);
-
-      const syncedPlaylistsRaw = Array.isArray(syncedRes.playlists)
-        ? syncedRes.playlists
-        : [];
-
-      const mongoPlaylistsRaw = Array.isArray(dashboardRes.playlists?.all)
-        ? dashboardRes.playlists.all
-        : [];
-
-      const imported = mongoPlaylistsRaw.map(normalizePlaylist);
-      setImportedPlaylists(imported);
-
-      const importedIds = new Set(imported.map((p) => p.playlist_id));
-      const all = syncedPlaylistsRaw.map(normalizePlaylist);
-
-      const unimported = all.filter(
-        (p) =>
-          !importedIds.has(p.playlist_id) &&
-          typeof p.image === 'string' &&
-          p.image.trim() !== ''
-      );
-
-      setAllSpotifyPlaylists(unimported);
+      await apiPost('/admin/sync_playlists', {});
+      setAllSpotifyPlaylists([]);
+      setPaginatedOffset(0);
+      loadMorePlaylists();
     } catch (err) {
       console.error('❌ Refresh failed', err);
       setError('Failed to refresh playlists.');
@@ -61,53 +38,39 @@ function EditPlaylistsModal({ isOpen, onClose }) {
     }
   };
 
+  const loadMorePlaylists = async () => {
+    try {
+      const res = await apiGet(
+        `/synced-playlists/paginated?user_id=${user_id}&offset=${paginatedOffset}&limit=50`
+      );
+      const newPlaylists = Array.isArray(res.playlists)
+        ? res.playlists.map(normalizePlaylist)
+        : [];
+      setAllSpotifyPlaylists((prev) => [...prev, ...newPlaylists]);
+      setPaginatedOffset((prev) => prev + 50);
+      setTotalAvailable(res.total);
+    } catch (err) {
+      console.error('❌ Failed to load more playlists', err);
+    }
+  };
+
   useEffect(() => {
     if (!isOpen) return;
-
-    const fetchPlaylists = async () => {
-      setLoading(true);
-      setSelectedIds([]);
-      setError(null);
-
-      try {
-        const [syncedRes, dashboardRes] = await Promise.all([
-          apiGet('/synced-playlists'),
-          apiGet('/dashboard'),
-        ]);
-
-        const syncedPlaylistsRaw = Array.isArray(syncedRes.playlists)
-          ? syncedRes.playlists
+    setAllSpotifyPlaylists([]);
+    setPaginatedOffset(0);
+    setSearch('');
+    setSelectedIds([]);
+    setError(null);
+    loadMorePlaylists();
+    apiGet('/dashboard')
+      .then((res) => {
+        const mongoPlaylistsRaw = Array.isArray(res.playlists?.all)
+          ? res.playlists.all
           : [];
-
-        const mongoPlaylistsRaw = Array.isArray(dashboardRes.playlists?.all)
-          ? dashboardRes.playlists.all
-          : [];
-
         const imported = mongoPlaylistsRaw.map(normalizePlaylist);
         setImportedPlaylists(imported);
-
-        const importedIds = new Set(imported.map((p) => p.playlist_id));
-        const all = syncedPlaylistsRaw.map(normalizePlaylist);
-
-        const unimported = all.filter(
-          (p) =>
-            !importedIds.has(p.playlist_id) &&
-            typeof p.image === 'string' &&
-            p.image.trim() !== ''
-        );
-
-        setAllSpotifyPlaylists(unimported);
-      } catch (err) {
-        console.error('❌ Failed to load playlists', err);
-        setError('Failed to load playlists.');
-        setAllSpotifyPlaylists([]);
-        setImportedPlaylists([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlaylists();
+      })
+      .catch(() => setImportedPlaylists([]));
   }, [isOpen, user_id]);
 
   const handleSave = async () => {
@@ -115,32 +78,20 @@ function EditPlaylistsModal({ isOpen, onClose }) {
     setLoading(true);
 
     try {
-      if (tab === 'add') {
-        const selectedPlaylists = allSpotifyPlaylists
-          .filter((p) => {
-            const id = p.playlist_id || p.id;
-            return selectedIds.includes(id);
-          })
-          .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
-          .map((p) => {
-            const id = p.playlist_id || p.id;
-            return { id };
-          });
+      const targetPlaylists =
+        tab === 'add'
+          ? allSpotifyPlaylists.filter((p) => selectedIds.includes(p.playlist_id || p.id))
+          : importedPlaylists.filter((p) => selectedIds.includes(p.playlist_id || p.id));
 
-        console.log('Sending to /add-playlists:', selectedPlaylists);
-        await apiPost('/add-playlists', {
-          user_id,
-          playlists: selectedPlaylists,
-        });
-      } else {
-        const selectedPlaylists = allSpotifyPlaylists
-          .filter((p) => selectedIds.includes(p.playlist_id))
-          .map((p) => ({ id: p.playlist_id }));
-        await apiPost('/delete-playlists', {
-          user_id,
-          playlists: selectedPlaylists,
-        });
-      }
+      const payload = targetPlaylists.map((p) => ({ id: p.playlist_id || p.id }));
+      const endpoint = tab === 'add' ? '/add-playlists' : '/delete-playlists';
+
+      console.log("📤 Submitting:", {
+        endpoint,
+        playlists: payload,
+      });
+
+      await apiPost(endpoint, { playlists: payload }); // ✅ no user_id here
       onClose();
     } catch (err) {
       console.error('❌ Save failed:', err);
@@ -152,7 +103,14 @@ function EditPlaylistsModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const playlists = tab === 'add' ? importedPlaylists : allSpotifyPlaylists;
+  const displayedPlaylists =
+    tab === 'add' ? allSpotifyPlaylists : importedPlaylists;
+
+  const filteredPlaylists = displayedPlaylists
+    .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) =>
+      sortDesc ? (b.tracks || 0) - (a.tracks || 0) : (a.tracks || 0) - (b.tracks || 0)
+    );
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -186,33 +144,10 @@ function EditPlaylistsModal({ isOpen, onClose }) {
                 disabled={loading}
                 className="px-3 py-2 rounded bg-blue-100 dark:bg-blue-700 text-sm text-blue-800 dark:text-white"
               >
-                🔄 Refresh from Spotify
+                🔄 Refresh
               </button>
             </div>
           )}
-        </div>
-
-        <div className="flex space-x-2 mb-4">
-          <button
-            onClick={() => setTab('add')}
-            className={`px-4 py-2 rounded ${
-              tab === 'add'
-                ? 'bg-green-500 text-white'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-            }`}
-          >
-            ➕ Add
-          </button>
-          <button
-            onClick={() => setTab('remove')}
-            className={`px-4 py-2 rounded ${
-              tab === 'remove'
-                ? 'bg-red-500 text-white'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-            }`}
-          >
-            ➖ Remove
-          </button>
         </div>
 
         {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
@@ -231,50 +166,40 @@ function EditPlaylistsModal({ isOpen, onClose }) {
                 </div>
               </div>
             ))
-          ) : playlists.length === 0 ? (
+          ) : filteredPlaylists.length === 0 ? (
             <p className="text-sm text-center col-span-2 text-gray-400">
-              {tab === 'add'
-                ? 'No new playlists to add.'
-                : 'No imported playlists to remove.'}
+              No matching playlists.
             </p>
           ) : (
-            (() => {
-              const seen = new Set();
-              return [...playlists]
-                .filter((p) => {
-                  const id = p.playlist_id || p.id;
-                  if (!id || seen.has(id)) return false;
-                  seen.add(id);
-                  return p.name.toLowerCase().includes(search.toLowerCase());
-                })
-                .sort((a, b) =>
-                  sortDesc
-                    ? (b.tracks || 0) - (a.tracks || 0)
-                    : (a.tracks || 0) - (b.tracks || 0)
-                )
-                .map((p, i) => {
-                  const id = p.playlist_id || p.id;
-                  return (
-                    <PlaylistCardMini
-                      key={id}
-                      playlist={p}
-                      index={i}
-                      onClick={() =>
-                        setSelectedIds((prev) =>
-                          prev.includes(id)
-                            ? prev.filter((i) => i !== id)
-                            : [...prev, id]
-                        )
-                      }
-                      isSelected={selectedIds.includes(id)}
-                      selectable
-                      showTracks
-                    />
-                  );
-                });
-            })()
+            filteredPlaylists.map((p, i) => {
+              const id = p.playlist_id || p.id;
+              return (
+                <PlaylistCardMini
+                  key={id}
+                  playlist={p}
+                  index={i}
+                  onClick={() =>
+                    setSelectedIds((prev) =>
+                      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+                    )
+                  }
+                  isSelected={selectedIds.includes(id)}
+                  selectable
+                  showTracks
+                />
+              );
+            })
           )}
         </div>
+
+        {!search && allSpotifyPlaylists.length < totalAvailable && (
+          <button
+            onClick={loadMorePlaylists}
+            className="mt-4 w-full px-4 py-2 text-sm rounded bg-gray-100 dark:bg-gray-700"
+          >
+            Load More ({allSpotifyPlaylists.length}/{totalAvailable})
+          </button>
+        )}
 
         <div className="sticky bottom-0 left-0 bg-white dark:bg-gray-800 border-t mt-4 pt-3 pb-4 px-6 flex gap-2 z-10">
           <CloseButton onClick={onClose} className="flex-1" />

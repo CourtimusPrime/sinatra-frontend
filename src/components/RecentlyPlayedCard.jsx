@@ -88,7 +88,7 @@ function RecentlyPlayedCard() {
     getMetaGradients().then(setGradients);
   }, []);
 
-  if (!track) return <div className="text-gray-400">No track data</div>;
+  if (!track) return <div className="text-gray-400"></div>;
 
   const getFreshnessLabel = (date) => {
     if (!date) return null;

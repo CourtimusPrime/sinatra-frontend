@@ -35,12 +35,12 @@ export default function PublicProfile() {
 
         setProfile({
           ...userData,
+          profile_image_url: userData.profile_picture, // ✅ normalized key
           featured_playlists: Array.isArray(userData.featured_playlists)
             ? userData.featured_playlists.map(normalizePlaylist)
             : [],
         });
 
-        // ✅ Only show CTA if viewer is not logged in
         if (!isLoggedIn) {
           setTimeout(() => setShowCTA(true), 1500);
         }
@@ -86,14 +86,7 @@ export default function PublicProfile() {
         </button>
       </div>
 
-      <UserHeader
-        userState={{
-          user_id,
-          display_name,
-          profile_picture,
-        }}
-        genresData={genres_data}
-      />
+      <UserHeader userState={profile} genresData={genres_data} />
 
       {last_played_track && (
         <RecentlyPlayedCard
