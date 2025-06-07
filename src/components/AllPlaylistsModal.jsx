@@ -9,6 +9,7 @@ import CloseButton from './ui/CloseButton';
 
 function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
   const [isVisible, setIsVisible] = useState(isOpen);
+  const [searchQuery, setSearchQuery] = useState('');
   useEffect(() => {
     let timer;
     if (isOpen) {
@@ -19,7 +20,11 @@ function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  const allPlaylists = playlists.map(normalizePlaylist);
+  const filteredPlaylists = playlists
+  .map(normalizePlaylist)
+  .filter((pl) =>
+    pl.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   
   if (!isVisible) return null;
 
@@ -37,14 +42,21 @@ function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
           <h2 className="text-xl font-bold mb-4 text-center">
             📚 {user?.display_name || 'Your'}'s Collection
           </h2>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search playlists..."
+            className="w-full mb-4 px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
           <div className="flex flex-col gap-3">
-            {allPlaylists.length === 0 ? (
+            {filteredPlaylists.length === 0 ? (
               <p className="text-center text-gray-500 text-sm">
-                Update playlists from Settings to create your collection!
+                No playlists found.
               </p>
             ) : (
-              [...allPlaylists]
+              [...filteredPlaylists]
                 .sort((a, b) => (b.tracks || 0) - (a.tracks || 0))
                 .map((p, i) => (
                   <PlaylistCardMini
