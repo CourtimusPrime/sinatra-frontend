@@ -11,6 +11,7 @@
     "format": "./format-all.sh"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.14.0",
     "@motionone/react": "^10.16.4",
     "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",
