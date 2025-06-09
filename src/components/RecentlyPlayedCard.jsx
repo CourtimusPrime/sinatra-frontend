@@ -48,7 +48,10 @@ function RecentlyPlayedCard() {
       }
 
       const recent = await apiGet('/recently-played');
-      if (recent.track) updateTrack(recent.track);
+      if (recent.track) {
+        updateTrack(recent.track);
+        await apiPost('/update-playing'); // ✅ Save the recent track to DB
+      }
     } catch (err) {
       console.error('🎵 Init error:', err);
     }

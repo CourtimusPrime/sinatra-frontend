@@ -20,8 +20,11 @@ function Home() {
   const navigate = useNavigate();
   const { user, user_id, loading, setUser } = useUser();
 
-  const [track, setTrack] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [track, setTrack] = useState(user?.last_played || null);
+  const [lastUpdated, setLastUpdated] = useState(() => {
+    const localTime = localStorage.getItem('last_played_updated_at');
+    return localTime ? new Date(localTime) : user?.last_played?.timestamp ? new Date(user.last_played.timestamp) : null;
+  });
   const [genresData, setGenresData] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -45,7 +48,12 @@ function Home() {
   // 🎵 Load last played track
   useEffect(() => {
     if (!user || loading) return;
-    setTrack(user.last_played_track?.track || null);
+
+    if (user.last_played) {
+      setTrack(user.last_played);
+      setLastUpdated(new Date(user.last_played.timestamp || Date.now()));
+    }
+
     const last = localStorage.getItem('last_played_updated_at');
     if (last) setLastUpdated(new Date(last));
   }, [user, loading]);
