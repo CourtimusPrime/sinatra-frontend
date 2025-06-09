@@ -5,6 +5,7 @@ import { useUser } from '../context/UserContext';
 import { apiGet, apiDelete } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
 import { motion } from '@motionone/react';
+import { apiLogout } from '../utils/api';
 
 import UserHeader from '../components/UserHeader';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
@@ -98,9 +99,15 @@ function Home() {
     }
   }
 
-  function logout() {
-    localStorage.clear();
-    window.location.href = '/';
+  async function logout() {
+    try {
+      await apiLogout(); // ✅ clears the cookie from backend
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+
+    localStorage.clear(); // 🧹 clear any cached frontend data
+    window.location.href = '/'; // 🔁 hard reset to landing
   }
 
   async function deleteAccount() {
