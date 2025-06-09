@@ -8,30 +8,13 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const pathname = window.location.pathname;
-  const isPublicProfile = pathname.startsWith('/@');
-
-  useEffect(() => {
-    if (isPublicProfile) {
-      setLoading(false);
-      return;
-    }
-
-    apiGet('/me')
-      .then((data) => {
-        if (data?.user_id) {
-          setUser(data);
-        } else {
-          setUser(null);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('❌ /me failed:', err);
-        setUser(null);
-        setLoading(false);
-      });
-  }, []);
+  function login(user_id) {
+    apiGet(`/me?user_id=${user_id}`).then((data) => {
+      if (data) setUser(data);
+      document.cookie = `sinatra_user_id=${user_id}`
+      console.log("✅ Authenticated as:", data.user_id);
+    }).then(() => setLoading(false))
+  }
 
   const user_id = user?.user_id;
   const importantPlaylists = user?.important_playlists || [];
@@ -41,6 +24,7 @@ export function UserProvider({ children }) {
       value={{
         user,
         setUser,
+        login,
         user_id,
         loading,
         importantPlaylists,
@@ -51,4 +35,6 @@ export function UserProvider({ children }) {
   );
 }
 
-export const useUser = () => useContext(UserContext);
+export const useUser = () => {
+  return useContext(UserContext)
+}

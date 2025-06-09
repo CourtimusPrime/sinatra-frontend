@@ -5,36 +5,26 @@ import { useNavigate } from 'react-router-dom';
 import Spotify from '../assets/spotify.svg';
 
 function Landing() {
-  const { user_id } = useUser();
   const navigate = useNavigate();
+  const { login, loading } = useUser();
+
+  const cookie = document.cookie
+    .split(";")
+    .find((row) => row.startsWith("sinatra_user_id=")).split("=").pop();
 
   useEffect(() => {
-    const cookie = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("sinatra_user_id="));
+    if (loading) {
+      if (!cookie) {
+        console.log("🍪 sinatra_user_id cookie not found yet");
+        return;
+      }
 
-    if (!cookie) {
-      console.log("🍪 sinatra_user_id cookie not found yet");
-      return;
+      login(cookie)
     }
-
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("GET /me failed");
-        return res.json();
-      })
-      .then((data) => {
-        if (data?.user_id) {
-          console.log("✅ Authenticated as:", data.user_id);
-          navigate("/home");
-        }
-      })
-      .catch((err) => {
-        console.error("❌ /me failed:", err);
-      });
-  }, []);
+    else {
+      navigate("/home")
+    }
+  }, [loading]);
 
   const handleLogin = () => {
     console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);

@@ -1,6 +1,6 @@
 // src/pages/home.jsx
 import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { apiGet, apiDelete, apiPost } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
@@ -18,7 +18,8 @@ const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 
 function Home() {
   const navigate = useNavigate();
-  const { user, user_id, loading, setUser } = useUser();
+  const { user, loading, setUser } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [track, setTrack] = useState(user?.last_played || null);
   const [lastUpdated, setLastUpdated] = useState(() => {
@@ -38,17 +39,21 @@ function Home() {
     [user?.playlists?.featured]
   );
 
-  // 🧠 Fetch genre data
   useEffect(() => {
-    apiGet("/genres")
+    if (!user) {
+      navigate('/')
+      return
+    }
+
+    if (searchParams.get("user_id") == user.id) navigate('/home')
+
+    // 🧠 Fetch genre data
+    apiGet(`/genres?user_id=${user.user_id}`)
       .then(setGenresData)
       .catch((err) => console.error("Failed to load genres:", err));
-  }, []);
-  // 📦 Load playlists only from /dashboard
-  useEffect(() => {
-    if (!user_id) return;
 
-    apiGet('/dashboard')
+    // 📦 Load playlists only from /dashboard
+    apiGet(`/dashboard?user_id=${user.user_id}`)
       .then((res) => {
         setUser(prev => ({
           ...prev,
@@ -60,7 +65,7 @@ function Home() {
       .catch((err) => {
         console.error('Failed to fetch /dashboard:', err);
       });
-  }, [user_id]);
+  }, [loading]);
 
   useEffect(() => {
     if (user?.last_played) {
@@ -71,8 +76,6 @@ function Home() {
   }, [user?.last_played]);
 
   useEffect(() => {
-    if (!user_id) return;
-
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         loadNowPlaying();
@@ -80,7 +83,7 @@ function Home() {
     }, 20000); // 20 seconds
 
     return () => clearInterval(interval);
-  }, [user_id]);
+  }, [user]);
 
   async function loadNowPlaying() {
     setIsRefreshing(true);
@@ -136,7 +139,7 @@ function Home() {
   async function deleteAccount() {
     if (!window.confirm('You sure you wanna delete your account?')) return;
     try {
-      await apiDelete(`/delete-user?user_id=${user_id}`);
+      await apiDelete(`/delete-user?user_id=${user.user_id}`);
       logout();
     } catch (err) {
       console.error('Delete failed:', err);

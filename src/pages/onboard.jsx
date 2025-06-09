@@ -1,6 +1,6 @@
 // src/pages/onboard.jsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import OnboardingSteps from '../components/OnboardingSteps';
 import { apiGet, apiPost } from '../utils/api';
@@ -11,7 +11,8 @@ import Loader from '../components/Loader';
 
 function Onboard() {
   const navigate = useNavigate();
-  const { user } = useUser(); // ✅ Use context for user_id
+  const { user, login } = useUser(); // ✅ Use context for user_id
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [spotifyUser, setSpotifyUser] = useState(null);
   const [step, setStep] = useState(0);
@@ -21,6 +22,7 @@ function Onboard() {
 
   const [onboardData, setOnboardData] = useState({
     display_name: '',
+    user_id: '',
     profile_picture: '',
     selected_playlists: [],
     featured_playlists: [],
@@ -60,11 +62,12 @@ function Onboard() {
   useEffect(() => {
     const init = async () => {
       try {
-        const spotifyRes = await apiGet(`/spotify-me`);
+        const spotifyRes = await apiGet(`/spotify-me?user_id=${searchParams.get("user_id")}`);
         setSpotifyUser(spotifyRes);
+        login(spotifyRes.id)
         setOnboardData((prev) => ({
           ...prev,
-          user_id: user?.user_id || '', // ✅ Inject user_id from context
+          user_id: spotifyRes.id || '', // ✅ Inject user_id from context
           display_name: spotifyRes.display_name,
           profile_picture: spotifyRes.images?.[0]?.url || '',
         }));
@@ -88,32 +91,6 @@ function Onboard() {
       const finalize = async () => {
         try {
           await apiPost('/register', onboardData);
-          const dash = await apiGet('/dashboard');
-
-          localStorage.setItem('user', JSON.stringify(dash.user));
-          localStorage.setItem(
-            'genres_data',
-            JSON.stringify(dash.user.genre_analysis || {})
-          );
-          localStorage.setItem(
-            'featured_playlists',
-            JSON.stringify(dash.playlists.featured || [])
-          );
-          localStorage.setItem(
-            'all_playlists',
-            JSON.stringify(dash.playlists.all || [])
-          );
-          if (dash.played_track?.track) {
-            localStorage.setItem(
-              'last_played_track',
-              JSON.stringify(dash.played_track.track)
-            );
-            localStorage.setItem(
-              'last_played_updated_at',
-              new Date().toISOString()
-            );
-          }
-          localStorage.setItem('last_init_home', new Date().toISOString());
           navigate('/home');
         } catch (err) {
           console.error('Error finalizing account:', err);
@@ -163,22 +140,20 @@ function Onboard() {
         <div className="onboard-footer sticky bottom-0 bg-white dark:bg-black shadow z-10 p-4 flex justify-between">
           <button
             onClick={handleBack}
-            className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${
-              step === 0
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-red-600 hover:bg-red-700'
-            }`}
+            className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${step === 0
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-red-600 hover:bg-red-700'
+              }`}
             disabled={step === 0}
           >
             Go Back
           </button>
           <button
             onClick={handleNext}
-            className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${
-              step === 0 || canProceed
-                ? 'bg-blue-600 hover:bg-blue-700'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
+            className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-300 ${step === 0 || canProceed
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gray-400 cursor-not-allowed'
+              }`}
             disabled={step !== 0 && !canProceed}
           >
             {step < 3 ? 'Next' : 'Finish'}
