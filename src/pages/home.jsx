@@ -44,20 +44,6 @@ function Home() {
       .then(setGenresData)
       .catch((err) => console.error("Failed to load genres:", err));
   }, []);
-
-  // 🎵 Load last played track
-  useEffect(() => {
-    if (!user || loading) return;
-
-    if (user.last_played) {
-      setTrack(user.last_played);
-      setLastUpdated(new Date(user.last_played.timestamp || Date.now()));
-    }
-
-    const last = localStorage.getItem('last_played_updated_at');
-    if (last) setLastUpdated(new Date(last));
-  }, [user, loading]);
-
   // 📦 Load playlists only from /dashboard
   useEffect(() => {
     if (!user_id) return;
@@ -74,6 +60,26 @@ function Home() {
       .catch((err) => {
         console.error('Failed to fetch /dashboard:', err);
       });
+  }, [user_id]);
+
+  useEffect(() => {
+    if (user?.last_played) {
+      setTrack(user.last_played);
+      const ts = user.last_played.timestamp;
+      setLastUpdated(ts ? new Date(ts) : new Date());
+    }
+  }, [user?.last_played]);
+
+  useEffect(() => {
+    if (!user_id) return;
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadNowPlaying();
+      }
+    }, 20000); // 20 seconds
+
+    return () => clearInterval(interval);
   }, [user_id]);
 
   async function loadNowPlaying() {
