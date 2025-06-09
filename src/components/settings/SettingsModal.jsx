@@ -173,6 +173,7 @@ function SettingsModal({
         onClose={() => setEditOpen(false)}
         user_id={user_id}
         onSave={onSave}
+        setUser={setUser}
       />
       <EditPlaylistsModal
         isOpen={isPlaylistEditorOpen}

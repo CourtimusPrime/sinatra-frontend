@@ -217,6 +217,19 @@ function Home() {
             user={user}
             user_id={user?.user_id}
             setUser={setUser}
+            onSave={async () => {
+              try {
+                const fresh = await apiGet('/dashboard');
+                setUser(prev => ({
+                  ...prev,
+                  playlists: fresh.playlists,
+                  genres: fresh.genres,
+                  last_played: fresh.last_played,
+                }));
+              } catch (err) {
+                console.error('Failed to refresh user after featured update:', err);
+              }
+            }}
           />
         )}
       </Suspense>
