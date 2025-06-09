@@ -2,7 +2,7 @@
 import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { apiGet, apiDelete } from '../utils/api';
+import { apiGet, apiDelete, apiPost } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
 import { motion } from '@motionone/react';
 import { apiLogout } from '../utils/api';
@@ -85,7 +85,16 @@ function Home() {
   async function loadNowPlaying() {
     setIsRefreshing(true);
     try {
-      const { track: latestTrack } = await apiGet(`/recently-played`);
+      // First try live playback
+      const playbackRes = await apiPost(`/update-playing`);
+      let latestTrack = playbackRes.track;
+
+      if (!latestTrack) {
+        // Nothing playing? Fallback to recently played
+        const recentRes = await apiGet(`/recently-played`);
+        latestTrack = recentRes.track;
+      }
+
       if (!latestTrack) return;
 
       const isSame = JSON.stringify(latestTrack) === JSON.stringify(track);
@@ -98,7 +107,7 @@ function Home() {
         setTimeout(() => setAnimateTrackChange(false), 500);
       }
     } catch (err) {
-      console.error('Recently played error:', err);
+      console.error('Error during loadNowPlaying():', err);
     } finally {
       setTimeout(() => setIsRefreshing(false), 600);
     }

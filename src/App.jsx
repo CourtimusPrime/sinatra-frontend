@@ -4,8 +4,6 @@ import { Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Loader from './components/Loader';
 import { applyRootThemeVars } from './utils/theme';
-import { ArrowUpRightFromCircleIcon } from 'lucide-react';
-import Status from './pages/Status';
 
 const Home = lazy(() => import('./pages/home.jsx'));
 const Onboard = lazy(() => import('./pages/onboard.jsx'));
