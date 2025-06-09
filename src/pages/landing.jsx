@@ -1,28 +1,16 @@
 // src/pages/Landing.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useUser } from '../context/UserContext';
-import { useNavigate } from 'react-router-dom';
 import Spotify from '../assets/spotify.svg';
+import { cookie } from '../utils/cookie';
 
 function Landing() {
-  const navigate = useNavigate();
-  const { login, loading } = useUser();
-
-  const cookie = document.cookie
-    .split(";")
-    .find((row) => row.startsWith("sinatra_user_id=")).split("=").pop();
+  const { loading } = useUser();
 
   useEffect(() => {
-    if (loading) {
-      if (!cookie) {
-        console.log("🍪 sinatra_user_id cookie not found yet");
-        return;
-      }
-
-      login(cookie)
-    }
-    else {
-      navigate("/home")
+    if (!cookie) {
+      console.log("🍪 sinatra_user_id cookie not found yet");
+      return;
     }
   }, [loading]);
 

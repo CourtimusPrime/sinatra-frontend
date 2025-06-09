@@ -11,6 +11,7 @@ import UserHeader from '../components/UserHeader';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
 import FeaturedPlaylists from '../components/FeaturedPlaylists';
 import '../styles/loader.css';
+import { cookie, getUserCookie } from '../utils/cookie';
 
 const MusicTaste = lazy(() => import('../components/music/MusicTaste'));
 const SettingsModal = lazy(() => import('../components/settings/SettingsModal'));
@@ -18,7 +19,7 @@ const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 
 function Home() {
   const navigate = useNavigate();
-  const { user, loading, setUser } = useUser();
+  const { user, loading, setUser, login } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [track, setTrack] = useState(user?.last_played || null);
@@ -40,12 +41,20 @@ function Home() {
   );
 
   useEffect(() => {
-    if (!user) {
-      navigate('/')
+    if (loading) {
+      if (cookie) {
+        if (searchParams.get("user_id") && searchParams.get("user_id") == getUserCookie()) {
+          login(searchParams.get("user_id"))
+        }
+        else {
+          login(getUserCookie())
+          navigate("/home")
+        }
+      }
       return
     }
 
-    if (searchParams.get("user_id") == user.id) navigate('/home')
+    if (!user) navigate("/")
 
     // 🧠 Fetch genre data
     apiGet(`/genres?user_id=${user.user_id}`)

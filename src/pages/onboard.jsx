@@ -28,36 +28,6 @@ function Onboard() {
     featured_playlists: [],
   });
 
-  // Theme init
-  useEffect(() => {
-    const html = document.documentElement;
-    const applyTheme = (theme) => {
-      html.classList.toggle('dark', theme === 'dark');
-      applyRootThemeVars(theme);
-    };
-
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') {
-      applyTheme(saved);
-    } else {
-      const prefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)'
-      ).matches;
-      applyTheme(prefersDark ? 'dark' : 'light');
-    }
-
-    const systemListener = window.matchMedia('(prefers-color-scheme: dark)');
-    const systemThemeHandler = (e) => {
-      if (!localStorage.getItem('theme')) {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    systemListener.addEventListener('change', systemThemeHandler);
-    return () =>
-      systemListener.removeEventListener('change', systemThemeHandler);
-  }, []);
-
   // Load user + genre data
   useEffect(() => {
     const init = async () => {
