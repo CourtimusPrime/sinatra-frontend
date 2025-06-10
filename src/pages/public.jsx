@@ -31,11 +31,12 @@ export default function PublicProfile() {
     async function load() {
       try {
         const userData = await apiGet(`/public-profile/${user_id}`);
-        console.log('🎯 Public profile loaded:', userData);
+        const trackData = await apiGet(`/public-track/${user_id}`);
 
         setProfile({
           ...userData,
-          profile_image_url: userData.profile_picture, // ✅ normalized key
+          last_played_track: trackData.track,
+          profile_image_url: userData.profile_picture,
           featured_playlists: Array.isArray(userData.featured_playlists)
             ? userData.featured_playlists.map(normalizePlaylist)
             : [],
@@ -45,9 +46,10 @@ export default function PublicProfile() {
           setTimeout(() => setShowCTA(true), 1500);
         }
       } catch (err) {
-        console.error('❌ Failed to load public profile:', err);
+        console.error("❌ Failed to load public profile:", err);
       }
     }
+
     load();
   }, [user_id]);
 
@@ -88,11 +90,18 @@ export default function PublicProfile() {
 
       <UserHeader userState={profile} genresData={genres_data} />
 
-      {last_played_track && (
+      {last_played_track ? (
         <RecentlyPlayedCard
           track={last_played_track?.track || last_played_track}
           lastUpdated={lastUpdated}
+          isRefreshing={false}
+          animateTrackChange={false}
+          onRefresh={null}
         />
+      ) : (
+        <div className="text-center text-sm text-gray-500">
+          No recent track data available.
+        </div>
       )}
 
       <Suspense
