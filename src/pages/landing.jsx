@@ -1,16 +1,18 @@
 // src/pages/Landing.jsx
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import Spotify from '../assets/spotify.svg';
-import { cookie } from '../utils/cookie';
+import { getUserCookie } from '../utils/cookie';
 
 function Landing() {
+  const navigate = useNavigate();
   const { loading } = useUser();
 
   useEffect(() => {
-    if (!cookie) {
-      console.log("🍪 sinatra_user_id cookie not found yet");
-      return;
+    const id = getUserCookie();
+    if (id) {
+      navigate('/home');
     }
   }, [loading]);
 
@@ -22,7 +24,7 @@ function Landing() {
 
     const isLocal = window.location.hostname === 'localhost';
     const redirectUri =
-      import.meta.env.MODE === "development"
+      import.meta.env.MODE === 'development'
         ? import.meta.env.VITE_DEV_CALLBACK
         : import.meta.env.VITE_PRO_CALLBACK;
 
