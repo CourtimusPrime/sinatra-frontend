@@ -3,18 +3,16 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import Spotify from '../assets/spotify.svg';
-import { getUserCookie } from '../utils/cookie';
 
 function Landing() {
   const navigate = useNavigate();
-  const { loading } = useUser();
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    const id = getUserCookie();
-    if (id) {
+    if (!loading && user) {
       navigate('/home');
     }
-  }, [loading]);
+  }, [loading, user]);
 
   const handleLogin = () => {
     console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);

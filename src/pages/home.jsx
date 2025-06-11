@@ -20,7 +20,7 @@ const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 
 function Home() {
   const navigate = useNavigate();
-  const { user, loading, setUser, login } = useUser();
+  const { user, loading, setUser } = useUser();
 
   const [track, setTrack] = useState(user?.last_played || null);
   const [lastUpdated, setLastUpdated] = useState(() => {

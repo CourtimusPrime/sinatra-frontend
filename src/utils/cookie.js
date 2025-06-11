@@ -4,5 +4,3 @@ export function getUserCookie() {
     .find((row) => row.startsWith('sinatra_user_id='));
   return match ? match.split('=').pop() : null;
 }
-
-export const cookie = getUserCookie();
