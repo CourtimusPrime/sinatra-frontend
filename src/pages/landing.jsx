@@ -1,40 +1,18 @@
 // src/pages/Landing.jsx
-import React, { useEffect, useState } from 'react';
-import { useUser } from '../context/UserContext';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import Spotify from '../assets/spotify.svg';
 
 function Landing() {
-  const { user_id } = useUser();
   const navigate = useNavigate();
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    const cookie = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("sinatra_user_id="));
-
-    if (!cookie) {
-      console.log("🍪 sinatra_user_id cookie not found yet");
-      return;
+    if (!loading && user) {
+      navigate('/home');
     }
-
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("GET /me failed");
-        return res.json();
-      })
-      .then((data) => {
-        if (data?.user_id) {
-          console.log("✅ Authenticated as:", data.user_id);
-          navigate("/home");
-        }
-      })
-      .catch((err) => {
-        console.error("❌ /me failed:", err);
-      });
-  }, []);
+  }, [loading, user]);
 
   const handleLogin = () => {
     console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);
@@ -44,7 +22,7 @@ function Landing() {
 
     const isLocal = window.location.hostname === 'localhost';
     const redirectUri =
-      import.meta.env.MODE === "development"
+      import.meta.env.MODE === 'development'
         ? import.meta.env.VITE_DEV_CALLBACK
         : import.meta.env.VITE_PRO_CALLBACK;
 

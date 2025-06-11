@@ -1,6 +1,6 @@
 // src/pages/onboard.jsx
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import OnboardingSteps from '../components/OnboardingSteps';
 import { apiGet, apiPost } from '../utils/api';
@@ -12,6 +12,7 @@ import Loader from '../components/Loader';
 function Onboard() {
   const navigate = useNavigate();
   const { user } = useUser(); // ✅ Use context for user_id
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [spotifyUser, setSpotifyUser] = useState(null);
   const [step, setStep] = useState(0);
@@ -21,50 +22,23 @@ function Onboard() {
 
   const [onboardData, setOnboardData] = useState({
     display_name: '',
+    user_id: '',
     profile_picture: '',
     selected_playlists: [],
     featured_playlists: [],
   });
 
-  // Theme init
-  useEffect(() => {
-    const html = document.documentElement;
-    const applyTheme = (theme) => {
-      html.classList.toggle('dark', theme === 'dark');
-      applyRootThemeVars(theme);
-    };
-
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') {
-      applyTheme(saved);
-    } else {
-      const prefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)'
-      ).matches;
-      applyTheme(prefersDark ? 'dark' : 'light');
-    }
-
-    const systemListener = window.matchMedia('(prefers-color-scheme: dark)');
-    const systemThemeHandler = (e) => {
-      if (!localStorage.getItem('theme')) {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    systemListener.addEventListener('change', systemThemeHandler);
-    return () =>
-      systemListener.removeEventListener('change', systemThemeHandler);
-  }, []);
-
   // Load user + genre data
   useEffect(() => {
     const init = async () => {
       try {
-        const spotifyRes = await apiGet(`/spotify-me`);
+        const spotifyRes = await apiGet(
+          `/spotify-me?user_id=${searchParams.get('user_id')}`
+        );
         setSpotifyUser(spotifyRes);
         setOnboardData((prev) => ({
           ...prev,
-          user_id: user?.user_id || '', // ✅ Inject user_id from context
+          user_id: spotifyRes.id || '', // ✅ Inject user_id from context
           display_name: spotifyRes.display_name,
           profile_picture: spotifyRes.images?.[0]?.url || '',
         }));
@@ -88,32 +62,6 @@ function Onboard() {
       const finalize = async () => {
         try {
           await apiPost('/register', onboardData);
-          const dash = await apiGet('/dashboard');
-
-          localStorage.setItem('user', JSON.stringify(dash.user));
-          localStorage.setItem(
-            'genres_data',
-            JSON.stringify(dash.user.genre_analysis || {})
-          );
-          localStorage.setItem(
-            'featured_playlists',
-            JSON.stringify(dash.playlists.featured || [])
-          );
-          localStorage.setItem(
-            'all_playlists',
-            JSON.stringify(dash.playlists.all || [])
-          );
-          if (dash.played_track?.track) {
-            localStorage.setItem(
-              'last_played_track',
-              JSON.stringify(dash.played_track.track)
-            );
-            localStorage.setItem(
-              'last_played_updated_at',
-              new Date().toISOString()
-            );
-          }
-          localStorage.setItem('last_init_home', new Date().toISOString());
           navigate('/home');
         } catch (err) {
           console.error('Error finalizing account:', err);
