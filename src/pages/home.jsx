@@ -1,6 +1,6 @@
 // src/pages/home.jsx
 import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { apiGet, apiDelete, apiPost } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
@@ -11,21 +11,25 @@ import UserHeader from '../components/UserHeader';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
 import FeaturedPlaylists from '../components/FeaturedPlaylists';
 import '../styles/loader.css';
-import { cookie, getUserCookie } from '../utils/cookie';
 
 const MusicTaste = lazy(() => import('../components/music/MusicTaste'));
-const SettingsModal = lazy(() => import('../components/settings/SettingsModal'));
+const SettingsModal = lazy(
+  () => import('../components/settings/SettingsModal')
+);
 const AllPlaylistsModal = lazy(() => import('../components/AllPlaylistsModal'));
 
 function Home() {
   const navigate = useNavigate();
-  const { user, loading, setUser, login } = useUser();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { user, loading, setUser } = useUser();
 
   const [track, setTrack] = useState(user?.last_played || null);
   const [lastUpdated, setLastUpdated] = useState(() => {
     const localTime = localStorage.getItem('last_played_updated_at');
-    return localTime ? new Date(localTime) : user?.last_played?.timestamp ? new Date(user.last_played.timestamp) : null;
+    return localTime
+      ? new Date(localTime)
+      : user?.last_played?.timestamp
+        ? new Date(user.last_played.timestamp)
+        : null;
   });
   const [genresData, setGenresData] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -41,40 +45,15 @@ function Home() {
   );
 
   useEffect(() => {
-    if (loading) {
-      if (cookie) {
-        if (searchParams.get("user_id") && searchParams.get("user_id") == getUserCookie()) {
-          login(searchParams.get("user_id"))
-        }
-        else {
-          login(getUserCookie())
-          navigate("/home")
-        }
-      }
-      return
+    if (loading) return;
+
+    if (!user) {
+      navigate('/');
+      return;
     }
 
-    if (!user) navigate("/")
-
-    // 🧠 Fetch genre data
-    apiGet(`/genres?user_id=${user.user_id}`)
-      .then(setGenresData)
-      .catch((err) => console.error("Failed to load genres:", err));
-
-    // 📦 Load playlists only from /dashboard
-    apiGet(`/dashboard?user_id=${user.user_id}`)
-      .then((res) => {
-        setUser(prev => ({
-          ...prev,
-          playlists: res.playlists,
-          genres: res.genres,
-          last_played: res.last_played,
-        }));
-      })
-      .catch((err) => {
-        console.error('Failed to fetch /dashboard:', err);
-      });
-  }, [loading]);
+    setGenresData(user.genres);
+  }, [loading, user]);
 
   useEffect(() => {
     if (user?.last_played) {
@@ -115,7 +94,10 @@ function Home() {
         setTrack(latestTrack);
         setLastUpdated(new Date());
         localStorage.setItem('last_played_track', JSON.stringify(latestTrack));
-        localStorage.setItem('last_played_updated_at', new Date().toISOString());
+        localStorage.setItem(
+          'last_played_updated_at',
+          new Date().toISOString()
+        );
         setTimeout(() => setAnimateTrackChange(false), 500);
       }
     } catch (err) {
@@ -176,12 +158,18 @@ function Home() {
         {user?.user_id && (
           <button
             onClick={() => {
-              navigator.clipboard.writeText(`https://sinatra.live/u/${user.user_id}`);
+              navigator.clipboard.writeText(
+                `https://sinatra.live/u/${user.user_id}`
+              );
               setCopied(true);
               setTimeout(() => setCopied(false), 1500);
             }}
           >
-            {copied ? <span className="text-xs font-semibold">✅</span> : <Share className="w-5 h-5" />}
+            {copied ? (
+              <span className="text-xs font-semibold">✅</span>
+            ) : (
+              <Share className="w-5 h-5" />
+            )}
           </button>
         )}
         <button onClick={() => setSettingsOpen(true)}>
@@ -219,7 +207,13 @@ function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading music taste...</div>}>
+        <Suspense
+          fallback={
+            <div className="text-center text-sm text-gray-400">
+              Loading music taste...
+            </div>
+          }
+        >
           <MusicTaste genresData={genresData} userId={user?.user_id} />
         </Suspense>
       </motion.div>
@@ -230,7 +224,10 @@ function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <FeaturedPlaylists playlists={featuredPlaylists} onSeeAll={() => setAllModalOpen(true)} />
+        <FeaturedPlaylists
+          playlists={featuredPlaylists}
+          onSeeAll={() => setAllModalOpen(true)}
+        />
       </motion.div>
 
       {/* ⚙️ Modals */}
@@ -255,14 +252,17 @@ function Home() {
             onSave={async () => {
               try {
                 const fresh = await apiGet('/dashboard');
-                setUser(prev => ({
+                setUser((prev) => ({
                   ...prev,
                   playlists: fresh.playlists,
                   genres: fresh.genres,
                   last_played: fresh.last_played,
                 }));
               } catch (err) {
-                console.error('Failed to refresh user after featured update:', err);
+                console.error(
+                  'Failed to refresh user after featured update:',
+                  err
+                );
               }
             }}
           />
