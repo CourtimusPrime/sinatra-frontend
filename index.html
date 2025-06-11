@@ -20,6 +20,14 @@
     <noscript><link href="/src/index.css" rel="stylesheet" /></noscript>
   </head>
   <body>
+    <script>
+      if (
+        window.location.pathname === '/' &&
+        document.cookie.split('; ').some((c) => c.startsWith('sinatra_user_id='))
+      ) {
+        window.location.replace('/home');
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
