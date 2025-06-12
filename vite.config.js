@@ -34,6 +34,7 @@ export default defineConfig({
       '/playback': 'http://localhost:8000',
       '/delete-user': 'http://localhost:8000',
       '/refresh-session': 'http://localhost:8000',
+      '/ai-genres': 'http://localhost:8000',
       '/public-playlist': 'http://localhost:8000',
       '/playlist-info': 'http://localhost:8000',
       '/admin/sync_playlists': 'http://localhost:8000',

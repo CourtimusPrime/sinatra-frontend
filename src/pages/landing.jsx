@@ -1,18 +1,35 @@
 // src/pages/Landing.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import Spotify from '../assets/spotify.svg';
+import Loader from '../components/Loader';
+import { getUserCookie } from '../utils/cookie';
+import { apiLogout } from '../utils/api';
 
 function Landing() {
   const navigate = useNavigate();
   const { user, loading } = useUser();
+  const [clearing, setClearing] = useState(false);
+  const hasCookie = getUserCookie();
 
   useEffect(() => {
     if (!loading && user) {
       navigate('/home');
+      return;
     }
-  }, [loading, user]);
+
+    if (!loading && !user && hasCookie && !clearing)
+    {
+      setClearing(true);
+      apiLogout().catch((err) => console.error('Failed to clear cookie:',err))
+      .finally(() => setClearing(false));
+    }
+  }, [loading, user, hasCookie, clearing, navigate]);
+
+  if (loading || hasCookie || clearing) {
+    return <Loader />;
+  }
 
   const handleLogin = () => {
     console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);
