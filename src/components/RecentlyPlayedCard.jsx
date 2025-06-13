@@ -3,7 +3,7 @@ import { RefreshCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from '@motionone/react';
 import { apiGet, apiPost } from '../utils/api';
-import { getMetaGenre, getMetaGradients } from '../utils/genreUtils';
+import { getMetaGenreFromList, getMetaGradients } from '../utils/genreUtils';
 
 function cleanTrackName(name) {
   return name
@@ -18,14 +18,18 @@ function cleanTrackName(name) {
     .trim();
 }
 
-function RecentlyPlayedCard({ track, lastUpdated, isRefreshing, animateTrackChange, onRefresh }) {
+function RecentlyPlayedCard({
+  track,
+  lastUpdated,
+  isRefreshing,
+  animateTrackChange,
+  onRefresh,
+}) {
   const [gradients, setGradients] = useState(null);
 
   useEffect(() => {
     getMetaGradients().then(setGradients);
   }, []);
-
-  
 
   if (!track) return <div className="text-gray-400"></div>;
 
@@ -79,7 +83,9 @@ function RecentlyPlayedCard({ track, lastUpdated, isRefreshing, animateTrackChan
           >
             {cleanTrackName(track.name)}
           </p>
-          <p className={`text-sm text-gray-200 ${animateTrackChange ? 'animate-fadein-slow' : ''}`}>
+          <p 
+            className={`text-sm text-gray-200 ${animateTrackChange ? 'animate-fadein-slow' : ''}`}
+          >
             {track.artist}
           </p>
 
@@ -87,7 +93,7 @@ function RecentlyPlayedCard({ track, lastUpdated, isRefreshing, animateTrackChan
             <span
               className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full text-white shadow mt-1"
               style={{
-                background: gradients[getMetaGenre(track.genres[0])],
+                background: gradients[getMetaGenreFromList(track.genres)],
               }}
             >
               {track.genres[0]}
