@@ -42,9 +42,8 @@ export default function PublicProfile() {
             : [],
         });
 
-        if (!isLoggedIn) {
-          setTimeout(() => setShowCTA(true), 1500);
-        }
+        setTimeout(() => setShowCTA(true), 1500);
+        
       } catch (err) {
         console.error("❌ Failed to load public profile:", err);
       }

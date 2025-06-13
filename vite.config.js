@@ -24,6 +24,7 @@ export default defineConfig({
       '/impersonate': 'http://localhost:8000',
       '/now-playing': 'http://localhost:8000',
       '/update-playing': 'http://localhost:8000',
+      '/public-genres': 'http://localhost:8000',
       '/check-recent': 'http://localhost:8000',
       '/playlists': 'http://localhost:8000',
       '/recently-played': 'http://localhost:8000',

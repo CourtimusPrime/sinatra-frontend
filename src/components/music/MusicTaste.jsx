@@ -12,11 +12,15 @@ function MusicTaste({ genresData: initialGenresData, userId }) {
   const hasShownGenresOnce = useRef(false);
 
   useEffect(() => {
-    if (!genresData && userId) {
-      apiGet(`/genres`)
+    if (!genresData) {
+      const endpoint = userId ? `/public-genres/${userId}` : `/genres`;
+
+      apiGet(endpoint)
         .then((res) => {
           setGenresData(res);
-          localStorage.setItem(`genreData:${userId}`, JSON.stringify(res));
+          if (userId) {
+            localStorage.setItem(`genreData:${userId}`, JSON.stringify(res));
+          }
           setLoading(false);
         })
         .catch((err) => {

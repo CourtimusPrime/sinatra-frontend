@@ -2,7 +2,6 @@
 import { RefreshCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from '@motionone/react';
-import { apiGet, apiPost } from '../utils/api';
 import { getMetaGenreFromList, getMetaGradients } from '../utils/genreUtils';
 
 function cleanTrackName(name) {
