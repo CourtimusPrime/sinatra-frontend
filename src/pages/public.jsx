@@ -41,19 +41,21 @@ export default function PublicProfile() {
     async function load() {
       try {
         const userData = await apiGet(`/public-profile/${user_id}`);
-        const trackData = await apiGet(`/public-track/${user_id}`);
 
         setProfile({
           ...userData,
-          last_played_track: trackData.track,
+          last_played_track: userData.last_played || null,
           profile_image_url: userData.profile_picture,
-          featured_playlists: Array.isArray(userData.featured_playlists)
-            ? userData.featured_playlists.map(normalizePlaylist)
+          featured_playlists: Array.isArray(userData.playlists?.featured)
+            ? userData.playlists.featured.map(normalizePlaylist)
             : [],
+          all_playlists: Array.isArray(userData.playlists?.all)
+            ? userData.playlists.all.map(normalizePlaylist)
+            : [],
+          genres_data: userData.genres || {},
         });
 
         setTimeout(() => setShowCTA(true), 1500);
-        
       } catch (err) {
         console.error("❌ Failed to load public profile:", err);
       }
@@ -70,6 +72,7 @@ export default function PublicProfile() {
     genres_data,
     last_played_track,
     featured_playlists,
+    all_playlists,
   } = profile;
 
   const lastUpdated = last_played_track?.played_at
@@ -202,6 +205,7 @@ export default function PublicProfile() {
           <AllPlaylistsModal
             isOpen={isAllModalOpen}
             onClose={() => setAllModalOpen(false)}
+            playlists={all_playlists}
             user_id={user_id}
             user={profile}
           />
