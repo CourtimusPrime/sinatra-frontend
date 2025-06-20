@@ -88,15 +88,24 @@ function RecentlyPlayedCard({
             {track.artist}
           </p>
 
-          {track.genres?.length > 0 && gradients && (
-            <span
-              className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full text-white shadow mt-1"
-              style={{
-                background: gradients[getMetaGenreFromList(track.genres)],
-              }}
-            >
-              {track.genres[0]}
-            </span>
+          {track.genres?.length > 0 && (
+            (() => {
+              const first= track.genres[0];
+              const isObject = first && typeof first === 'object';
+              const label = isObject ? first.name : first;
+              const gradient = isObject
+                ? first.gradient || gradients?.[first.name]
+                : gradients?.[getMetaGenreFromList(track.genres)];
+              if (!gradients) return null;
+              return (
+                <span
+                  className='inline-block text-xs font-semibold px-2 py-0.5 rounded-full text-white shadow mt-1'
+                  style={{ background: gradient }}
+                >
+                  {label}
+                </span>
+              );
+            })()
           )}
         </div>
       </div>
