@@ -14,6 +14,7 @@ function cleanTrackName(name) {
     .replace(/\s*[-–]\s*Single( Version| Edit)?/i, '')
     .replace(/\s*\(\s*Single( Version| Edit)?\s*\)/i, '')
     .replace(/\s*[-–]\s*Single;\s*\d{4}\s*Remaster/i, '')
+    .replace(/\s*[-–]\s*\d{4}$/i, '')
     .trim();
 }
 
