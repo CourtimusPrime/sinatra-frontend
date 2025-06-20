@@ -58,6 +58,7 @@ export default defineConfig({
       '/users': 'http://localhost:8000',
       '/user-genres': 'http://localhost:8000',
       '/public-profile': 'http://localhost:8000',
+      '/public-playlists': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
       '/refresh_genres': 'http://localhost:8000',
       '/spotify-me': 'http://localhost:8000',

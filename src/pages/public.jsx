@@ -23,7 +23,8 @@ export default function PublicProfile() {
   const [isAllModalOpen, setAllModalOpen] = useState(false);
 
   const handleLogin = () => {
-    const target = import.meta.env.VITE_API_BASE_URL + '/login';
+    const redirect_uri = encodeURIComponent(`${window.location.origin}/home`);
+    const target = `${import.meta.env.VITE_API_BASE_URL}/login?redirect_uri=${redirect_uri}`;
     window.location.href = target;
   };
 

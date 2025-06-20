@@ -7,9 +7,11 @@ import PlaylistCardMini from './PlaylistCardMini';
 import { normalizePlaylist } from '../utils/normalize';
 import CloseButton from './ui/CloseButton';
 
-function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
+function AllPlaylistsModal({ isOpen, onClose, playlists, user, user_id }) {
   const [isVisible, setIsVisible] = useState(isOpen);
   const [searchQuery, setSearchQuery] = useState('');
+  const [fetchedPlaylists, setFetchedPlaylists] = useState([]);
+
   useEffect(() => {
     let timer;
     if (isOpen) {
@@ -20,12 +22,28 @@ function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  const filteredPlaylists = playlists
-  .map(normalizePlaylist)
-  .filter((pl) =>
-    pl.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+  useEffect(() => {
+    async function load() {
+      if (!playlists && user_id) {
+        try {
+          const res = await apiGet(`/public-playlists/${user_id}`);
+          setFetchedPlaylists(res.map(normalizePlaylist));
+        } catch (err) {
+          console.error("❌ Failed to fetch public playlists:", err);
+        }
+      }
+    }
+    load();
+  }, [user_id, playlists]);
+
+  const sourcePlaylists = playlists || fetchedPlaylists;
+
+  const filteredPlaylists = sourcePlaylists
+    .filter(Boolean)
+    .filter((pl) =>
+      pl.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
   if (!isVisible) return null;
 
   return (
@@ -40,8 +58,9 @@ function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
       >
         <div className="p-4 overflow-y-auto flex-1">
           <h2 className="text-xl font-bold mb-4 text-center">
-            📚 {user?.display_name || 'Your'}'s Collection
+            📚 {user?.display_name || 'User'}'s Collection
           </h2>
+
           <input
             type="text"
             value={searchQuery}
@@ -70,7 +89,6 @@ function AllPlaylistsModal({ isOpen, onClose, playlists = [], user }) {
           </div>
         </div>
 
-        {/* Flush sticky footer */}
         <div className="border-t p-4 bg-white dark:bg-gray-800 rounded-b-lg">
           <CloseButton onClick={onClose} />
         </div>
