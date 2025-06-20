@@ -23,8 +23,18 @@ export default function PublicProfile() {
   const [isAllModalOpen, setAllModalOpen] = useState(false);
 
   const handleLogin = () => {
-    const target = import.meta.env.VITE_API_BASE_URL + '/login';
-    window.location.href = target;
+    const state = crypto.randomUUID();
+    document.cookie = `spotify_state=${state}; path=/; SameSite=None; Secure`;
+
+    const redirectUri =
+      import.meta.env.MODE === 'development'
+        ? import.meta.env.VITE_DEV_CALLBACK
+        : import.meta.env.VITE_PRO_CALLBACK;
+
+    const loginUrl = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}&redirect_uri=${encodeURIComponent(
+      redirectUri,
+    )}`;
+    window.location.href = loginUrl;
   };
 
   useEffect(() => {
